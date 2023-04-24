@@ -52,7 +52,7 @@ Sy.CarCloset = function(args)
     local pedcar = args.pedcar
     local ped = cache.ped
     local pedcoords = GetEntityCoords(ped)
-    local car =lib.getClosestVehicle(vec3(pedcoords.x,pedcoords.y,pedcoords.z), dist, pedcar)
+    local car = lib.getClosestVehicle(vec3(pedcoords.x, pedcoords.y, pedcoords.z), dist, pedcar)
     return car
 end
 Sy.GetCar = function(args)
@@ -95,69 +95,75 @@ Sy.GetClase = function()
     return clase
 end
 
-if Garage.RadialCopyCoords then
-    lib.addRadialItem({
-        {
-            id = 'Cordenadas',
-            label = 'Coords',
-            icon = 'location-dot',
-            menu = 'copy_coords'
-        },
-    
-    })
-    
-    lib.registerRadial({
-        id = 'copy_coords',
-        items = {
-           
+
+CreateThread(function()
+    if Garage.RadialCopyCoords then
+        lib.addRadialItem({
             {
-                label = '{x= 0,y= 0,z= 0,w= 0}',
-                onSelect = function()
-                    local ped = cache.ped
-                    local coords = GetEntityCoords(ped)
-                    local heading = GetEntityHeading(ped)
-                    lib.setClipboard('{ x = ' .. coords.x .. ', y = ' .. coords.y .. ', z = ' ..
-                        coords.z .. ', h = ' .. heading .. '},')
-                end
+                id = 'Cordenadas',
+                label = 'Coords',
+                icon = 'location-dot',
+                menu = 'copy_coords'
             },
-            {
-                label = 'vector3(0,0,0)',
-                onSelect = function()
-                    local ped = cache.ped
-                    local coords = GetEntityCoords(ped)
-                    lib.setClipboard('vec3(' .. coords.x .. ',' .. coords.y .. ',' .. coords.z .. ')')
-                end
-            },
-            {
-                label = 'vector4(0,0,0)',
-                onSelect = function()
-                    local ped = cache.ped
-                    local coords = GetEntityCoords(ped)
-                    local heading = GetEntityHeading(ped)
-                    lib.setClipboard('vector4(' .. coords.x .. ', ' .. coords.y .. ',' ..
-                        coords.z .. ',' .. heading .. '),')
-                end
-            },
-            {
-                label = 'HEADING',
-                onSelect = function()
-                    local ped = cache.ped
-                    lib.setClipboard(GetEntityHeading(ped))
-                end
-            },
-        }
-    })
-end
+
+        })
+        lib.registerRadial({
+            id = 'copy_coords',
+            items = {
+
+                {
+                    label = '{x= 0,y= 0,z= 0,w= 0}',
+                    onSelect = function()
+                        local ped = cache.ped
+                        local coords = GetEntityCoords(ped)
+                        local heading = GetEntityHeading(ped)
+                        lib.setClipboard('{ x = ' .. coords.x .. ', y = ' .. coords.y .. ', z = ' ..
+                            coords.z .. ', h = ' .. heading .. '},')
+                    end
+                },
+                {
+                    label = 'vector3(0,0,0)',
+                    onSelect = function()
+                        local ped = cache.ped
+                        local coords = GetEntityCoords(ped)
+                        lib.setClipboard('vec3(' .. coords.x .. ',' .. coords.y .. ',' .. coords.z .. ')')
+                    end
+                },
+                {
+                    label = 'vector4(0,0,0)',
+                    onSelect = function()
+                        local ped = cache.ped
+                        local coords = GetEntityCoords(ped)
+                        local heading = GetEntityHeading(ped)
+                        lib.setClipboard('vector4(' .. coords.x .. ', ' .. coords.y .. ',' ..
+                            coords.z .. ',' .. heading .. '),')
+                    end
+                },
+                {
+                    label = 'HEADING',
+                    onSelect = function()
+                        local ped = cache.ped
+                        lib.setClipboard(GetEntityHeading(ped))
+                    end
+                },
+            }
+        })
+    end
+end)
 
 
 
--- FUNCION ANTIGUA 
+
+
+
+
+-- FUNCION ANTIGUA
 RegisterNetEvent('sy_garage:CheckVeh')
 AddEventHandler('sy_garage:CheckVeh', function(vehicle)
     if cache.vehicle then
         TriggerEvent("sy_garage:CheckVeh2")
     else
-        TriggerEvent('sy_garage:Notification',locale('dentrocar'))
+        TriggerEvent('sy_garage:Notification', locale('dentrocar'))
     end
 end)
 
@@ -171,14 +177,12 @@ AddEventHandler('sy_garage:CheckVeh2', function(vehicle)
     ESX.TriggerServerCallback('sy_garage:SetCarDB', function(successRegister, plate)
         if successRegister then
             Wait(1000)
-            TriggerEvent('sy_garage:Notification', locale('setearcar',name, plate))
+            TriggerEvent('sy_garage:Notification', locale('setearcar', name, plate))
             local plate = GetVehicleNumberPlateText(playerVehicle)
             SetVehicleNumberPlateText(playerVehicle, plate)
             TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
         else
-            TriggerEvent('sy_garage:Notification','Error')
+            TriggerEvent('sy_garage:Notification', 'Error')
         end
     end, vehicleProps, name, vehicleProps.plate)
 end)
-
-
