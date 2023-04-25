@@ -28,9 +28,8 @@ Garage.Persistent = {
 }
 
 Garage.AutoImpound = {
-    AutoImpound = true,       -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
-    ImpoundIn =
-    'Auto Impound'            -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
+    AutoImpound = true,                   -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+    ImpoundIn = 'Auto Impound'            -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
 }
 --<-------------------------------------->--
 
