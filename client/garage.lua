@@ -142,7 +142,7 @@ CreateThread(function()
                                                 Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                             end
                                             local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                          local vehicleProps = lib.getVehicleProperties(vehicle)
+                                            local vehicleProps = lib.getVehicleProperties(vehicle)
                                             TriggerServerEvent('sy_garage:GuardarVehiculo',
                                                 GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
                                                 json.encode(vehicleProps), k,
@@ -161,7 +161,7 @@ CreateThread(function()
                                                 Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                             end
                                             local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                           local vehicleProps = lib.getVehicleProperties(vehicle)
+                                            local vehicleProps = lib.getVehicleProperties(vehicle)
                                             TriggerServerEvent('sy_garage:GuardarVehiculo',
                                                 GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
                                                 json.encode(vehicleProps), k,
@@ -655,13 +655,13 @@ if Garage.SaveKilometers then
                             local PosNueva = GetEntityCoords(PlayerPedId())
                             if SyGargeTypeCar(Sy.GetClase()) == 'car' then
                                 distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                PosNueva.z)
+                                    PosNueva.z)
                             elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
                                 distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                PosNueva.z)
+                                    PosNueva.z)
                             elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
                                 distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                PosNueva.z)
+                                    PosNueva.z)
                             else
                                 distan = 0
                             end
@@ -680,3 +680,55 @@ end
 RegisterNetEvent('sy_garage:SetProps', function(NetId, props)
     lib.setVehicleProperties(NetToVeh(NetId), props)
 end)
+
+
+
+
+
+
+
+if Garage.AutoImpound.AutoImpound then
+    CreateThread(function()
+        while true do
+            local vehicles = lib.callback.await('sy_garage:owner_vehicles')
+            for i = 1, #vehicles do
+                local data = vehicles[i]
+                local veh = json.decode(data.vehicle)
+                local allVehicles = ESX.Game.GetVehicles()
+                local vehicleFound = false
+                for j = 1, #allVehicles do
+                    local vehicle = allVehicles[j]
+                    if DoesEntityExist(vehicle) then
+                        local model = GetEntityModel(vehicle)
+                        local plate = GetVehicleNumberPlateText(vehicle)
+                        if plate == data.plate then
+                            local ped = GetPedInVehicleSeat(vehicle, -1)
+                            if ped == 0 then
+                                if data.stored == 0 then
+                                    if Garage.Debug then
+                                        print('Plate: ' ..
+                                            data.plate .. ', Hash: ' .. veh.model .. ', Fuera sin jugador.')
+                                    end
+                                end
+                            else
+                                if Garage.Debug then
+                                    print('Plate: ' .. data.plate .. ', Hash: ' .. veh.model .. ', Fuera con jugador.')
+                                end
+                            end
+                            vehicleFound = true
+                            break
+                        end
+                    end
+                end
+                if not vehicleFound and data.stored == 0 and data.pound == nil then
+                    TriggerServerEvent('sy_garage:AutoImpound', data.plate, Garage.AutoImpound.ImpoundIn)
+                    if Garage.Debug then
+                        print('Plate: ' ..
+                            data.plate .. ', Hash: ' .. veh.model .. ', Entidad no existe. ( Incautado con exito )')
+                    end
+                end
+            end
+            Wait(1000)
+        end
+    end)
+end

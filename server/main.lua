@@ -596,3 +596,31 @@ if Garage.Persistent.Persitent then
 
     
 end
+
+
+
+RegisterServerEvent('sy_garage:AutoImpound', function(plate, impo)
+    if not source then
+        return
+    end
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local identifier = xPlayer.getIdentifier()
+
+
+    MySQL.Async.execute(
+        "UPDATE `owned_vehicles` SET `parking` = @impo, `pound` = 1 WHERE `owner` = @identifier AND `plate` = @plate", {
+            ['@identifier'] = identifier,
+            ['@plate'] = plate,
+            ['@impo'] = impo,
+        }, function(rowsChanged)
+            if rowsChanged > 0 then
+                if Garage.Debug then
+                    print('El vehiculo con la matricula ' .. plate .. ' fue depositado en ' .. impo)
+                end
+            else
+                if Garage.Debug then
+                    print('error ')
+                end
+            end
+        end)
+end)

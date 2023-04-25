@@ -7,30 +7,42 @@
 
 Garage = {}
 
-Garage.Debug = false                -- Debug, prints etc...
+Garage.Debug = false           -- Debug, prints etc...
 
-Garage.RadialCopyCoords = true      -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = true -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
-Garage.OwnerCarAdmin = {            -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
-    Command = 'givecar',
-    Group = 'admin',
-} 
+Garage.Version = true          -- Check GitHub version.
+
+--<-------------------------------------->--
+
+
+Garage.OwnerCarAdmin = {
+    -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
+    Command = 'givecar', -- Command
+    Group = 'admin', -- Group
+}
 
 Garage.Persistent = {
-    Persitent = true,                   -- Sistema de vehiculo persistente.
-    DeleteCarDisconnect = true,         -- Cuando el jugador se desconecta y su vehiculo esta fuera del garaje se elimina y guarda la pos.
+    Persitent = true,           -- Persistent vehicle system.
+    DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it is deleted and the position is saved.
+}
+
+Garage.AutoImpound = {
+    AutoImpound = true,       -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+    ImpoundIn =
+    'Auto Impound'            -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
 }
 --<-------------------------------------->--
 
-Garage.ShareCarFriend = true  -- Share vehicles with friends.
+Garage.ShareCarFriend = true -- Share vehicles with friends.
 
-Garage.SaveKilometers = true  -- Save Kilometers in DB 
+Garage.SaveKilometers = true -- Save Kilometers in DB
 
 Garage.SetInToVehicle = true -- Set ped into vehicle upon spawn.
 
 --<-------------------------------------->--
-Garage.CarKeys = true         -- Add keys when removing the vehicle and remove them when depositing it.
 
+Garage.CarKeys = true -- Add keys when removing the vehicle and remove them when depositing it.
 
 --<-------------------------------------->--
 
@@ -56,14 +68,13 @@ Garage.NpcImpound = {
         [3] = 'ambulance',
         [4] = 'paletoems',
         [5] = 'trafico',
-       --[420] = '',   -- Add more jobs
+        --[420] = '',   -- Add more jobs
     }
 }
 
 --<-------------------------------------->--
 
 Garage.Garages = {
-
     ['Auto Impound'] = {
         impound      = true,
         impoundPrice = 100,
@@ -85,7 +96,6 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
     },
-
     ['Paleto Bay Impound'] = {
         impound      = true,
         impoundPrice = 50,
@@ -108,7 +118,6 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
     },
-
     ['Pillbox Hill'] = {
         impound      = false,
         impoundPrice = false,
@@ -142,7 +151,6 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
     },
-
     ['Little Seoul'] = {
         impound      = false,
         impoundPrice = false,
@@ -167,7 +175,6 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
     },
-
     ['Paleto Bay'] = {
         impound      = false,
         impoundPrice = false,
