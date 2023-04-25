@@ -186,3 +186,6 @@ AddEventHandler('sy_garage:CheckVeh2', function(vehicle)
         end
     end, vehicleProps, name, vehicleProps.plate)
 end)
+
+
+

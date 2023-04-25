@@ -9,32 +9,29 @@ Garage = {}
 
 Garage.Debug = false                -- Debug, prints etc...
 
-Garage.RadialCopyCoords = false     -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = true      -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
 Garage.OwnerCarAdmin = {            -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
     Command = 'givecar',
     Group = 'admin',
+} 
+
+Garage.Persistent = {
+    Persitent = true,                   -- Sistema de vehiculo persistente.
+    DeleteCarDisconnect = true,         -- Cuando el jugador se desconecta y su vehiculo esta fuera del garaje se elimina y guarda la pos.
 }
-
---<-------------------------------------->--
-
-Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
-
 --<-------------------------------------->--
 
 Garage.ShareCarFriend = true  -- Share vehicles with friends.
 
 Garage.SaveKilometers = true  -- Save Kilometers in DB 
 
+Garage.SetInToVehicle = true -- Set ped into vehicle upon spawn.
+
 --<-------------------------------------->--
 Garage.CarKeys = true         -- Add keys when removing the vehicle and remove them when depositing it.
 
 
---<-------------------------------------->--
--- NEXT UPDATE
-Garage.Persistent = {
-    DeleteCarDisconnect = true,         -- Cuando el jugador se desconecta y su vehiculo esta fuera del garaje se elimina y guarda la pos.
-}
 --<-------------------------------------->--
 
 --You can add the event of the script you use or use the one included in the garage. You can modify it from config_keys.lua.

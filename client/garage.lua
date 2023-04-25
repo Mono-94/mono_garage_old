@@ -142,7 +142,7 @@ CreateThread(function()
                                                 Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                             end
                                             local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                            local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
+                                          local vehicleProps = lib.getVehicleProperties(vehicle)
                                             TriggerServerEvent('sy_garage:GuardarVehiculo',
                                                 GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
                                                 json.encode(vehicleProps), k,
@@ -161,7 +161,7 @@ CreateThread(function()
                                                 Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                             end
                                             local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                            local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
+                                           local vehicleProps = lib.getVehicleProperties(vehicle)
                                             TriggerServerEvent('sy_garage:GuardarVehiculo',
                                                 GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
                                                 json.encode(vehicleProps), k,
@@ -675,3 +675,8 @@ if Garage.SaveKilometers then
         end
     end)
 end
+
+
+RegisterNetEvent('sy_garage:SetProps', function(NetId, props)
+    lib.setVehicleProperties(NetToVeh(NetId), props)
+end)

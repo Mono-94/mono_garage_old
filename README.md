@@ -9,6 +9,7 @@
 #
 # <center>**Features**</center>
 * Work with radial menu from ox_lib
+* The vehicles persist when a player disconnects, when the vehicle reconnects it will continue in the same place.
 * Share vehicles with colleagues, including a list to manage shared access to the vehicle.
 * Garage for independent work.
 * Generate a key when removing the vehicle from the garage and delete it when returning to the garage.
@@ -21,12 +22,15 @@
 # <center> **Preview**</center>
 # **Preview**
 
+
+
 - https://streamable.com/22ksd7 -- Share vehicle
 - https://streamable.com/f9ekle -- Command /impound
 - https://streamable.com/o0hmej -- Command /givecar
 - https://streamable.com/jnj6y6 -- Boat Type
 - https://streamable.com/8xea51 -- Air Type 
 - https://streamable.com/bc4wug -- Mix
+- https://streamable.com/2v6bfl -- Persistent vehicles.
 
 #
 #
@@ -159,14 +163,14 @@ TriggerEvent('sy_garage:NPCImpound')
 
 * To obtain a key for a nearby vehicle with a ProgressBar:
 ```LUA
-exports['sy_carkeys']:CarKey(time) -- Waiting time of the ProgressBar
--- exports['sy_carkeys']:CarKey(1000)           1000 = 1s
+exports['sy_garage']:CarKey(time) -- Waiting time of the ProgressBar
+-- exports['sy_garage']:CarKey(1000)           1000 = 1s
 ```
 * To generate a key with a wait time for the player to enter the vehicle and obtain its license plate:
 ```LUA
-exports['sy_carkeys']:CarKeyBuy(time) --The time can be adjusted as needed and allows waiting for the player who is inside the vehicle.
+exports['sy_garage']:CarKeyBuy(time) --The time can be adjusted as needed and allows waiting for the player who is inside the vehicle.
 
--- exports['sy_carkeys']:CarKeyBuy(1000)           1000 = 1s
+-- exports['sy_garage']:CarKeyBuy(1000)           1000 = 1s
 ```
 * Create Key event:
 ```LUA
@@ -192,15 +196,15 @@ TriggerServerEvent('sy_carkeys:DeleteKey', count, plate, name)
 ```
 * LockPick:
 ```LUA
-exports['sy_carkeys']:LockPick()
+exports['sy_garage']:LockPick()
 ```
 * HotWire:
 ```LUA
-exports['sy_carkeys']:HotWire()
+exports['sy_garage']:HotWire()
 ```
 * Change Plate:
 ```LUA
-exports['sy_carkeys']:SetMatricula()
+exports['sy_garage']:SetMatricula()
 ```
 #
 #
@@ -217,7 +221,7 @@ exports['sy_carkeys']:SetMatricula()
 	weight = 25,
 	stack = true,
 	client = {
-		export = 'sy_carkeys.LockPick'
+		export = 'sy_garage.LockPick'
 	}
 },
 
@@ -226,7 +230,7 @@ exports['sy_carkeys']:SetMatricula()
 	weight = 50,
 	stack = true,
 	client = {
-		export = 'sy_carkeys.HotWire'
+		export = 'sy_garage.HotWire'
 	}
 },
 ['plate'] = {
@@ -234,7 +238,7 @@ exports['sy_carkeys']:SetMatricula()
 	weight = 500,
 	stack = true,
 	client = {
-		export = 'sy_carkeys.SetMatricula'
+		export = 'sy_garage.SetMatricula'
 	}
 },
 
