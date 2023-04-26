@@ -9,8 +9,10 @@ function Crearvehiculo(model, coordinates, heading, matricula, props, source, pu
 
     Wait(200)
     local networkId = NetworkGetNetworkIdFromEntity(vehicle) -- agarro el network Id
+    Wait(200)
     local netId = NetworkGetEntityFromNetworkId(networkId)   -- con el netid agarro el entity id
     SetVehicleNumberPlateText(vehicle, matricula)            --seteo por primero la placa.
+    Wait(200)
     SetVehicleDoorsLocked(vehicle, puertas)
     if TaskInCar then
         if Garage.SetInToVehicle then
