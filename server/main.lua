@@ -1,24 +1,16 @@
 lib.locale()
 
-
 function Crearvehiculo(model, coordinates, heading, matricula, props, source, puertas, TaskInCar)
-    local vehicle = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z,
-        heading)
-    -- Creo el vehiculo
-    while not DoesEntityExist(vehicle) do --aguanto de hacer algo hasta que este creado
+    local vehicle = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading) -- Creo el vehiculo
+
+    while not DoesEntityExist(vehicle) do                                                                                --aguanto de hacer algo hasta que este creado
         Wait(0)
     end
-    Wait(200)
-
-    networkId = NetworkGetNetworkIdFromEntity(vehicle) -- agarro el network Id
 
     Wait(200)
-
-    netId = NetworkGetEntityFromNetworkId(networkId) -- con el netid agarro el entity id
-
-    Wait(200)
-
-    SetVehicleNumberPlateText(vehicle, matricula) --seteo por primero la placa.
+    local networkId = NetworkGetNetworkIdFromEntity(vehicle) -- agarro el network Id
+    local netId = NetworkGetEntityFromNetworkId(networkId)   -- con el netid agarro el entity id
+    SetVehicleNumberPlateText(vehicle, matricula)            --seteo por primero la placa.
     SetVehicleDoorsLocked(vehicle, puertas)
     if TaskInCar then
         if Garage.SetInToVehicle then
@@ -29,10 +21,9 @@ function Crearvehiculo(model, coordinates, heading, matricula, props, source, pu
         Wait(0)
         SetVehicleNumberPlateText(vehicle, matricula)
     end
-    Wait(200)
-
     TriggerClientEvent('sy_garage:SetProps', source, networkId, props)
 end
+
 
 lib.callback.register('sy_garage:getOwnerVehicles', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -75,6 +66,7 @@ lib.callback.register('sy_garage:getOwnerVehicles', function(source)
                 vehicles[#vehicles + 1] = veh
             end
         end
+
     end
 
     -- vehiculo compartido
@@ -82,7 +74,6 @@ lib.callback.register('sy_garage:getOwnerVehicles', function(source)
         "SELECT * FROM `owned_vehicles` WHERE JSON_CONTAINS(`amigos`, @identifier, '$')", {
             ['@identifier'] = json.encode({ identifier = identifier }),
         })
-
 
     if sharedResults[1] ~= nil then
         for i = 1, #sharedResults do
@@ -105,8 +96,12 @@ lib.callback.register('sy_garage:getOwnerVehicles', function(source)
             end
         end
     end
+
+
+
     return vehicles
 end)
+
 
 lib.callback.register('sy_garage:owner_vehicles', function(source)
     local vehicles = {}
@@ -136,6 +131,7 @@ lib.callback.register('sy_garage:owner_vehicles', function(source)
         return vehicles
     end
 end)
+
 RegisterServerEvent('sy_garage:EliminarAmigo', function(Amigo, plate)
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -203,6 +199,12 @@ RegisterServerEvent('sy_garage:CompartirAmigo', function(Amigo, Name, plate)
 
     local xAmigo = ESX.GetPlayerFromId(Amigo)
     local identifier = xAmigo.getIdentifier()
+
+    if identifier == xIndidentifier then
+        TriggerClientEvent('sy_garage:Notification', source, locale('noatimismo'))
+        return
+    end
+
     MySQL.Async.fetchAll(
         "SELECT `amigos` FROM `owned_vehicles` WHERE `owner` = @identifier AND `plate` = @plate", {
             ['@identifier'] = xIndidentifier,
@@ -245,6 +247,7 @@ end)
 
 
 RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle)
+    local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.getIdentifier()
     local vehicleDataDecoded = json.decode(vehicleData)
@@ -279,10 +282,10 @@ RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, ga
                                 if Garage.Debug then
                                     print('Guardando vehículo con placa ' .. plate .. ' para jugador ' .. identifier)
                                 end
-                                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
+                                TriggerClientEvent('sy_garage:Notification', source,
                                     locale('SERVER_VehiculoGuardado'))
                             else
-                                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
+                                TriggerClientEvent('sy_garage:Notification', source,
                                     locale('SERVER_ErrorGuardad'))
                             end
                         end
@@ -303,10 +306,10 @@ RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, ga
                                 if Garage.Debug then
                                     print('Guardando vehículo con placa ' .. plate .. ' para jugador ' .. identifier)
                                 end
-                                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
+                                TriggerClientEvent('sy_garage:Notification', source,
                                     locale('SERVER_VehiculoGuardado'))
                             else
-                                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
+                                TriggerClientEvent('sy_garage:Notification', source,
                                     locale('SERVER_ErrorGuardad'))
                             end
                         end
@@ -314,7 +317,7 @@ RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, ga
                 end
             else
                 -- Si la matri no coincide
-                TriggerClientEvent('sy_garage:Notification', xPlayer.source, locale('NoEsTuyo'))
+                TriggerClientEvent('sy_garage:Notification', source, locale('NoEsTuyo'))
             end
         end
     )
@@ -420,6 +423,7 @@ function DeleteVehicleByPlate(plate)
 end
 
 RegisterServerEvent('sy_garage:MandarVehiculoImpound', function(plate, impo)
+    local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.getIdentifier()
 
@@ -432,11 +436,9 @@ RegisterServerEvent('sy_garage:MandarVehiculoImpound', function(plate, impo)
         }, function(rowsChanged)
             if rowsChanged > 0 then
                 DeleteVehicleByPlate(plate)
-                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
-                    locale('SERVER_MandarVehiculoImpound'))
+                TriggerClientEvent('sy_garage:Notification', source, locale('SERVER_MandarVehiculoImpound'))
             else
-                TriggerClientEvent('sy_garage:Notification', xPlayer.source,
-                    locale('SERVER_MandarMal'))
+                TriggerClientEvent('sy_garage:Notification', source, locale('SERVER_MandarMal'))
             end
         end)
 end)
@@ -463,25 +465,24 @@ end)
 
 lib.addCommand(Garage.OwnerCarAdmin.Command, {
     help = locale('setearcar2'),
-    restricted = Garage.OwnerCarAdmin.Group
+    restricted = Garage.OwnerCarAdmin.Group,
 }, function(source)
-    local source = source
-    local playerPed = GetPlayerPed(source)
-    local playerVehicle = GetVehiclePedIsIn(playerPed, false)
-
-    if playerVehicle then
-        TriggerClientEvent('sy_garage:CheckVeh', source, playerVehicle)
-    end
+    TriggerClientEvent('sy_garage:CheckVeh2', source)
 end)
 
 
 
-
-ESX.RegisterServerCallback('sy_garage:SetCarDB', function(source, cb, vehicleData, model, plate)
+RegisterNetEvent('sy_garage:SetCarDB', function(vehicleData, plate)
+    local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
-    if xPlayer then
-        if xPlayer.getGroup() == Garage.OwnerCarAdmin.Group then
-            local plate = plate
+    if xPlayer.getGroup() == Garage.OwnerCarAdmin.Group then
+        local plate = plate
+        local results = MySQL.Sync.fetchAll(
+            "SELECT * FROM owned_vehicles WHERE plate = @plate",
+            { ['@plate'] = plate })
+        if results[1] ~= nil then
+            print('El vehículo con placa ' .. plate .. ' ya está en propiedad.')
+        else
             vehicleData.plate = plate
             local jsonVehicleData = json.encode(vehicleData)
             MySQL.Sync.execute(
@@ -491,12 +492,13 @@ ESX.RegisterServerCallback('sy_garage:SetCarDB', function(source, cb, vehicleDat
                     ['@plate']   = plate,
                     ['@vehicle'] = jsonVehicleData,
                 })
-            cb(true, plate)
-        else
-            cb(false, nil)
+            print('El vehículo con placa ' ..
+                plate .. ' ha sido agregado a las propiedades de ' .. xPlayer.getName() .. '.')
+            TriggerEvent('sy_carkeys:CreateKey', plate, name)
         end
     else
-        cb(false, nil)
+        print('El jugador ' ..
+            xPlayer.getName() .. ' no tiene permisos suficientes para agregar vehículos a las propiedades.')
     end
 end)
 
@@ -559,8 +561,13 @@ if Garage.Persistent.Persitent then
                     local position = GetEntityCoords(vehEntity)
                     local heading = GetEntityHeading(vehEntity)
                     local doorLockStatus = GetVehicleDoorLockStatus(vehEntity)
-                    local posTable = { x = position.x, y = position.y, z = position.z, h = heading,
-                        doors = doorLockStatus }
+                    local posTable = {
+                        x = position.x,
+                        y = position.y,
+                        z = position.z,
+                        h = heading,
+                        doors = doorLockStatus
+                    }
                     local posStr = json.encode(posTable)
                     MySQL.Async.execute(
                         'UPDATE owned_vehicles SET lastposition = @lastposition WHERE plate = @plate',
@@ -584,17 +591,13 @@ if Garage.Persistent.Persitent then
                                 DeleteEntity(vehEntity)
                                 print('\027[1mVEHICLE DELETED\027[0m ( "\027[33m' .. plate .. '"\027[0m )')
                             else
-                                
+
                             end
-
-
                         end)
                 end
             end
         end
     end)
-
-    
 end
 
 

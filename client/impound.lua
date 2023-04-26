@@ -142,3 +142,51 @@ AddEventHandler('sy_garage:NPCImpound', function()
         TriggerEvent('sy_garage:Notification', locale('no_veh_nearby'))
     end
 end)
+
+
+
+if Garage.AutoImpound.AutoImpound then
+    CreateThread(function()
+        while true do
+            local vehicles = lib.callback.await('sy_garage:owner_vehicles')
+            for i = 1, #vehicles do
+                local data = vehicles[i]
+                local veh = json.decode(data.vehicle)
+                local allVehicles = ESX.Game.GetVehicles()
+                local vehicleFound = false
+                for j = 1, #allVehicles do
+                    local vehicle = allVehicles[j]
+                    if DoesEntityExist(vehicle) then
+                        local model = GetEntityModel(vehicle)
+                        local plate = GetVehicleNumberPlateText(vehicle)
+                        if plate == data.plate then
+                            local ped = GetPedInVehicleSeat(vehicle, -1)
+                            if ped == 0 then
+                                if data.stored == 0 then
+                                    if Garage.Debug then
+                                        print('Plate: ' ..
+                                            data.plate .. ', Hash: ' .. veh.model .. ', Fuera sin jugador.')
+                                    end
+                                end
+                            else
+                                if Garage.Debug then
+                                    print('Plate: ' .. data.plate .. ', Hash: ' .. veh.model .. ', Fuera con jugador.')
+                                end
+                            end
+                            vehicleFound = true
+                            break
+                        end
+                    end
+                end
+                if not vehicleFound and data.stored == 0 and data.pound == nil then
+                    TriggerServerEvent('sy_garage:AutoImpound', data.plate, Garage.AutoImpound.ImpoundIn)
+                    if Garage.Debug then
+                        print('Plate: ' ..
+                            data.plate .. ', Hash: ' .. veh.model .. ', Entidad no existe. ( Incautado con exito )')
+                    end
+                end
+            end
+            Wait(Garage.AutoImpound.TimeCheck)
+        end
+    end)
+end

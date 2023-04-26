@@ -35,7 +35,7 @@ Keys.CommandGiveKey = 'givekey' -- Give Key.
 Keys.CommandDelKey = 'delkey'   -- Delete Key.
 --<-------------------------------------->--
 -- Car Options 
-Keys.Engine = true              -- With this you will maintain control of the engine in the vehicle and you will only be able to start the engine with the keys.
+Keys.Engine = false              -- With this you will maintain control of the engine in the vehicle and you will only be able to start the engine with the keys.
 Keys.OnExitCar = true           -- (Car key  necessary) Its purpose is to allow, if the vehicle is running and the "F" key is hold down, the engine will continue running. If the "F" key is pressed once and released, the engine will turn off. Initially, this function should only work if the vehicle is running.
 Keys.CloseDoorsNPC = true       -- Close All NPC Cars Doors on create Entity.
 Keys.DoorProbability = true     -- Probability of finding an open door. (Netx Update)

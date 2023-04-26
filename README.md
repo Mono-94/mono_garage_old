@@ -8,7 +8,7 @@
 #
 #
 # <center>**Features**</center>
-* Work with radial menu from ox_lib
+* Work with radial menu from ox_lib or ox_target
 * The vehicles persist when a player disconnects, when the vehicle reconnects it will continue in the same place.
 * Share vehicles with colleagues, including a list to manage shared access to the vehicle.
 * Garage for independent work.
@@ -18,11 +18,11 @@
 * Vehicle mileage is stored in the database and can be viewed in the garage.
 * Garage.RadialCopyCoords: Radial menu to copy coordinates and easily create garages. (Only use this on your development server!)
 * Command to add a vehicle to the database as the owner. 
+* Allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+* 
 
 # <center> **Preview**</center>
 # **Preview**
-
-
 
 - https://streamable.com/22ksd7 -- Share vehicle
 - https://streamable.com/f9ekle -- Command /impound
@@ -31,16 +31,16 @@
 - https://streamable.com/8xea51 -- Air Type 
 - https://streamable.com/bc4wug -- Mix
 - https://streamable.com/2v6bfl -- Persistent vehicles.
-
+- https://streamable.com/4mjkzz -- Ox_target
 #
 #
 #  <center>**Commands**</center>
 
 * **/impound** - */impound - With this command, you can impound a vehicle. An NPC will appear and take the nearest vehicle to you. It only works for jobs, and you can add as many jobs as you want in Garage.NpcImpound.*
-* Preview https://streamable.com/f9ekle
+* 
  ----
-* **/addcar** - *The vehicle you are in will be saved in the database and become your property. (ADMIN)*
-* Preview https://streamable.com/o0hmej
+* **/givecar** - *The vehicle you are in will be saved in the database and become your property. (ADMIN)*
+* 
 # 
 #
 
@@ -68,7 +68,10 @@ You can add as many garages as you want in config_garage.lua > Garage.Garages.
     blip = true,                   -- Show/Hide Blip
     sprite = 524,                  -- Blip Sprite
     scale = 0.6,                   -- Blip Size
-    colorblip = 0,                 -- Blip Color
+    colorblip = 0,                 -- Blip Color 
+    -- If Garage.Target is true you can edit this, if it is false, ignore it.
+    NPCHash      = 'csb_trafficwarden',
+    NPCPos       = vec4(0, 0, 0, 0),
 }
 ```
 * Example impound creation:
@@ -92,6 +95,9 @@ You can add as many garages as you want in config_garage.lua > Garage.Garages.
     sprite = 524,                  -- Blip Sprite
     scale = 0.6,                   -- Blip Size
     colorblip = 0,                 -- Blip Color
+    -- If Garage.Target is true you can edit this, if it is false, ignore it.
+    NPCHash      = 'csb_trafficwarden',
+    NPCPos       = vec4(0, 0, 0, 0),
 }
 ```
 * Example garage-job creation:
@@ -115,6 +121,9 @@ You can add as many garages as you want in config_garage.lua > Garage.Garages.
     sprite = 524,                  -- Blip Sprite
     scale = 0.6,                   -- Blip Size
     colorblip = 0,                 -- Blip Color
+    -- If Garage.Target is true you can edit this, if it is false, ignore it.
+    NPCHash      = 'csb_trafficwarden',
+    NPCPos       = vec4(0, 0, 0, 0),
 }
 ```
 #

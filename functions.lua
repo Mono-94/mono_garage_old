@@ -1,48 +1,5 @@
 Sy = {}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- NO EDIT
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Sy.GetProps = function()
     local props = lib.getVehicleProperties(GetVehiclePedIsIn(cache.ped, false))
     return props
@@ -96,96 +53,33 @@ Sy.GetClase = function()
 end
 
 
-CreateThread(function()
-    if Garage.RadialCopyCoords then
-        lib.addRadialItem({
-            {
-                id = 'Cordenadas',
-                label = 'Coords',
-                icon = 'location-dot',
-                menu = 'copy_coords'
-            },
 
-        })
-        lib.registerRadial({
-            id = 'copy_coords',
-            items = {
 
-                {
-                    label = '{x= 0,y= 0,z= 0,w= 0}',
-                    onSelect = function()
-                        local ped = cache.ped
-                        local coords = GetEntityCoords(ped)
-                        local heading = GetEntityHeading(ped)
-                        lib.setClipboard('{ x = ' .. coords.x .. ', y = ' .. coords.y .. ', z = ' ..
-                            coords.z .. ', h = ' .. heading .. '},')
-                    end
-                },
-                {
-                    label = 'vector3(0,0,0)',
-                    onSelect = function()
-                        local ped = cache.ped
-                        local coords = GetEntityCoords(ped)
-                        lib.setClipboard('vec3(' .. coords.x .. ',' .. coords.y .. ',' .. coords.z .. ')')
-                    end
-                },
-                {
-                    label = 'vector4(0,0,0)',
-                    onSelect = function()
-                        local ped = cache.ped
-                        local coords = GetEntityCoords(ped)
-                        local heading = GetEntityHeading(ped)
-                        lib.setClipboard('vector4(' .. coords.x .. ', ' .. coords.y .. ',' ..
-                            coords.z .. ',' .. heading .. '),')
-                    end
-                },
-                {
-                    label = 'HEADING',
-                    onSelect = function()
-                        local ped = cache.ped
-                        lib.setClipboard(GetEntityHeading(ped))
-                    end
-                },
-            }
-        })
-    end
+
+
+RegisterNetEvent('sy_garage:SetProps', function(NetId, props)
+    lib.setVehicleProperties(NetToVeh(NetId), props)
 end)
 
 
 
-
-
-
-
--- FUNCION ANTIGUA
-RegisterNetEvent('sy_garage:CheckVeh')
-AddEventHandler('sy_garage:CheckVeh', function(vehicle)
+RegisterNetEvent('sy_garage:CheckVeh2')
+AddEventHandler('sy_garage:CheckVeh2', function()
+    local playerVehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+    local vehicleProps = Sy.GetProps()
+    local model = GetEntityModel(playerVehicle)
+    local name = GetDisplayNameFromVehicleModel(model)
+    local plate = GetVehicleNumberPlateText(playerVehicle)
     if cache.vehicle then
-        TriggerEvent("sy_garage:CheckVeh2")
+        TriggerServerEvent('sy_garage:SetCarDB', vehicleProps, plate, name)
+        TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
     else
         TriggerEvent('sy_garage:Notification', locale('dentrocar'))
     end
 end)
 
-RegisterNetEvent('sy_garage:CheckVeh2')
-AddEventHandler('sy_garage:CheckVeh2', function(vehicle)
-    local playerVehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-    local vehicleProps = ESX.Game.GetVehicleProperties(playerVehicle)
-    local model = GetEntityModel(playerVehicle)
-    local name = GetDisplayNameFromVehicleModel(model)
 
-    ESX.TriggerServerCallback('sy_garage:SetCarDB', function(successRegister, plate)
-        if successRegister then
-            Wait(1000)
-            TriggerEvent('sy_garage:Notification', locale('setearcar', name, plate))
-            local plate = GetVehicleNumberPlateText(playerVehicle)
-            SetVehicleNumberPlateText(playerVehicle, plate)
-            TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
-        else
-            TriggerEvent('sy_garage:Notification', 'Error')
-        end
-    end, vehicleProps, name, vehicleProps.plate)
-end)
+
 
 
 

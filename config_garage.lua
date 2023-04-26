@@ -13,25 +13,26 @@ Garage.RadialCopyCoords = true -- Radial menu to copy coordinates and easily cre
 
 Garage.Version = true          -- Check GitHub version.
 
+Garage.Target = true           -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 --<-------------------------------------->--
-
 
 Garage.OwnerCarAdmin = {
     -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
     Command = 'givecar', -- Command
-    Group = 'admin', -- Group
+    Group = 'admin',     -- Group
 }
 
 Garage.Persistent = {
     Persitent = true,           -- Persistent vehicle system.
-    DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it is deleted and the position is saved.
+    DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it will be deleted, and its position will be saved. If 'false,' the vehicle will only save its position and door state but will not be removed from the world.
 }
 
 Garage.AutoImpound = {
-    AutoImpound = true,       -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
-    ImpoundIn =
-    'Auto Impound'            -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
+    AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+    ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
+    TimeCheck = 1000 * 10,      -- (Default 10s) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
+
 --<-------------------------------------->--
 
 Garage.ShareCarFriend = true -- Share vehicles with friends.
@@ -95,6 +96,8 @@ Garage.Garages = {
         sprite       = 524,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vec4(400.30816650391, -1627.5834960938, 28.291940689087, 230.88716125488),
     },
     ['Paleto Bay Impound'] = {
         impound      = true,
@@ -117,6 +120,9 @@ Garage.Garages = {
         sprite       = 524,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-463.06100463867, 6025.5874023438, 30.44896697998, 135.05729675293),
+
     },
     ['Pillbox Hill'] = {
         impound      = false,
@@ -150,6 +156,9 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(214.69429016113, -807.11199951172,29.800384521484,339.01174926758),
+
     },
     ['Little Seoul'] = {
         impound      = false,
@@ -174,6 +183,9 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-702.84808349609, -970.89501953125,19.389713287354,179.47773742676),
+
     },
     ['Paleto Bay'] = {
         impound      = false,
@@ -196,6 +208,9 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-215.56448364258, 6219.1748046875,30.491662979126,225.76336669922),
+
     },
     -- BOAT GARAGES
     ['La Puerta Boat'] = {
@@ -226,6 +241,9 @@ Garage.Garages = {
         sprite       = 427,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-718.55004882813, -1326.7746582031,0.5962884426117,48.328620910645),
+
     },
     ['Paleto Cove'] = {
         impound      = false,
@@ -244,6 +262,9 @@ Garage.Garages = {
         sprite       = 427,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-1604.6020507813, 5256.5966796875,1.0740420818329,27.048063278198),
+
     },
     ['Boat Impound'] = {
         impound      = true,
@@ -262,6 +283,9 @@ Garage.Garages = {
         sprite       = 404,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-788.95941162109, -1490.6604003906,0.5952168703079,289.04177856445),
+
     },
     -- AIRCRAFT GARAGE
     ['Aeropuerto INYL. de los Santos'] = {
@@ -281,6 +305,9 @@ Garage.Garages = {
         sprite       = 307,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-990.21435546875, -2949.2897949219,12.945067405701,239.44729614258),
+
     },
     ['Air Grand Senora'] = {
         impound      = false,
@@ -299,6 +326,9 @@ Garage.Garages = {
         sprite       = 307,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(1694.4133300781, 3267.849609375,39.96208190918,196.4981842041),
+
     },
     ['AirCraft Impound'] = {
         impound      = true,
@@ -317,6 +347,9 @@ Garage.Garages = {
         sprite       = 307,
         scale        = 0.6,
         colorblip    = 0,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-1284.7535400391, -3403.1101074219,12.940143585205,330.12164306641),
+
     },
     --- JOB GARAGE
 
@@ -338,6 +371,10 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 29,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(459.26806640625, -1008.0474853516,27.258068084717,92.018943786621),
+
+
     },
     ['Mission Row Air'] = {
         impound      = false,
@@ -356,6 +393,9 @@ Garage.Garages = {
         sprite       = 64,
         scale        = 0.6,
         colorblip    = 29,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(458.42761230469, -985.85266113281,42.691696166992,293.28179931641),
+
     },
     --Ambulance
     ['PillBox EMS'] = {
@@ -376,6 +416,10 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 1,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(339.97662353516, -577.39678955078,27.796838760376,69.405403137207),
+
+
     },
     ['PillBox Air'] = {
         impound      = false,
@@ -394,6 +438,10 @@ Garage.Garages = {
         sprite       = 64,
         scale        = 0.6,
         colorblip    = 1,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(341.15667724609, -590.27893066406,73.161689758301,359.56204223633),
+
+
     },
     --Paleto EMS
     ['Paleot Bay EMS'] = {
@@ -414,6 +462,11 @@ Garage.Garages = {
         sprite       = 50,
         scale        = 0.6,
         colorblip    = 1,
+        NPCHash      = 'csb_trafficwarden',
+        NPCPos       = vector4(-253.35675048828, 6338.904296875,31.426189422607,45.707008361816),
+
+
+
     },
 }
 

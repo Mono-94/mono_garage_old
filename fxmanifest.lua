@@ -4,9 +4,12 @@ game 'gta5'
 
 name 'Sy_Garage'
 
+repository 	'https://github.com/Mono-94/sy_garage'
+
+version 		'1.0.0'
+
 author 'Symbiote#3027'
 
-repository 'https://github.com/Mono-94/sy_carkeys'
 
 shared_scripts{
     '@es_extended/imports.lua',
