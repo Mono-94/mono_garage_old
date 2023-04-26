@@ -30,7 +30,11 @@ function CrearBlips()
     for k, v in pairs(Garage.Garages) do
         if v.impound then
             if not blips[k] then
-                blips[k] = AddBlipForCoord(v.pos)
+                if Garage.Target then
+                    blips[k] = AddBlipForCoord(v.NPCPos.xyz)
+                else
+                    blips[k] = AddBlipForCoord(v.pos)
+                end
                 SetBlipSprite(blips[k], v.sprite)
                 SetBlipDisplay(blips[k], 4)
                 SetBlipScale(blips[k], v.scale)
@@ -43,7 +47,11 @@ function CrearBlips()
         else
             if v.blip and v.job == false then
                 if not blips[k] then
-                    blips[k] = AddBlipForCoord(v.pos)
+                    if Garage.Target then
+                        blips[k] = AddBlipForCoord(v.NPCPos.xyz)
+                    else
+                        blips[k] = AddBlipForCoord(v.pos)
+                    end
                     SetBlipSprite(blips[k], v.sprite)
                     SetBlipDisplay(blips[k], 4)
                     SetBlipScale(blips[k], v.scale)
@@ -56,7 +64,11 @@ function CrearBlips()
             else
                 if currentJob == v.job then
                     if not blips[k] then
-                        blips[k] = AddBlipForCoord(v.pos)
+                        if Garage.Target then
+                            blips[k] = AddBlipForCoord(v.NPCPos.xyz)
+                        else
+                            blips[k] = AddBlipForCoord(v.pos)
+                        end
                         SetBlipSprite(blips[k], v.sprite)
                         SetBlipDisplay(blips[k], 4)
                         SetBlipScale(blips[k], v.scale)
@@ -201,7 +213,7 @@ CreateThread(function()
                                     json.encode(vehicleProps), k,
                                     VehToNet(closet))
                             else
-                               TriggerEvent('sy_garage:Notification', locale('mascerca'))
+                                TriggerEvent('sy_garage:Notification', locale('mascerca'))
                             end
                         end
                     },
@@ -865,3 +877,7 @@ if Garage.SaveKilometers then
         end
     end)
 end
+lib.onCache('vehicle', function(value)
+    print('old vehicle:', cache.vehicle)
+    print('new vehicle:', value)
+end)
