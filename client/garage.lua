@@ -865,7 +865,3 @@ if Garage.SaveKilometers then
         end
     end)
 end
-lib.onCache('vehicle', function(value)
-    print('old vehicle:', cache.vehicle)
-    print('new vehicle:', value)
-end)
