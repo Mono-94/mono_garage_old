@@ -96,15 +96,20 @@ AddEventHandler('onResourceStart', function()
     CrearBlips()
 end)
 
+
+
 CreateThread(function()
     for k, v in pairs(Garage.Garages) do
         if not v.impound then
             if Garage.Target then
                 RequestModel(v.NPCHash)
-                NPC = CreatePed(2, v.NPCHash, v.NPCPos, false, false)
+                while not HasModelLoaded(v.NPCHash) do
+                    Wait(1)
+                end
+                NPC = CreatePed(2, v.NPCHash, v.NPCPos.x, v.NPCPos.y, v.NPCPos.z, v.NPCPos.w, false, false)
                 SetPedFleeAttributes(NPC, 0, 0)
                 SetPedDiesWhenInjured(NPC, false)
-                TaskStartScenarioInPlace(NPC, v.PedScenario, 0, true)
+                TaskStartScenarioInPlace(NPC, "missheistdockssetup1clipboard@base", 0, true)
                 SetPedKeepTask(NPC, true)
                 SetBlockingOfNonTemporaryEvents(NPC, true)
                 SetEntityInvincible(NPC, true)
@@ -819,7 +824,3 @@ if Garage.SaveKilometers then
         end
     end)
 end
-lib.onCache('vehicle', function(value)
-    print('old vehicle:', cache.vehicle)
-    print('new vehicle:', value)
-end)
