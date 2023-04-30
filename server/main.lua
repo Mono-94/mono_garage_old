@@ -551,60 +551,7 @@ if Garage.Persistent.Persitent then
         end
     end)
 
-    RegisterCommand('exit', function(source)
-        local source = source
-        local allVehicles = GetAllVehicles()
-        local xPlayer = ESX.GetPlayerFromId(source)
-        local identifier = xPlayer.getIdentifier()
-
-        for i = 1, #allVehicles do
-            local vehEntity = allVehicles[i]
-            if DoesEntityExist(vehEntity) and GetEntityPopulationType(vehEntity) == 7 then
-                local plate = GetVehicleNumberPlateText(vehEntity)
-                local owner = MySQL.Sync.fetchScalar('SELECT owner FROM owned_vehicles WHERE plate = @plate', {
-                    ['@plate'] = plate
-                })
-                if owner == identifier then
-                    local position = GetEntityCoords(vehEntity)
-                    local heading = GetEntityHeading(vehEntity)
-                    local doorLockStatus = GetVehicleDoorLockStatus(vehEntity)
-                    local posTable = {
-                        x = position.x,
-                        y = position.y,
-                        z = position.z,
-                        h = heading,
-                        doors = doorLockStatus
-                    }
-                    local posStr = json.encode(posTable)
-                    MySQL.Async.execute(
-                        'UPDATE owned_vehicles SET lastposition = @lastposition WHERE plate = @plate',
-                        {
-                            ['@lastposition'] = posStr,
-                            ['@plate'] = plate
-                        }, function(rowsChanged)
-                            vehiclesSpawned[plate] = false
-                            if Garage.Debug then
-                                print('\027[1mSAVE VEHICLE\027[0m ( "\027[33m' ..
-                                    plate ..
-                                    '"\027[0m - \027[36mvector4(' ..
-                                    position.x ..
-                                    ',' ..
-                                    position.y ..
-                                    ',' ..
-                                    position.z ..
-                                    ',' .. heading .. ' )\027[0m Doors: ' .. doorLockStatus .. ', ( 0 = Open / 2 Close))')
-                            end
-                            if Garage.Persistent.DeleteCarDisconnect then
-                                DeleteEntity(vehEntity)
-                                print('\027[1mVEHICLE DELETED\027[0m ( "\027[33m' .. plate .. '"\027[0m )')
-                            else
-
-                            end
-                        end)
-                end
-            end
-        end
-    end)
+   
 
     AddEventHandler('playerDropped', function(reason)
         local allVehicles = GetAllVehicles()
