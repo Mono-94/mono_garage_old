@@ -468,8 +468,6 @@ lib.addCommand(Garage.OwnerCarAdmin.Command, {
     help = locale('setearcar2'),
     restricted = Garage.OwnerCarAdmin.Group,
 }, function(source)
-    exports['um-idcard']:CreateMetaLicense(source 'dni')
-
     TriggerClientEvent('sy_garage:CheckVeh2', source)
 end)
 
