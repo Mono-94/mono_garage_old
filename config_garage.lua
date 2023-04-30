@@ -7,13 +7,13 @@
 
 Garage = {}
 
-Garage.Debug = false           -- Debug, prints etc...
+Garage.Debug = false            -- Debug, prints etc...
 
-Garage.RadialCopyCoords = true -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = true  -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
-Garage.Version = true          -- Check GitHub version.
+Garage.Version = true           -- Check GitHub version.
 
-Garage.Target = true           -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
+Garage.Target = true            -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 --<-------------------------------------->--
 
 Garage.OwnerCarAdmin = {
@@ -27,10 +27,10 @@ Garage.Persistent = {
     DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it will be deleted, and its position will be saved. If 'false,' the vehicle will only save its position and door state but will not be removed from the world.
 }
 
-Garage.AutoImpound = {
+Garage.AutoImpound = {         
     AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
     ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
-    TimeCheck = 1000 * 10,      -- (Default 10s) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
+    TimeCheck = 1000 * 5 ,      -- (Default 5s) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
 --<-------------------------------------->--
@@ -39,7 +39,7 @@ Garage.ShareCarFriend = true -- Share vehicles with friends.
 
 Garage.SaveKilometers = true -- Save Kilometers in DB
 
-Garage.SetInToVehicle = true -- Set ped into vehicle upon spawn.
+Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
 
 --<-------------------------------------->--
 
@@ -454,8 +454,7 @@ Garage.Garages = {
         size         = vec3(15, 30, 2),
         heading      = 133.3769683837891,
         spawnpos     = {
-            { x = 333.36407470703, y = -575.63244628906, z = 28.384586334229, h = 338.10067749023 },
-            { x = 325.93121337891, y = -572.48254394531, z = 28.384176254272, h = 339.78042602539 },
+            { x = -257.8176574707, y = 6347.7309570313, z = 32.014705657959, h = 269.04821777344},
         },
         debug        = false,
         blip         = true,

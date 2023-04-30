@@ -89,7 +89,7 @@ function CrearBlips()
     end
 end
 
-AddEventHandler('onResourceStart', function()
+CreateThread(function ()
     if (GetCurrentResourceName() ~= 'sy_garage') then
         return
     end
@@ -97,72 +97,18 @@ AddEventHandler('onResourceStart', function()
 end)
 
 
-
---[[CreateThread(function()
-    for k, v in pairs(Garage.Garages) do
-        if v.impound then
-            if Garage.Target then
-                RequestModel(v.NPCHash)
-                NPC = CreatePed(2, v.NPCHash, v.NPCPos, false, false)
-                SetPedFleeAttributes(NPC, 0, 0)
-                SetPedDiesWhenInjured(NPC, false)
-                TaskStartScenarioInPlace(NPC, v.PedScenario, 0, true)
-                SetPedKeepTask(NPC, true)
-                SetBlockingOfNonTemporaryEvents(NPC, true)
-                SetEntityInvincible(NPC, true)
-                FreezeEntityPosition(NPC, true)
-                exports.ox_target:addBoxZone({
-                    coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
-                    size = vec3(1, 1, 2),
-                    rotation = v.NPCPos.w,
-                    debug = v.debug,
-                    options = {
-                        {
-                            icon = 'fas fa-car',
-                            label = k,
-                            onSelect = function()
-                                TriggerEvent('sy_garage:garageImpound',
-                                    { garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice })
-                            end
-                        }
-                    }
-                })
-            else
-                lib.zones.box({
-                    coords = v.pos,
-                    size = v.size,
-                    rotation = v.heading,
-                    debug = v.debug,
-                    onEnter = function()
-                        lib.addRadialItem({
-                            {
-                                id = 'impound',
-                                label = k,
-                                icon = 'car',
-                                onSelect = function()
-                                    TriggerEvent('sy_garage:garageImpound',
-                                        { garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice })
-                                end
-                            },
-                        })
-                    end,
-                    onExit = function()
-                        lib.removeRadialItem('impound')
-                    end
-                })
-            end
-        end
-    end
-end)]]
 CreateThread(function()
     for k, v in pairs(Garage.Garages) do
         if not v.impound then
             if Garage.Target then
                 RequestModel(v.NPCHash)
-                NPC = CreatePed(2, v.NPCHash, v.NPCPos, false, false)
+                while not HasModelLoaded(v.NPCHash) do
+                    Wait(1)
+                end
+                NPC = CreatePed(2, v.NPCHash, v.NPCPos.x, v.NPCPos.y, v.NPCPos.z, v.NPCPos.w, false, false)
                 SetPedFleeAttributes(NPC, 0, 0)
                 SetPedDiesWhenInjured(NPC, false)
-                TaskStartScenarioInPlace(NPC, v.PedScenario, 0, true)
+                TaskStartScenarioInPlace(NPC, "missheistdockssetup1clipboard@base", 0, true)
                 SetPedKeepTask(NPC, true)
                 SetBlockingOfNonTemporaryEvents(NPC, true)
                 SetEntityInvincible(NPC, true)
@@ -877,7 +823,3 @@ if Garage.SaveKilometers then
         end
     end)
 end
-lib.onCache('vehicle', function(value)
-    print('old vehicle:', cache.vehicle)
-    print('new vehicle:', value)
-end)

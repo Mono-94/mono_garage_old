@@ -527,7 +527,7 @@ if Keys.Keys then
         for k, v in pairs(Keys.NpcReclameKey) do
             RequestModel(v.hash)
             while not HasModelLoaded(v.hash) do
-                Wait(1)
+                Wait(100)
             end
             NPC = CreatePed(2, v.hash, v.pos.x, v.pos.y, v.pos.z, v.heading, false, false)
             SetPedFleeAttributes(NPC, 0, 0)

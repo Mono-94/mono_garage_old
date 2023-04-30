@@ -57,9 +57,16 @@ end
 
 
 
-RegisterNetEvent('sy_garage:SetProps', function(NetId, props)
-    lib.setVehicleProperties(NetToVeh(NetId), props)
+RegisterNetEvent('sy_garage:Propiedades', function(NetId, props)
+    while not NetworkDoesEntityExistWithNetworkId(NetId)  do
+       Wait(0)
+    end
+
+    if NetworkDoesEntityExistWithNetworkId(NetId) then
+        lib.setVehicleProperties(NetToVeh(NetId), props)
+    end
 end)
+  
 
 
 

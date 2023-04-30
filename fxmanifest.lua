@@ -6,7 +6,7 @@ name 'Sy_Garage'
 
 repository 	'https://github.com/Mono-94/sy_garage'
 
-version 		'1.0.0'
+version 		'1.0.1'
 
 author 'Symbiote#3027'
 
@@ -37,4 +37,3 @@ files {
 }
 
 lua54 'yes'
-
