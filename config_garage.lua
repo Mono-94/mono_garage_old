@@ -9,12 +9,16 @@ Garage = {}
 
 Garage.Debug = false            -- Debug, prints etc...
 
-Garage.RadialCopyCoords = true  -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = false  -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
 Garage.Version = true           -- Check GitHub version.
 
 Garage.Target = true            -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
+
+Garage.TargetDistance = 2       -- Distance to deposit the vehicle with ox_target
 --<-------------------------------------->--
+
+Garage.SharedGarage = false      -- If it is "true" it will be able to withdraw the vehicles in any garage, if it is "false" it will only be able to withdraw the vehicle in the garage that kept it.
 
 Garage.OwnerCarAdmin = {
     -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
@@ -30,7 +34,7 @@ Garage.Persistent = {
 Garage.AutoImpound = {         
     AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
     ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
-    TimeCheck = 1000 * 5 ,      -- (Default 5s) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
+    TimeCheck = 1000 * 5 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
 --<-------------------------------------->--

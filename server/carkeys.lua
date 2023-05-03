@@ -36,7 +36,7 @@ if Keys.Keys then
                     locale('llavecomprada', model, Keys.CopyPrice), 'success')
             else
                 TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
-                'error')
+                    'error')
             end
         end
     end)
@@ -177,7 +177,7 @@ if Keys.Keys then
                     locale('MatriculaComprada') 'success')
             else
                 TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
-                'error')
+                    'error')
             end
         end
     end)

@@ -89,13 +89,12 @@ function CrearBlips()
     end
 end
 
-CreateThread(function ()
+CreateThread(function()
     if (GetCurrentResourceName() ~= 'sy_garage') then
         return
     end
     CrearBlips()
 end)
-
 
 
 CreateThread(function()
@@ -143,7 +142,7 @@ CreateThread(function()
                         event = 'ox_target:debug',
                         icon = 'fa-solid fa-road',
                         label = locale('DepositarVeh1'),
-                        distance = 2,
+                        distance = Garage.TargetDistance,
                         onSelect = function()
                             local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                             if closet then
@@ -185,7 +184,6 @@ CreateThread(function()
                     size = v.size,
                     rotation = v.heading,
                     debug = v.debug,
-                    -- inside = inside,
                     onEnter = function()
                         lib.registerRadial({
                             id = 'garaga_meter_sacar',
@@ -346,13 +344,13 @@ AddEventHandler('sy_garage:garage', function(data)
         local marca = GetMakeNameFromVehicleModel(data.model)
         local type = GetVehicleClassFromName(name)
         local plate = data.plate
-        if data.parking == garageName then
+        if Garage.SharedGarage then
             vehiclesFound = true
-            if data.parking == garageName and data.stored == 0 then
+            if data.stored == 0 then
                 data.parking = locale('VehEnLaCalle')
                 color = '#FF8787'
             end
-            if data.parking == garageName and data.stored == 1 then
+            if data.stored == 1 then
                 color = '#32a852'
             end
             if type == 8 then
@@ -412,6 +410,74 @@ AddEventHandler('sy_garage:garage', function(data)
                 },
                 event = 'sy_garage:VehiculoSeleccionado',
             })
+        else
+            if data.parking == garageName then
+                vehiclesFound = true
+                if data.parking == garageName and data.stored == 0 then
+                    data.parking = locale('VehEnLaCalle')
+                    color = '#FF8787'
+                end
+                if data.parking == garageName and data.stored == 1 then
+                    color = '#32a852'
+                end
+                if type == 8 then
+                    icon = 'motorcycle'
+                elseif type == 2 then
+                    icon = 'truck-pickup'
+                elseif type == 15 then
+                    icon = 'helicopter'
+                elseif type == 16 then
+                    icon = 'plane'
+                elseif type == 14 then
+                    icon = 'ship'
+                else
+                    icon = 'car'
+                end
+
+                if data.id == data.duen then
+                    propietario = locale('dueño')
+                else
+                    propietario = locale('deunamigo')
+                end
+
+                local km = math.floor((data.mileage / 20517.9) * 10) / 10
+                local formattedKM = string.format("%.1f km", km)
+                table.insert(garagemenu, {
+                    title = marca .. ' - ' .. name,
+                    icon = icon,
+                    iconColor = color,
+                    arrow = true,
+                    metadata = {
+                        { label = 'Total',             value = formattedKM },
+                        { label = locale('VehDescri'), value = data.parking },
+                        {
+                            label = locale('VehDescrigas'),
+                            value = ' ' .. data.fuelLevel .. '%',
+                            progress = data
+                                .fuelLevel,
+                        },
+
+                    },
+                    colorScheme = '#4ac76b',
+                    description = propietario .. ' | Plate: ' .. plate,
+                    args = {
+                        vehicle = data,
+                        garage = garageName,
+                        spawn = spawn,
+                        plate = plate,
+                        name = name,
+                        marca = marca,
+                        model = data.model,
+                        pound = data.pound,
+                        stored = data.stored,
+                        impo = impo,
+                        duen = data.duen,
+                        id = data.id,
+                        amigos = data.amigos,
+                    },
+                    event = 'sy_garage:VehiculoSeleccionado',
+                })
+            end
         end
     end
     if not vehiclesFound then
@@ -671,6 +737,7 @@ AddEventHandler('sy_garage:garageImpound', function(nata)
                 arrow = true,
                 description = locale('VehDescriImpound', price, data.plate, data.fuelLevel),
                 onSelect = function()
+                    local SpawPos = false
                     local input = lib.inputDialog(locale('MetodoPagoTitulo'), {
                         {
                             type = 'select',
@@ -696,7 +763,6 @@ AddEventHandler('sy_garage:garageImpound', function(nata)
                                 local v = spawn[j]
                                 local pos = vector3(v.x, v.y, v.z)
                                 local hea = v.h
-                                local SpawPos = false
                                 local model = data.model
                                 if ESX.Game.IsSpawnPointClear(vector3(v.x, v.y, v.z), 3.0) then
                                     TriggerServerEvent('sy_garage:RetirarVehiculoImpound', plate, input[1], price,
@@ -707,11 +773,6 @@ AddEventHandler('sy_garage:garageImpound', function(nata)
                                     end
 
                                     break
-                                end
-
-                                if not SpawPos then
-                                    TriggerEvent('sy_garage:Notification',
-                                        locale('NoSpawn'))
                                 end
                             end
                         else
@@ -725,7 +786,6 @@ AddEventHandler('sy_garage:garageImpound', function(nata)
                                 local pos = vector3(v.x, v.y, v.z)
                                 local hea = v.h
                                 local model = data.model
-                                local SpawPos = false
                                 if ESX.Game.IsSpawnPointClear(vector3(v.x, v.y, v.z), 3.0) then
                                     TriggerServerEvent('sy_garage:RetirarVehiculoImpound', plate, input[1], price,
                                         data, pos, hea, model)
@@ -735,16 +795,15 @@ AddEventHandler('sy_garage:garageImpound', function(nata)
                                     end
                                     break
                                 end
-
-                                if not SpawPos then
-                                    TriggerEvent('sy_garage:Notification',
-                                        locale('NoSpawn'))
-                                end
                             end
                         else
                             TriggerEvent('sy_garage:Notification',
                                 locale('SERVER_SinDinero'))
                         end
+                    end
+                    if not SpawPos then
+                        TriggerEvent('sy_garage:Notification',
+                            locale('NoSpawn'))
                     end
                 end
             })

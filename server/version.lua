@@ -1,5 +1,5 @@
 if Garage.Version then 
-    local function CheckMenuVersion()
+    local function GitHubUpdate()
         PerformHttpRequest('https://raw.githubusercontent.com/Mono-94/sy_garage/main/fxmanifest.lua', function(error, result, headers)
             local actual = GetResourceMetadata(GetCurrentResourceName(), 'version')
 
@@ -16,6 +16,6 @@ if Garage.Version then
 
         end)
       end
-      CheckMenuVersion()
+      GitHubUpdate()
 end
 
