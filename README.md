@@ -257,5 +257,13 @@ exports['sy_garage']:SetMatricula()
  - ox_inventory  -  https://github.com/overextended/ox_inventory/releases  
  - ox_target  -  https://github.com/overextended/ox_target/releases  
 
+# **Install**
 
+If you use sy_carkeys delete it as this script contains the key system.
+
+(in the ReadMe It has all the options of the key system.)
+## **:warning: THIS SCRIPT WORKS WITH BUILD 2699 OR HIGHER! :warning:**
+- 1 - Add sql in database.
+
+- 2 - "ensure sy_garage" in server.cfg.
 
