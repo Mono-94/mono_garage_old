@@ -487,7 +487,7 @@ lib.addCommand(Garage.OwnerCarAdmin.Command, {
             help = 'Target player\'s server id',
         },
     },
-}, function(source,args)
+}, function(source, args)
     TriggerClientEvent('sy_garage:CheckVeh2', args.target)
 end)
 
@@ -628,15 +628,18 @@ if Garage.Persistent.Persitent then
                                             position.z ..
                                             ',' ..
                                             heading ..
-                                            ' )\027[0m Doors: ' .. doorLockStatus .. ', ( 0 = Open / 2 Close))')
-                                        if Garage.Persistent.DeleteCarDisconnect then
-                                            print('\027[1mVEHICLE DELETED\027[0m ( "\027[33m' .. plate .. '"\027[0m )')
-                                        end
+                                            ' )\027[0m Doors: ' ..
+                                            doorLockStatus ..
+                                            ', ( 0 = Open / 2 Close))\027- [1mVEHICLE DELETED\027[0m ( "\027[33m' ..
+                                            plate .. '"\027[0m )')
                                     end
-                                    if Garage.Persistent.DeleteCarDisconnect then
+                                    DeleteEntity(vehEntity)
+                                    --[[if Garage.Persistent.DeleteCarDisconnect then
                                         DeleteEntity(vehEntity)
                                         print('\027[1mVEHICLE DELETED\027[0m ( "\027[33m' .. plate .. '"\027[0m )')
-                                    end
+                                else
+                                    print('el nema es gay y me tiene retendio reparando scripts')
+                                end]]
                                 end)
                         end
                     end

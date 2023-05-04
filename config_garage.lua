@@ -7,7 +7,7 @@
 
 Garage = {}
 
-Garage.Debug = false            -- Debug, prints etc...
+Garage.Debug = false           -- Debug, prints etc...
 
 Garage.RadialCopyCoords = false  -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
@@ -15,7 +15,7 @@ Garage.Version = true           -- Check GitHub version.
 
 Garage.Target = true            -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 
-Garage.TargetDistance = 2       -- Distance to deposit the vehicle with ox_target
+Garage.TargetDistance = 2.5      -- Distance to deposit the vehicle with ox_target
 --<-------------------------------------->--
 
 Garage.SharedGarage = false      -- If it is "true" it will be able to withdraw the vehicles in any garage, if it is "false" it will only be able to withdraw the vehicle in the garage that kept it.
@@ -28,7 +28,9 @@ Garage.OwnerCarAdmin = {
 
 Garage.Persistent = {
     Persitent = true,           -- Persistent vehicle system.
-    DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it will be deleted, and its position will be saved. If 'false,' the vehicle will only save its position and door state but will not be removed from the world.
+
+    -- WORK IN 👷‍♂️
+   -- DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it will be deleted, and its position will be saved. If 'false,' the vehicle will only save its position and door state but will not be removed from the world.
 }
 
 Garage.AutoImpound = {         
@@ -41,6 +43,7 @@ Garage.AutoImpound = {
 
 Garage.ShareCarFriend = true -- Share vehicles with friends.
 
+-- WORK IN 👷‍♂️
 Garage.SaveKilometers = true -- Save Kilometers in DB
 
 Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
