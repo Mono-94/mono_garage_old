@@ -7,11 +7,12 @@ if Keys.Keys then
 
 
 
-    RegisterServerEvent('sy_carkeys:DeleteKey', function(count, plate, model)
-        local formattedPlate = string.format("%-8s", plate)
+   RegisterServerEvent('sy_carkeys:DeleteKey', function(count, plate, model)
+       local formattedPlate = string.gsub(plate, "^%s*(.-)%s*$", "%1")
         exports.ox_inventory:RemoveItem(source, 'carkeys', count,
             { plate = formattedPlate, description = locale('key_description', formattedPlate, model) })
     end)
+
 
 
 
