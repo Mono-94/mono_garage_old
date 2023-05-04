@@ -4,11 +4,11 @@ game 'gta5'
 
 name 'Sy_Garage'
 
-repository 	'https://github.com/Mono-94/sy_garage'
+repository 	'https://github.com/Mono-94/sy_garage '
 
 version 		'1.0.2'
 
-author 'Symbiote#3027'
+author 'Symbiote#3027 - Discord https://discord.gg/Vk7eY8xYV2'
 
 
 shared_scripts{
