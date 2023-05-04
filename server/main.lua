@@ -31,7 +31,7 @@ function Crearvehiculo(model, coordinates, heading, props, source, puertas, Task
     
     if TaskInCar then
         if Garage.SetInToVehicle then
-            TaskWarpPedIntoVehicle(GetPlayerPed(source), vehicle, -1)
+            TaskWarpPedIntoVehicle(GetPlayerPed(source), entity, -1)
         end
     end
 end
