@@ -2,7 +2,8 @@ lib.locale()
 
 function Crearvehiculo(model, coordinates, heading, props, source, puertas, TaskInCar)
     local vehicle = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading)
-
+ 
+   
     while not DoesEntityExist(vehicle) do
         Wait(0)
     end
@@ -12,16 +13,16 @@ function Crearvehiculo(model, coordinates, heading, props, source, puertas, Task
     local networkId = NetworkGetNetworkIdFromEntity(vehicle)
 
     Wait(200)
-
+    
+    SetVehicleDoorsLocked(vehicle, puertas)
+    TriggerClientEvent('sy_garage:Propiedades', source, networkId, props)
+    
     if TaskInCar then
         if Garage.SetInToVehicle then
             TaskWarpPedIntoVehicle(GetPlayerPed(source), vehicle, -1)
         end
     end
-    SetVehicleDoorsLocked(vehicle, puertas)
 
-
-    TriggerClientEvent('sy_garage:Propiedades', source, networkId, props)
 end
 
 lib.callback.register('sy_garage:getOwnerVehicles', function(source)
