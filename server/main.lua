@@ -1,28 +1,41 @@
 lib.locale()
 
-function Crearvehiculo(model, coordinates, heading, props, source, puertas, TaskInCar)
-    local vehicle = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading)
 
-    while not DoesEntityExist(vehicle) do
+-- En el servidor:
+local vehiculos = {}
+
+function Crearvehiculo(model, coordinates, heading, props, source, puertas, TaskInCar)
+    local entity = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading)
+    Wait(100)
+    while not DoesEntityExist(entity) do
         Wait(0)
     end
-
+    local network = NetworkGetNetworkIdFromEntity(entity)
     Wait(200)
+    local netid = NetworkGetEntityFromNetworkId(network)
+    
+    if Garage.Debug then
+        print(("VEH: %s, NET: %s,NID: %s"):format(entity, network, netid))
+    end
+    local state = Entity(netid)
 
-    local networkId = NetworkGetNetworkIdFromEntity(vehicle)
+    -- Asignar un propietario al vehículo
+    vehiculos[network] = source
 
-    Wait(200)
-
+    -- Verificar si el jugador tiene permiso para aplicar las propiedades
+    if vehiculos[network] == source then
+        state.state.Mods = props
+    end
+     
+    SetVehicleDoorsLocked(entity, puertas)
+    
     if TaskInCar then
         if Garage.SetInToVehicle then
             TaskWarpPedIntoVehicle(GetPlayerPed(source), vehicle, -1)
         end
     end
-    SetVehicleDoorsLocked(vehicle, puertas)
-
-
-    TriggerClientEvent('sy_garage:Propiedades', source, networkId, props)
 end
+
 
 lib.callback.register('sy_garage:getOwnerVehicles', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -260,15 +273,14 @@ RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, ga
         end
         local amigos = json.decode(data.amigos) or {}
 
-
-        if plate == data.plate then
+        if plate == string.gsub(data.plate, "^%s*(.-)%s*$", "%1") then
             if data.owner == xPlayer.identifier then -- propiedad
                 MySQL.Async.execute(
                     "UPDATE `owned_vehicles` SET `vehicle` = @vehicleData, `stored` = @stored,`pound` = @pound, `calle` = @calle, `parking` = @parking WHERE `owner` = @identifier AND `plate` = @plate",
                     {
                         ['@identifier'] = identifier,
                         ['@vehicleData'] = vehicleDataEncoded,
-                        ['@plate'] = string.format("%-8s", plate),
+                        ['@plate'] = plate, --string.gsub(plate, "^%s*(.-)%s*$", "%1")
                         ['@stored'] = stored,
                         ['@parking'] = parking,
                         ['@calle'] = nil,
@@ -298,7 +310,7 @@ RegisterServerEvent('sy_garage:GuardarVehiculo', function(plate, vehicleData, ga
                             "UPDATE `owned_vehicles` SET `vehicle` = @vehicleData, `stored` = @stored, `pound` = @pound, `calle` = @calle,  `parking` = @parking WHERE  `plate` = @plate",
                             {
                                 ['@vehicleData'] = vehicleDataEncoded,
-                                ['@plate'] = string.format("%-8s", plate),
+                                ['@plate'] = plate, --string.gsub(plate, "^%s*(.-)%s*$", "%1")
                                 ['@stored'] = stored,
                                 ['@parking'] = parking,
                                 ['@calle'] = nil,
@@ -346,9 +358,7 @@ end)
 
 RegisterServerEvent('sy_garage:RetirarVehiculo', function(plate, lastparking, pos, hea, props, model)
     local source = source
-
-
-    MySQL.Async.execute(
+        MySQL.Async.execute(
         "UPDATE `owned_vehicles` SET `stored` = 0, `lastparking` = @lastparking, `calle` = @calle WHERE `plate` = @plate",
         {
             ['@lastparking'] = lastparking,
@@ -536,7 +546,9 @@ end)
 if Garage.Persistent.Persitent then
     local vehiclesSpawned = {}
 
+
     RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew, cb)
+  
         if xPlayer then
             local results = MySQL.Sync.fetchAll("SELECT * FROM `owned_vehicles` WHERE owner = @identifier", {
                 ['@identifier'] = xPlayer.getIdentifier()

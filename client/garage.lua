@@ -146,7 +146,7 @@ CreateThread(function()
                         onSelect = function()
                             local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                             if closet then
-                                local plate = string.gsub(GetVehicleNumberPlateText(closet), " ", "")
+                               local plate = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
                                 local model = GetEntityModel(closet)
                                 local name = GetDisplayNameFromVehicleModel(model)
                                 local vehicleProps = lib.getVehicleProperties(closet)
@@ -154,10 +154,7 @@ CreateThread(function()
                                 if Garage.CarKeys then
                                     Garage.DeleteKeyEvent(plate, name)
                                 end
-
-                                TriggerServerEvent('sy_garage:GuardarVehiculo', plate,
-                                    json.encode(vehicleProps), k,
-                                    VehToNet(closet))
+                                TriggerServerEvent('sy_garage:GuardarVehiculo', plate, json.encode(vehicleProps), k,VehToNet(closet))
                             else
                                 TriggerEvent('sy_garage:Notification', locale('mascerca'))
                             end
@@ -201,12 +198,11 @@ CreateThread(function()
                                                 if Garage.CarKeys then
                                                     Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                                 end
+                                                local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                                                 local vehicle = GetVehiclePedIsIn(cache.ped, false)
                                                 local vehicleProps = lib.getVehicleProperties(vehicle)
-                                                TriggerServerEvent('sy_garage:GuardarVehiculo',
-                                                    GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
-                                                    json.encode(vehicleProps), k,
-                                                    VehToNet(Sy.GetCar({ car = true })))
+                                                local plate = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
+                                                TriggerServerEvent('sy_garage:GuardarVehiculo', plate, json.encode(vehicleProps), k,VehToNet(closet))
                                             else
                                                 TriggerEvent('sy_garage:Notification',
                                                     locale('NoAqui'))
@@ -220,12 +216,11 @@ CreateThread(function()
                                                 if Garage.CarKeys then
                                                     Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
                                                 end
+                                                local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                                                 local vehicle = GetVehiclePedIsIn(cache.ped, false)
                                                 local vehicleProps = lib.getVehicleProperties(vehicle)
-                                                TriggerServerEvent('sy_garage:GuardarVehiculo',
-                                                    GetVehicleNumberPlateText(Sy.GetCar({ car = true })),
-                                                    json.encode(vehicleProps), k,
-                                                    VehToNet(Sy.GetCar({ car = true })))
+                                                local plate = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
+                                                TriggerServerEvent('sy_garage:GuardarVehiculo', plate, json.encode(vehicleProps), k,VehToNet(closet))
                                             else
                                                 TriggerEvent('sy_garage:Notification',
                                                     locale('NoAqui'))
@@ -855,29 +850,27 @@ if Garage.SaveKilometers then
                     inVeh = true
                     local plate = GetVehicleNumberPlateText(veh)
                     local vehicles = lib.callback.await('sy_garage:owner_vehicles')
-                    if vehicles then
-                        for i = 1, #vehicles do
-                            local data = vehicles[i]
-                            if plate == data.plate then
-                                local PosAnituga = GetEntityCoords(PlayerPedId())
-                                Wait(1000)
-                                local PosNueva = GetEntityCoords(PlayerPedId())
-                                if SyGargeTypeCar(Sy.GetClase()) == 'car' then
-                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                        PosNueva.z)
-                                elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
-                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                        PosNueva.z)
-                                elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
-                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                        PosNueva.z)
-                                else
-                                    distan = 0
-                                end
-                                data.mileage = data.mileage + distan
-                                TriggerServerEvent('sy_garage:AgregarKilometros', plate, data.mileage)
-                                inVeh = false
+                    for i = 1, #vehicles do
+                        local data = vehicles[i]
+                        if plate == data.plate then
+                            local PosAnituga = GetEntityCoords(PlayerPedId())
+                            Wait(1000)
+                            local PosNueva = GetEntityCoords(PlayerPedId())
+                            if SyGargeTypeCar(Sy.GetClase()) == 'car' then
+                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                    PosNueva.z)
+                            elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
+                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                    PosNueva.z)
+                            elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
+                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                    PosNueva.z)
+                            else
+                                distan = 0
                             end
+                            data.mileage = data.mileage + distan
+                            TriggerServerEvent('sy_garage:AgregarKilometros', plate, data.mileage)
+                            inVeh = false
                         end
                     end
                 end

@@ -53,20 +53,21 @@ Sy.GetClase = function()
 end
 
 
+AddStateBagChangeHandler('Mods', nil, function(bagName, key, value, _unused, replicated)
 
+    local entity = GetEntityFromStateBagName(bagName)
 
+    if entity == 0 then return end
 
+    if PlayerId ~= nil and NetworkGetEntityOwner(entity) == PlayerId() then
 
-RegisterNetEvent('sy_garage:Propiedades', function(NetId, props)
-    while not NetworkDoesEntityExistWithNetworkId(NetId)  do
-       Wait(0)
+        lib.setVehicleProperties(entity, value)
+        
     end
-
-    if NetworkDoesEntityExistWithNetworkId(NetId) then
-        lib.setVehicleProperties(NetToVeh(NetId), props)
-    end
+    
 end)
-  
+
+
 
 
 
@@ -84,9 +85,3 @@ AddEventHandler('sy_garage:CheckVeh2', function()
         TriggerEvent('sy_garage:Notification', locale('dentrocar'))
     end
 end)
-
-
-
-
-
-
