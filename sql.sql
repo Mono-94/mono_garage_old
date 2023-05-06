@@ -68,5 +68,5 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
-
-	ALTER table owned_vehicles ADD COLUMN `calle` varchar(60) DEFAULT NULL;
+ALTER TABLE owned_vehicles
+ADD COLUMN calle varchar(60) DEFAULT NULL;
