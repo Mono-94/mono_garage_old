@@ -1,39 +1,43 @@
 lib.locale()
 
 
--- En el servidor:
 local vehiculos = {}
 
 function Crearvehiculo(model, coordinates, heading, props, source, puertas, TaskInCar)
     local entity = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading)
     Wait(100)
+
     while not DoesEntityExist(entity) do
         Wait(0)
     end
-    local network = NetworkGetNetworkIdFromEntity(entity)
-    Wait(200)
-    local netid = NetworkGetEntityFromNetworkId(network)
-    
-    if Garage.Debug then
-        print(("VEH: %s, NET: %s,NID: %s"):format(entity, network, netid))
-    end
-    local state = Entity(netid)
 
-    -- Asignar un propietario al vehículo
-    vehiculos[network] = source
-
-    -- Verificar si el jugador tiene permiso para aplicar las propiedades
-    if vehiculos[network] == source then
-        state.state.Mods = props
-    end
-     
-    SetVehicleDoorsLocked(entity, puertas)
-    
     if TaskInCar then
         if Garage.SetInToVehicle then
             TaskWarpPedIntoVehicle(GetPlayerPed(source), entity, -1)
         end
     end
+
+    local network = NetworkGetNetworkIdFromEntity(entity)
+    Wait(200)
+
+    local netid = NetworkGetEntityFromNetworkId(network)
+    
+    if Garage.Debug then
+        print(("VEH: %s, NET: %s,NID: %s"):format(entity, network, netid)) 
+    end
+    
+    vehiculos[network] = source
+
+    local state = Entity(netid)
+
+    Wait(1000)
+
+    if vehiculos[network] == source then
+        state.state.Mods = props
+    end
+
+    SetVehicleDoorsLocked(entity, puertas)
+
 end
 
 
