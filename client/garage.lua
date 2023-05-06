@@ -850,28 +850,30 @@ if Garage.SaveKilometers then
                     inVeh = true
                     local plate = GetVehicleNumberPlateText(veh)
                     local vehicles = lib.callback.await('sy_garage:owner_vehicles')
-                    for i = 1, #vehicles do
-                        local data = vehicles[i]
-                        if plate == data.plate then
-                            local PosAnituga = GetEntityCoords(PlayerPedId())
-                            Wait(1000)
-                            local PosNueva = GetEntityCoords(PlayerPedId())
-                            if SyGargeTypeCar(Sy.GetClase()) == 'car' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            else
-                                distan = 0
+                    if vehicles then
+                        for i = 1, #vehicles do
+                            local data = vehicles[i]
+                            if plate == data.plate then
+                                local PosAnituga = GetEntityCoords(PlayerPedId())
+                                Wait(1000)
+                                local PosNueva = GetEntityCoords(PlayerPedId())
+                                if SyGargeTypeCar(Sy.GetClase()) == 'car' then
+                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                        PosNueva.z)
+                                elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
+                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                        PosNueva.z)
+                                elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
+                                    distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
+                                        PosNueva.z)
+                                else
+                                    distan = 0
+                                end
+                                data.mileage = data.mileage + distan
+                                TriggerServerEvent('sy_garage:AgregarKilometros', plate, data.mileage)
+                                inVeh = false
                             end
-                            data.mileage = data.mileage + distan
-                            TriggerServerEvent('sy_garage:AgregarKilometros', plate, data.mileage)
-                            inVeh = false
-                        end
+                        end 
                     end
                 end
             end
