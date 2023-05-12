@@ -21,7 +21,7 @@ if Keys.Keys then
                 lib.requestAnimDict(dict)
 
                 if not Sy.GetPlayerKey() then
-                    TriggerEvent('sy_carkeys:Notification', locale('title'), locale('key_not_owned_car'), 'car',
+                    TriggerEvent('mono_carkeys:Notification', locale('title'), locale('key_not_owned_car'), 'car',
                     '#3232a8')
                     return
                 end
@@ -40,21 +40,21 @@ if Keys.Keys then
                 end
 
 
-                TriggerServerEvent('sy_carkeys:ServerDoors', VehToNet(closet), EstadoPuertas)
+                TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), EstadoPuertas)
 
                 if EstadoPuertas == 2 then
-                    TriggerEvent('sy_carkeys:Notification', locale('title'), locale('unlock_veh'), 'lock-open', '#32a852')
+                    TriggerEvent('mono_carkeys:Notification', locale('title'), locale('unlock_veh'), 'lock-open', '#32a852')
                     Wait(1000)
                     DetachEntity(prop, false, false)
                     DeleteEntity(prop)
                 elseif EstadoPuertas == 0 then
-                    TriggerEvent('sy_carkeys:Notification', locale('title'), locale('lock_veh'), 'lock', '#a83254')
+                    TriggerEvent('mono_carkeys:Notification', locale('title'), locale('lock_veh'), 'lock', '#a83254')
                     Wait(1000)
                     DetachEntity(prop, false, false)
                     DeleteEntity(prop)
                 end
             else
-                TriggerEvent('sy_carkeys:Notification', locale('title'), locale('no_veh_nearby'), 'car', '#3232a8')
+                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('no_veh_nearby'), 'car', '#3232a8')
                 return
             end
         end
@@ -104,7 +104,7 @@ if Keys.Keys then
 
 
 
-    RegisterNetEvent('sy_carkeys:LucesLocas', function(netId, lockStatus)
+    RegisterNetEvent('mono_carkeys:LucesLocas', function(netId, lockStatus)
         local vehicle = NetToVeh(netId)
         if DoesEntityExist(vehicle) then
             PlayVehicleDoorCloseSound(vehicle, 1)
@@ -121,31 +121,31 @@ if Keys.Keys then
     end)
 
 
-    RegisterNetEvent('sy_carkeys:AddKeysCars')
-    AddEventHandler('sy_carkeys:AddKeysCars', function()
+    RegisterNetEvent('mono_carkeys:AddKeysCars')
+    AddEventHandler('mono_carkeys:AddKeysCars', function()
         local ped = cache.ped
         local playerVehicle = GetVehiclePedIsIn(ped, false)
         if playerVehicle ~= 0 then
             local vehicleProps = lib.getVehicleProperties(playerVehicle)
             local model = GetEntityModel(playerVehicle)
             local name = GetDisplayNameFromVehicleModel(model)
-            TriggerServerEvent('sy_carkeys:CreateKey', vehicleProps.plate, name)
+            TriggerServerEvent('mono_carkeys:CreateKey', vehicleProps.plate, name)
         else
-            TriggerEvent('sy_carkeys:Notification', locale('title'), locale('dentrocar'), 'car', '#3232a8')
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('dentrocar'), 'car', '#3232a8')
         end
     end)
 
-    RegisterNetEvent('sy_carkeys:DeleteClientKey')
-    AddEventHandler('sy_carkeys:DeleteClientKey', function(count)
+    RegisterNetEvent('mono_carkeys:DeleteClientKey')
+    AddEventHandler('mono_carkeys:DeleteClientKey', function(count)
         local ped = cache.ped
         local playerVehicle = GetVehiclePedIsIn(ped, false)
         if playerVehicle ~= 0 then
             local vehicleProps = lib.getVehicleProperties(playerVehicle)
             local model = GetEntityModel(playerVehicle)
             local name = GetDisplayNameFromVehicleModel(model)
-            TriggerServerEvent('sy_carkeys:DeleteKey', count, vehicleProps.plate, name)
+            TriggerServerEvent('mono_carkeys:DeleteKey', count, vehicleProps.plate, name)
         else
-            TriggerEvent('sy_carkeys:Notification', locale('title'), locale('dentrocar'), 'car', '#3232a8')
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('dentrocar'), 'car', '#3232a8')
         end
     end)
 
@@ -160,7 +160,7 @@ if Keys.Keys then
         local name = GetDisplayNameFromVehicleModel(model)
         local plate = GetVehicleNumberPlateText(car)
         if car == nil then
-            TriggerEvent('sy_carkeys:Notification', locale('title'), locale('nocarcerca'), 'car', '#3232a8')
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('nocarcerca'), 'car', '#3232a8')
         else
             if lib.progressBar({
                     duration = time,
@@ -172,9 +172,9 @@ if Keys.Keys then
                     },
                 })
             then
-                TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
+                TriggerServerEvent('mono_carkeys:CreateKey', plate, name)
             else
-                TriggerEvent('sy_carkeys:Notification', locale('title'), locale('calcelado'), 'car', '#3232a8')
+                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('calcelado'), 'car', '#3232a8')
             end
         end
     end
@@ -188,9 +188,9 @@ if Keys.Keys then
         local name = GetDisplayNameFromVehicleModel(model)
         local plate = GetVehicleNumberPlateText(car)
         if car == nil then
-            TriggerEvent('sy_carkeys:Notification', locale('title'), locale('nocarcerca'), 'car', '#3232a8')
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('nocarcerca'), 'car', '#3232a8')
         else
-            TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
+            TriggerServerEvent('mono_carkeys:CreateKey', plate, name)
         end
     end
 
@@ -235,11 +235,8 @@ if Keys.Keys then
                 if inCar and vehicle ~= nil and vehicle ~= 0 then
                     local engineRunning = GetIsVehicleEngineRunning(vehicle)
                     if engineRunning then
-                        --    print('activado')
                         EnableControlAction(2, 71, true)
                     else
-                        --    print(' des activado')
-                        --     SetVehicleEngineOn(vehicle, false, true, true)
                         DisableControlAction(2, 71, true)
                     end
                     Wait(0)
@@ -261,13 +258,13 @@ if Keys.Keys then
                 local vehicle = GetVehiclePedIsIn(ped, false)
 
                 if not IsPedInAnyVehicle(ped, false) then
-                    TriggerEvent('sy_carkeys:Notification', locale('title'),
+                    TriggerEvent('mono_carkeys:Notification', locale('title'),
                         locale('incar'), 'car', '#3232a8')
                     return
                 end
 
                 if not Sy.GetPlayerKey() then
-                    TriggerEvent('sy_carkeys:Notification', locale('title'), locale('key_not_owned_car'), 'car',
+                    TriggerEvent('mono_carkeys:Notification', locale('title'), locale('key_not_owned_car'), 'car',
                     '#3232a8')
                     return
                 end
@@ -297,7 +294,7 @@ if Keys.Keys then
             if closet then
                 if v.SkillCheck then
                     if EstadoPuertas == 1 then
-                        TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
                         '#3232a8'
                         )
                         return
@@ -306,10 +303,10 @@ if Keys.Keys then
                     local success = lib.skillCheck(table.unpack(v.Skills))
                     if success then
                         ClearPedTasks(ped)
-                        TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), 'LockPick success', 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), 'LockPick success', 'car',
                         '#3232a8'
                         )
-                        TriggerServerEvent('sy_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
+                        TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
                         if math.random() < v.alarmProbability then
                             SetVehicleAlarmTimeLeft(closet, v.alarmTime)
                         end
@@ -318,12 +315,12 @@ if Keys.Keys then
                         end
                     else
                         ClearPedTasks(ped)
-                        TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
                         '#3232a8')
                     end
                 else
                     if EstadoPuertas == 1 then
-                        TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
                         '#3232a8'
                         )
                         return
@@ -341,24 +338,24 @@ if Keys.Keys then
                                 clip = v.anim
                             },
                         }) then
-                        TriggerServerEvent('sy_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
+                        TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
                         if math.random() < v.alarmProbability then
                             SetVehicleAlarmTimeLeft(closet, v.alarmTime)
                         end
                         if v.Disptach then
                             v.DispatchFunction()
-                            TriggerEvent('sy_carkeys:Dispatch')
+                            TriggerEvent('mono_carkeys:Dispatch')
                         end
                     else
                         if math.random() < v.alarmProbability then
                             SetVehicleAlarmTimeLeft(closet, v.alarmTime)
                         end
-                        TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
                         '#3232a8')
                     end
                 end
             else
-                TriggerEvent('sy_carkeys:Notification', locale('LockPickTitle'), locale('nocarcerca'), 'car', '#3232a8')
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('nocarcerca'), 'car', '#3232a8')
             end
         end
     end
@@ -389,7 +386,7 @@ if Keys.Keys then
                         end
                         ClearPedTasks(ped)
                     else
-                        TriggerEvent('sy_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
                         '#3232a8')
                     end
                 else
@@ -422,12 +419,12 @@ if Keys.Keys then
                         if math.random() < v.alarmProbability then
                             SetVehicleAlarmTimeLeft(inVehicle2, v.alarmTime)
                         end
-                        TriggerEvent('sy_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
+                        TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
                         '#3232a8')
                     end
                 end
             else
-                TriggerEvent('sy_carkeys:Notification', locale('HotWireTitle'), locale('HotWireInCar'), 'car', '#3232a8')
+                TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireInCar'), 'car', '#3232a8')
             end
         end
     end
@@ -471,7 +468,7 @@ if Keys.Keys then
             end
 
             if count > 8 or count == 0 then
-                TriggerEvent('sy_carkeys:Notification', locale('title'), locale('MatriculaMax'), 'car', '#3232a8')
+                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('MatriculaMax'), 'car', '#3232a8')
             else
                 local vehicle = GetVehiclePedIsUsing(ped)
                 local model = GetEntityModel(vehicle)
@@ -480,23 +477,23 @@ if Keys.Keys then
                 local newColor = input[2]
 
 
-                TriggerServerEvent('sy_carkeys:SetMatriculaServer', plate, newPlate, newColor, newName)
+                TriggerServerEvent('mono_carkeys:SetMatriculaServer', plate, newPlate, newColor, newName)
             end
         else
-            TriggerEvent('sy_carkeys:Notification', locale('title'), locale('CambiarMatriDentro'), 'car', '#3232a8')
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('CambiarMatriDentro'), 'car', '#3232a8')
         end
     end
 
-    RegisterNetEvent('sy_carkeys:SetMatricula')
-    AddEventHandler('sy_carkeys:SetMatricula', function(newPlate, newColor)
+    RegisterNetEvent('mono_carkeys:SetMatricula')
+    AddEventHandler('mono_carkeys:SetMatricula', function(newPlate, newColor)
         local vehicle = GetVehiclePedIsUsing(cache.ped)
         local plate = GetVehicleNumberPlateText(vehicle)
         local model = GetEntityModel(vehicle)
         local name = GetDisplayNameFromVehicleModel(model)
         SetVehicleNumberPlateText(vehicle, newPlate)
         SetVehicleNumberPlateTextIndex(vehicle, newColor)
-        TriggerServerEvent('sy_carkeys:DeleteKey', 1, plate, name)
-        TriggerServerEvent('sy_carkeys:CreateKey', newPlate, name)
+        TriggerServerEvent('mono_carkeys:DeleteKey', 1, plate, name)
+        TriggerServerEvent('mono_carkeys:CreateKey', newPlate, name)
         return newPlate, newColor, name
     end)
 
@@ -513,8 +510,8 @@ if Keys.Keys then
 
     exports('SetMatricula', SetMatricula)
 
-    RegisterNetEvent('sy_carkeys:Motor')
-    AddEventHandler('sy_carkeys:Motor', function(vehicle)
+    RegisterNetEvent('mono_carkeys:Motor')
+    AddEventHandler('mono_carkeys:Motor', function(vehicle)
         SetVehicleEngineOn(vehicle, false, true, true)
     end)
 
@@ -559,10 +556,10 @@ if Keys.Keys then
                         label = v.label,
                         onSelect = function()
                             local KeyMenu = {}
-                            local vehicles = lib.callback.await('sy_carkeys:getVehicles')
+                            local vehicles = lib.callback.await('mono_carkeys:getVehicles')
 
                             if vehicles == nil then
-                                TriggerEvent('sy_carkeys:Notification', locale('title'), locale('nopropio'), 'alert')
+                                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('nopropio'), 'alert')
                                 return
                             end
                             for i = 1, #vehicles do
@@ -597,7 +594,7 @@ if Keys.Keys then
                                                         cancel = true
                                                     })
                                                     if alert == 'cancel' then
-                                                        TriggerEvent('sy_carkeys:Notification', locale('title'),
+                                                        TriggerEvent('mono_carkeys:Notification', locale('title'),
                                                             locale('vuelve'),
                                                             'alert')
                                                         return
@@ -612,7 +609,7 @@ if Keys.Keys then
                                                                 },
                                                             })
                                                         then
-                                                            TriggerServerEvent('sy_carkeys:BuyKeys', plate, name)
+                                                            TriggerServerEvent('mono_carkeys:BuyKeys', plate, name)
                                                         end
                                                     end
                                                 end
@@ -625,29 +622,29 @@ if Keys.Keys then
                                                 arrow = true,
                                                 description = locale('ComprarMatriDescri', Keys.PriceItemPlate),
                                                 image = 'nui://ox_inventory/web/images/' .. Keys.ItemPlate .. '.png',
-                                                serverEvent = 'sy_carkeys:ComprarMatricula'
+                                                serverEvent = 'mono_carkeys:ComprarMatricula'
                                             })
                                         end
                                         lib.registerContext({
-                                            id = 'sy_carkeys:MenuCarSelect',
+                                            id = 'mono_carkeys:MenuCarSelect',
                                             title = name .. ' - ' .. marca,
-                                            menu = 'sy_carkeys:SelectCarKey',
+                                            menu = 'mono_carkeys:SelectCarKey',
                                             options = options
                                         })
 
 
-                                        lib.showContext('sy_carkeys:MenuCarSelect')
+                                        lib.showContext('mono_carkeys:MenuCarSelect')
                                     end
                                 })
                             end
 
                             lib.registerContext({
-                                id = 'sy_carkeys:SelectCarKey',
+                                id = 'mono_carkeys:SelectCarKey',
                                 title = locale('cerrajero'),
                                 options = KeyMenu
                             })
 
-                            lib.showContext('sy_carkeys:SelectCarKey')
+                            lib.showContext('mono_carkeys:SelectCarKey')
                         end
                     }
                 }

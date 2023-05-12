@@ -1,3 +1,4 @@
+
 Sy = {}
 
 Sy.GetProps = function()
@@ -51,22 +52,6 @@ Sy.GetClase = function()
     local clase = GetVehicleClass(vehicle)
     return clase
 end
-
-
-AddStateBagChangeHandler('Mods', nil, function(bagName, key, value, _unused, replicated)
-
-    local entity = GetEntityFromStateBagName(bagName)
-
-    if entity == 0 then return end
-
-    if PlayerId ~= nil and NetworkGetEntityOwner(entity) == PlayerId() then
-
-        lib.setVehicleProperties(entity, value)
-        
-    end
-    
-end)
-
 
 
 

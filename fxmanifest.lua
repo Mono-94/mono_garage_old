@@ -2,13 +2,13 @@ fx_version 'cerulean'
 
 game 'gta5' 
 
-name 'Sy_Garage'
+name 'mono_garage'
 
-repository 	'https://github.com/Mono-94/sy_garage '
+repository 	'https://github.com/Mono-94/mono_garage'
 
-version 		'1.0.3'
+version 		'1.1.0'
 
-author 'Symbiote#3027 - Discord https://discord.gg/Vk7eY8xYV2'
+author 'Symbiote#3027'
 
 
 shared_scripts{
@@ -17,13 +17,11 @@ shared_scripts{
     'config_garage.lua',
     'config_keys.lua',
     'functions.lua'
-    
 } 
 
 
 client_scripts{
     'client/*.lua',
-   
 } 
 
 server_scripts{

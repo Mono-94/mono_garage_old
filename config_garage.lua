@@ -16,9 +16,8 @@ Garage.Version = true           -- Check GitHub version.
 Garage.Target = true            -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 
 Garage.TargetDistance = 2.5      -- Distance to deposit the vehicle with ox_target
---<-------------------------------------->--
 
-Garage.SharedGarage = false      -- If it is "true" it will be able to withdraw the vehicles in any garage, if it is "false" it will only be able to withdraw the vehicle in the garage that kept it.
+--<-------------------------------------->--
 
 Garage.OwnerCarAdmin = {
     -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
@@ -26,25 +25,20 @@ Garage.OwnerCarAdmin = {
     Group = 'admin',     -- Group
 }
 
-Garage.Persistent = {
-    Persitent = true,           -- Persistent vehicle system.
-
-    -- WORK IN 👷‍♂️
-   -- DeleteCarDisconnect = true, -- When the player disconnects and their vehicle is outside the garage, it will be deleted, and its position will be saved. If 'false,' the vehicle will only save its position and door state but will not be removed from the world.
-}
 
 Garage.AutoImpound = {         
     AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
     ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
-    TimeCheck = 1000 * 60 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
+    TimeCheck = 1000 * 10 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
 --<-------------------------------------->--
 
+Garage.SharedGarage = false      -- If it is "true" it will be able to withdraw the vehicles in any garage, if it is "false" it will only be able to withdraw the vehicle in the garage that kept it.
+
 Garage.ShareCarFriend = true -- Share vehicles with friends.
 
--- WORK IN 👷‍♂️
-Garage.SaveKilometers = true -- Save Kilometers in DB
+Garage.SaveKilometers = false -- Save Kilometers in DB
 
 Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
 
@@ -52,14 +46,14 @@ Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
 
 Garage.CarKeys = true -- Add keys when removing the vehicle and remove them when depositing it.
 
---<-------------------------------------->--
-
 --You can add the event of the script you use or use the one included in the garage. You can modify it from config_keys.lua.
+
 Garage.AddKeyEvent = function(plate, name)
-    TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
+    TriggerServerEvent('mono_carkeys:CreateKey', plate, name)
 end
+
 Garage.DeleteKeyEvent = function(plate, name)
-    TriggerServerEvent('sy_carkeys:DeleteKey', 1, plate, name)
+    TriggerServerEvent('mono_carkeys:DeleteKey', 1, plate, name)
 end
 
 --<-------------------------------------->--

@@ -119,8 +119,9 @@ Keys.HotWire = {
 ▒█▒█▒█ █░░█ ░░█░░ ▀█▀ █▀▀ ▀█▀ █░░ █▄▄█ ░░█░░ ▀█▀ █░░█ █░░█ 
 ▒█░░▀█ ▀▀▀▀ ░░▀░░ ▀▀▀ ▀░░ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀▀▀▀ ▀░░▀]]
 --<-------------------------------------->--
-RegisterNetEvent('sy_carkeys:Notification')
-AddEventHandler('sy_carkeys:Notification', function(title, msg, icon, color)
+
+RegisterNetEvent('mono_carkeys:Notification')
+AddEventHandler('mono_carkeys:Notification', function(title, msg, icon, color)
     lib.notify({
         title = title,
         description = msg,

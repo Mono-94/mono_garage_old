@@ -7,18 +7,17 @@ if Keys.Keys then
 
 
 
-   RegisterServerEvent('sy_carkeys:DeleteKey', function(count, plate, model)
-      local formattedPlate = string.format("%-8s", plate)
+    RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate, model)
+       -- local formattedPlate = string.format("%-8s", plate)
         exports.ox_inventory:RemoveItem(source, 'carkeys', count,
-            { plate = formattedPlate, description = locale('key_description', formattedPlate, model) })
+            { plate = plate, description = locale('key_description', plate, model) })
     end)
 
 
 
 
 
-
-    RegisterServerEvent('sy_carkeys:CreateKey', function(plate, model)
+    RegisterServerEvent('mono_carkeys:CreateKey', function(plate, model)
         if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
             ox_inventory:AddItem(source, Keys.ItemName, 1,
                 { plate = plate, description = locale('key_description', plate, model) })
@@ -26,23 +25,25 @@ if Keys.Keys then
     end)
 
 
-    RegisterServerEvent('sy_carkeys:BuyKeys', function(plate, model)
+    RegisterServerEvent('mono_carkeys:BuyKeys', function(plate, model)
+        local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
         if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
             if xPlayer.getMoney() >= Keys.CopyPrice then
                 exports.ox_inventory:RemoveItem(source, 'money', Keys.CopyPrice)
                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                     { plate = plate, description = locale('key_description', plate, model) })
-                TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'),
+                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'),
                     locale('llavecomprada', model, Keys.CopyPrice), 'success')
             else
-                TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
+                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
                     'error')
             end
         end
     end)
 
-    lib.callback.register('sy_carkeys:getVehicles', function(source)
+    lib.callback.register('mono_carkeys:getVehicles', function(source)
+        
         local xPlayer = ESX.GetPlayerFromId(source)
         local identifier = xPlayer.getIdentifier()
         local vehicles = {}
@@ -63,8 +64,8 @@ if Keys.Keys then
 
 
 
-    RegisterServerEvent('sy_carkeys:SetMatriculaServer')
-    AddEventHandler('sy_carkeys:SetMatriculaServer', function(oldPlate, newPlate, newColor)
+    RegisterServerEvent('mono_carkeys:SetMatriculaServer')
+    AddEventHandler('mono_carkeys:SetMatriculaServer', function(oldPlate, newPlate, newColor)
         local xPlayer = ESX.GetPlayerFromId(source)
         local identifier = xPlayer.getIdentifier()
 
@@ -88,15 +89,15 @@ if Keys.Keys then
                     ['@newVehicle'] = newVehicle
                 }, function(rowsChanged)
                     if rowsChanged > 0 then
-                        TriggerClientEvent('sy_carkeys:SetMatricula', xPlayer.source, decodedVehicle.plate, newColor)
-                        TriggerClientEvent('sy_carkeys:Notification', xPlayer.source,
+                        TriggerClientEvent('mono_carkeys:SetMatricula', xPlayer.source, decodedVehicle.plate, newColor)
+                        TriggerClientEvent('mono_carkeys:Notification', xPlayer.source,
                             locale('MatriculaActualizada', oldPlate, decodedVehicle.plate))
                     else
-                        TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('ErrorActualizar'))
+                        TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('ErrorActualizar'))
                     end
                 end)
         else
-            TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('NoTienesMatricula'))
+            TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('NoTienesMatricula'))
         end
     end)
 
@@ -143,7 +144,7 @@ if Keys.Keys then
         restricted = 'group.admin'
     }, function(source, args)
         local id = args.ID or source
-        TriggerClientEvent('sy_carkeys:AddKeysCars', id)
+        TriggerClientEvent('mono_carkeys:AddKeysCars', id)
     end)
 
 
@@ -165,19 +166,19 @@ if Keys.Keys then
         restricted = 'group.admin'
     }, function(source, args)
         local id = args.ID or source
-        TriggerClientEvent('sy_carkeys:DeleteClientKey', id, args.count)
+        TriggerClientEvent('mono_carkeys:DeleteClientKey', id, args.count)
     end)
 
-    RegisterServerEvent('sy_carkeys:ComprarMatricula', function()
+    RegisterServerEvent('mono_carkeys:ComprarMatricula', function()
         local xPlayer = ESX.GetPlayerFromId(source)
         if ox_inventory:CanCarryItem(source, Keys.ItemPlate, 1) then
             if xPlayer.getMoney() >= Keys.PriceItemPlate then
                 exports.ox_inventory:RemoveItem(source, 'money', Keys.PriceItemPlate)
                 ox_inventory:AddItem(source, Keys.ItemPlate, 1)
-                TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'),
+                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'),
                     locale('MatriculaComprada') 'success')
             else
-                TriggerClientEvent('sy_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
+                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
                     'error')
             end
         end
@@ -186,11 +187,13 @@ if Keys.Keys then
 
     -- SYNC
 
-    RegisterNetEvent('sy_carkeys:ServerDoors', function(id, status)
+    RegisterNetEvent('mono_carkeys:ServerDoors', function(id, status)
         local vehicle = NetworkGetEntityFromNetworkId(id)
         local xPlayer = ESX.GetPlayerFromId(source)
-        print('Carkey = ' .. 'Vehicle Newwork: ' .. vehicle .. ' Door:' .. status)
+        if Keys.Debug then
+            print('Carkey = ' .. 'Vehicle Newwork: ' .. vehicle .. ' Door:' .. status)
+        end
         SetVehicleDoorsLocked(vehicle, status == 2 and 0 or 2)
-        TriggerClientEvent('sy_carkeys:LucesLocas', xPlayer.source, id, status ~= 2)
+        TriggerClientEvent('mono_carkeys:LucesLocas', xPlayer.source, id, status ~= 2)
     end)
 end

@@ -34,16 +34,16 @@ function NPCImpoundGarage(impound)
             ClearPedTasks(npcPed)
             DeletePed(npcPed)
             DeleteEntity(vehicle)
-            TriggerServerEvent('sy_garage:MandarVehiculoImpound', plate, impound)
-            TriggerEvent('sy_garage:Notification', locale('impound1', plate))
+            TriggerServerEvent('mono_garage:MandarVehiculoImpound', plate, impound)
+            TriggerEvent('mono_garage:Notification', locale('impound1', plate))
         else
             Wait(5000)
             DeleteEntity(vehicle)
-            TriggerServerEvent('sy_garage:MandarVehiculoImpound', plate, impound)
-            TriggerEvent('sy_garage:Notification', locale('impound1', plate))
+            TriggerServerEvent('mono_garage:MandarVehiculoImpound', plate, impound)
+            TriggerEvent('mono_garage:Notification', locale('impound1', plate))
         end
     else
-        TriggerEvent('sy_garage:Notification', locale('no_veh_nearby'))
+        TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
     end
 end
 
@@ -87,20 +87,20 @@ RegisterCommand(Garage.NpcImpound.Command, function()
                     }) then
                     NPCImpoundGarage(input[1])
                 else
-                    TriggerEvent('sy_garage:Notification', locale('cancelado'))
+                    TriggerEvent('mono_garage:Notification', locale('cancelado'))
                 end
             else
-                TriggerEvent('sy_garage:Notification', locale('no_veh_nearby'))
+                TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
             end
             break
         end
     end
     if not jobAllowed then
-        TriggerEvent('sy_garage:Notification', locale('impound3'))
+        TriggerEvent('mono_garage:Notification', locale('impound3'))
     end
 end)
 
-AddEventHandler('sy_garage:NPCImpound', function()
+AddEventHandler('mono_garage:NPCImpound', function()
     if Sy.CarCloset({ dist = 7, pedcar = true }) then
         local input
         local imp = {}
@@ -136,10 +136,10 @@ AddEventHandler('sy_garage:NPCImpound', function()
             }) then
             NPCImpoundGarage(input[1])
         else
-            TriggerEvent('sy_garage:Notification', locale('cancelado'))
+            TriggerEvent('mono_garage:Notification', locale('cancelado'))
         end
     else
-        TriggerEvent('sy_garage:Notification', locale('no_veh_nearby'))
+        TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
     end
 end)
 
