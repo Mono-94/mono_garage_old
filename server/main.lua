@@ -498,7 +498,7 @@ lib.addCommand(Garage.OwnerCarAdmin.Command, {
         },
     },
 }, function(source, args)
-    TriggerClientEvent('mono_garage:CheckVeh2', args.target)
+    TriggerClientEvent('mono_garage:GiveCar', args.target)
 end)
 
 

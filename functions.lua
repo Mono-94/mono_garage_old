@@ -56,17 +56,17 @@ end
 
 
 
-RegisterNetEvent('sy_garage:CheckVeh2')
-AddEventHandler('sy_garage:CheckVeh2', function()
+RegisterNetEvent('mono_garage:GiveCar')
+AddEventHandler('mono_garage:GiveCar', function()
     local playerVehicle = GetVehiclePedIsIn(PlayerPedId(), false)
     local vehicleProps = Sy.GetProps()
     local model = GetEntityModel(playerVehicle)
     local name = GetDisplayNameFromVehicleModel(model)
     local plate = GetVehicleNumberPlateText(playerVehicle)
     if cache.vehicle then
-        TriggerServerEvent('sy_garage:SetCarDB', vehicleProps, plate, name)
-        TriggerServerEvent('sy_carkeys:CreateKey', plate, name)
+        TriggerServerEvent('mono_garage:SetCarDB', vehicleProps, plate, name)
+        TriggerServerEvent('mono_carkeys:CreateKey', plate, name)
     else
-        TriggerEvent('sy_garage:Notification', locale('dentrocar'))
+        TriggerEvent('mono_garage:Notification', locale('dentrocar'))
     end
 end)
