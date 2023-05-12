@@ -9,11 +9,11 @@ if Garage.Version then
         local version = string.sub(result, string.find(result, "%d.%d.%d"))
 
         if tonumber((version:gsub("%D+", ""))) > tonumber((actual:gsub("%D+", ""))) then
-          print('^6SY GARAGE^7  - The version ^2' ..
+          print('^6MONO GARAGE^7  - The version ^2' ..
           version .. '^0 is available, you are still using version ^1' .. actual .. '^0')
-          print('^6SY GARAGE^7  - Download the new version at: https://github.com/Mono-94/mono_garage')
+          print('^6MONO GARAGE^7  - Download the new version at: https://github.com/Mono-94/mono_garage')
         else
-          print('^6SY GARAGE^7 - You are using the latest version of the script.')
+          print('^6MONO GARAGE^7 - You are using the latest version of the script.')
         end
       end)
   end
