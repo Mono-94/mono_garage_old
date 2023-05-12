@@ -10,7 +10,7 @@
 
 Garage = {}
 
-Garage.Debug = false           -- Debug, prints etc...
+Garage.Debug = false          -- Debug, prints etc...
 
 Garage.RadialCopyCoords = false  -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 

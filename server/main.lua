@@ -545,7 +545,6 @@ RegisterNetEvent('mono_garage:SetCarDB', function(vehicleData, plate)
     end
 end)
 
---
 
 if Garage.AutoImpound.AutoImpound then
     CreateThread(function()
@@ -555,34 +554,21 @@ if Garage.AutoImpound.AutoImpound then
                 local data = vehicles[i]
                 local allVehicles = GetAllVehicles()
                 local vehicleFound = false
-                local xPlayer = ESX.GetPlayerFromIdentifier(data.owner)
+                local dataplatetrim = ESX.Math.Trim(data.plate)
 
                 for j = 1, #allVehicles do
                     local vehicle = allVehicles[j]
                     if DoesEntityExist(vehicle) then
                         local plate = GetVehicleNumberPlateText(vehicle)
-                        if plate == data.plate then
+                        local allvehiclestrim = ESX.Math.Trim(plate)
+                        if allvehiclestrim  == dataplatetrim then
                             vehicleFound = true
-                            if Garage.Debug then
-                                local ped = GetPedInVehicleSeat(vehicle, -1)
-                                if ped == 0 then
-                                    if data.stored == 0 then
-                                        if Garage.Debug then
-                                            print('^0Plate: ' .. data.plate .. ', ^1Fuera sin jugador.')
-                                        end
-                                    end
-                                else
-                                    if Garage.Debug then
-                                        print('^0Plate: ' .. data.plate .. ', ^2Fuera con jugador.')
-                                    end
-                                end
-                            end
                         end
+                            
                     end
                 end
-                if not vehicleFound and data.stored == 0 then
-                    MySQL.Async.execute(
-                        "UPDATE owned_vehicles SET parking = @impo, pound = 1 WHERE  plate = @plate",
+                if not vehicleFound and data.stored == 0  and data.pound == nil then
+                    MySQL.Async.execute("UPDATE owned_vehicles SET parking = @impo, pound = 1 WHERE  plate = @plate",
                         {
                             ['@plate'] = data.plate,
                             ['@impo'] = Garage.AutoImpound.ImpoundIn,
