@@ -1,7 +1,7 @@
+
+ESX = exports["es_extended"]:getSharedObject()
+
 lib.locale()
-
-
-
 
 lib.callback.register('mono_garage:getOwnerVehicles', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
