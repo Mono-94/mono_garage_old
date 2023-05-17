@@ -1,4 +1,4 @@
-if Keys.Keys then
+if Garage.Mono_Carkeys then
     lib.locale()
 
 
@@ -7,43 +7,64 @@ if Keys.Keys then
 
 
 
-    RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate, model)
-       -- local formattedPlate = string.format("%-8s", plate)
+    RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate)
+        local source = source
+        local platedelentejas = string.len(plate)
+        if platedelentejas < 8 then
+            while platedelentejas < 8 do
+                plate = plate .. " "
+                platedelentejas = platedelentejas + 1
+            end
+        end
         exports.ox_inventory:RemoveItem(source, 'carkeys', count,
-            { plate = plate, description = locale('key_description', plate, model) })
+            { plate = plate, description = locale('key_description', plate) })
     end)
 
 
 
 
 
-    RegisterServerEvent('mono_carkeys:CreateKey', function(plate, model)
+    RegisterServerEvent('mono_carkeys:CreateKey', function(plate)
+        local source = source
+        local platedelentejas = string.len(plate)
+        if platedelentejas < 8 then
+            while platedelentejas < 8 do
+                plate = plate .. " "
+                platedelentejas = platedelentejas + 1
+            end
+        end
         if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
             ox_inventory:AddItem(source, Keys.ItemName, 1,
-                { plate = plate, description = locale('key_description', plate, model) })
+                { plate = plate, description = locale('key_description', plate) })
         end
     end)
 
 
-    RegisterServerEvent('mono_carkeys:BuyKeys', function(plate, model)
+    RegisterServerEvent('mono_carkeys:BuyKeys', function(plate, precio)
         local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
+        local platedelentejas = string.len(plate)
+        if platedelentejas < 8 then
+            while platedelentejas < 8 do
+                plate = plate .. " "
+                platedelentejas = platedelentejas + 1
+            end
+        end
         if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
-            if xPlayer.getMoney() >= Keys.CopyPrice then
-                exports.ox_inventory:RemoveItem(source, 'money', Keys.CopyPrice)
+            if xPlayer.getMoney() >= precio then
+                exports.ox_inventory:RemoveItem(source, 'money', precio)
                 ox_inventory:AddItem(source, Keys.ItemName, 1,
-                    { plate = plate, description = locale('key_description', plate, model) })
-                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'),
-                    locale('llavecomprada', model, Keys.CopyPrice), 'success')
+                    { plate = plate, description = locale('key_description', plate) })
+                TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('llavecomprada', precio),
+                    'key', '#fffff')
             else
-                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
-                    'error')
+                TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('NoDinero'), 'ban',
+                    '#fffff')
             end
         end
     end)
 
     lib.callback.register('mono_carkeys:getVehicles', function(source)
-        
         local xPlayer = ESX.GetPlayerFromId(source)
         local identifier = xPlayer.getIdentifier()
         local vehicles = {}
@@ -51,6 +72,7 @@ if Keys.Keys then
         local results = MySQL.Sync.fetchAll("SELECT * FROM `owned_vehicles` WHERE `owner` = @identifier", {
             ['@identifier'] = identifier,
         })
+
         if results[1] ~= nil then
             for i = 1, #results do
                 local result = results[i]
@@ -59,6 +81,13 @@ if Keys.Keys then
             end
             return vehicles
         end
+    end)
+
+
+
+    lib.callback.register('mono_carkeys:FindPlate', function()
+        local results = MySQL.Sync.fetchAll("SELECT * FROM owned_vehicles WHERE plate ")
+        return results
     end)
 
 
@@ -107,26 +136,41 @@ if Keys.Keys then
 
 
 
-
-    if Keys.CloseDoorsNPC then
+    if Keys.EntityVehicleSpawn.CloseDoorEmptyCar then
         AddEventHandler('entityCreated', function(entity)
             if not DoesEntityExist(entity) then
                 return
             end
+
             local entityType = GetEntityType(entity)
             if entityType ~= 2 then
                 return
             end
+
             if GetEntityPopulationType(entity) > 5 then
                 return
             end
-            if Keys.DoorProbability then
-                if math.random() > Keys.OpenDoorProbability then
-                    return
+
+            local plate = GetVehicleNumberPlateText(entity)
+
+            local motor = GetIsVehicleEngineRunning(entity)
+
+            if motor then
+                if Keys.Debug then
+                    print('Vehiculo encendido ', plate)
                 end
             end
-
-            SetVehicleDoorsLocked(entity, 2)
+            if not motor then
+                if Keys.Debug then
+                    print('Vehiculo apagado ', plate .. ', Puertas cerradas.')
+                end
+                if Keys.EntityVehicleSpawn.DoorProbability then
+                    if math.random() > Keys.EntityVehicleSpawn.OpenDoorProbability then
+                        return
+                    end
+                end
+                SetVehicleDoorsLocked(entity, 2)
+            end
         end)
     end
 
@@ -144,7 +188,11 @@ if Keys.Keys then
         restricted = 'group.admin'
     }, function(source, args)
         local id = args.ID or source
-        TriggerClientEvent('mono_carkeys:AddKeysCars', id)
+        if args.ID ~= nil then
+            TriggerClientEvent('mono_carkeys:AddKeysCars', id)
+        else
+            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), 'debes poner una ID', 'error')
+        end
     end)
 
 
@@ -187,13 +235,25 @@ if Keys.Keys then
 
     -- SYNC
 
-    RegisterNetEvent('mono_carkeys:ServerDoors', function(id, status)
+    RegisterNetEvent('mono_carkeys:ServerDoors', function(id)
+        local source = source
+
         local vehicle = NetworkGetEntityFromNetworkId(id)
-        local xPlayer = ESX.GetPlayerFromId(source)
+
+        local status = GetVehicleDoorLockStatus(vehicle)
+
         if Keys.Debug then
             print('Carkey = ' .. 'Vehicle Newwork: ' .. vehicle .. ' Door:' .. status)
         end
-        SetVehicleDoorsLocked(vehicle, status == 2 and 0 or 2)
-        TriggerClientEvent('mono_carkeys:LucesLocas', xPlayer.source, id, status ~= 2)
+        if status == 2 then
+            SetVehicleDoorsLocked(vehicle, 0)
+            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('unlock_veh'), 'lock-open',
+                '#32a852')
+        elseif status == 0 then
+            SetVehicleDoorsLocked(vehicle, 2)
+            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('lock_veh'), 'lock',
+                '#a83254')
+        end
+        TriggerClientEvent('mono_carkeys:LucesLocas', source, id, status ~= 2)
     end)
 end

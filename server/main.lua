@@ -1,4 +1,3 @@
-
 ESX = exports["es_extended"]:getSharedObject()
 
 lib.locale()
@@ -219,7 +218,7 @@ RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
 end)
 
 
-RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle)
+RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle,plate2)
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.getIdentifier()
@@ -252,7 +251,9 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
                     function(rowsChanged)
                         if rowsChanged > 0 then
                             local vehicle = NetworkGetEntityFromNetworkId(vehicle)
+                           
                             DeleteEntity(vehicle)
+                  
                             if Garage.Debug then
                                 print('Guardando vehículo con placa ' .. plate .. ' para jugador ' .. identifier)
                             end
@@ -561,13 +562,12 @@ if Garage.AutoImpound.AutoImpound then
                     if DoesEntityExist(vehicle) then
                         local plate = GetVehicleNumberPlateText(vehicle)
                         local allvehiclestrim = ESX.Math.Trim(plate)
-                        if allvehiclestrim  == dataplatetrim then
+                        if allvehiclestrim == dataplatetrim then
                             vehicleFound = true
                         end
-                            
                     end
                 end
-                if not vehicleFound and data.stored == 0  and data.pound == nil then
+                if not vehicleFound and data.stored == 0 and data.pound == nil then
                     MySQL.Async.execute("UPDATE owned_vehicles SET parking = @impo, pound = 1 WHERE  plate = @plate",
                         {
                             ['@plate'] = data.plate,
@@ -575,7 +575,8 @@ if Garage.AutoImpound.AutoImpound then
                         }, function(rowsChanged)
                             if rowsChanged > 0 then
                                 if Garage.Debug then
-                                    print('El vehiculo con la matricula ' ..data.plate .. ' fue depositado en ' .. Garage.AutoImpound.ImpoundIn)
+                                    print('El vehiculo con la matricula ' ..
+                                        data.plate .. ' fue depositado en ' .. Garage.AutoImpound.ImpoundIn)
                                 end
                             else
                                 if Garage.Debug then
@@ -589,3 +590,162 @@ if Garage.AutoImpound.AutoImpound then
         end
     end)
 end
+
+
+
+--[[local vehiculos = {}
+
+function Crearvehiculo(model, coordinates, heading, props, source, puertas, TaskInCar)
+    local entity = CreateVehicleServerSetter(model, "automobile", coordinates.x, coordinates.y, coordinates.z, heading)
+    Wait(100)
+
+    while not DoesEntityExist(entity) do
+        Wait(0)
+    end
+
+    if TaskInCar then
+        if Garage.SetInToVehicle then
+            TaskWarpPedIntoVehicle(GetPlayerPed(source), entity, -1)
+        end
+    end
+
+    local network = NetworkGetNetworkIdFromEntity(entity)
+    Wait(200)
+
+    local netid = NetworkGetEntityFromNetworkId(network)
+
+    Wait(200)
+    if Garage.Debug then
+        print(("VEH: %s, NET: %s,NID: %s"):format(entity, network, netid))
+    end
+
+    vehiculos[network] = source
+
+    local state = Entity(netid)
+
+    Wait(1000)
+
+
+    if vehiculos[network] == source then
+       
+        state.state.Mods = props
+    end
+
+    SetVehicleDoorsLocked(entity, puertas)
+end
+
+
+local vehiclesSpawned = {}
+
+
+RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew, cb)
+    if xPlayer then
+        local results = MySQL.Sync.fetchAll("SELECT * FROM `owned_vehicles` WHERE owner = @identifier", {
+            ['@identifier'] = xPlayer.getIdentifier()
+        })
+        if results[1] ~= nil then
+            local allVehicles = GetAllVehicles()
+
+            for i = 1, #results do
+                local result = results[i]
+                local veh = json.decode(result.vehicle)
+                local pos = json.decode(result.lastposition)
+
+                if pos ~= nil then
+                    local plate = veh.plate
+                    local model = veh.model
+                    local coords = vector3(pos.x, pos.y, pos.z)
+                    local Heading = pos.h
+                    if not vehiclesSpawned[plate] then -- Comprueba si el vehículo ya está en vehiclesSpawned
+                        if result.calle == '1' then
+                            Crearvehiculo(model, coords, Heading, veh, player, pos.doors, false)
+                            MySQL.Async.execute(
+                                'UPDATE owned_vehicles SET stored = @stored WHERE plate = @plate',
+                                {
+                                    ['@plate'] = plate,
+                                    ['@stored'] = 0,
+                                })
+                            if Garage.Debug then
+                                print('\027[1mVEHICLE SPAWN \027[0m ( Player Connect  ' ..
+                                    xPlayer.getName() ..
+                                    ' "\027[33m' ..
+                                    plate ..
+                                    '"\027[0m - \027[36mVector3(' ..
+                                    coords .. ') Doors: \027[0m' .. pos.doors .. ', ( 0 = open / 2 close))')
+                            end
+                            vehiclesSpawned[plate] = true -- Agrega el vehículo a vehiclesSpawned
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+
+
+
+
+AddEventHandler('playerDropped', function(reason)
+    local player = source
+    local charId = ESX.GetPlayerFromId(player).getIdentifier()
+    local allVehicles = GetAllVehicles()
+    local vehicles = MySQL.Sync.fetchAll("SELECT * FROM `owned_vehicles`")
+    for i = 1, #allVehicles do
+        local vehEntity = allVehicles[i]
+
+        local plate = GetVehicleNumberPlateText(vehEntity)
+        if DoesEntityExist(vehEntity) then
+            for i = 1, #vehicles do
+                local data = vehicles[i]
+                if data.owner == charId then
+                    if data.calle == '1' and data.plate == plate then
+                        local position = GetEntityCoords(vehEntity)
+                        local heading = GetEntityHeading(vehEntity)
+                        local doorLockStatus = GetVehicleDoorLockStatus(vehEntity)
+                        local posTable = {
+                            x = position.x,
+                            y = position.y,
+                            z = position.z,
+                            h = heading,
+                            doors = doorLockStatus,
+                        }
+                        local posStr = json.encode(posTable)
+                        MySQL.Async.execute(
+                            'UPDATE owned_vehicles SET lastposition = @lastposition, stored = @stored WHERE plate = @plate',
+                            {
+                                ['@lastposition'] = posStr,
+                                ['@plate'] = plate,
+                                ['@stored'] = 1,
+                            }, function(rowsChanged)
+                                vehiclesSpawned[plate] = false
+                                if Garage.Debug then
+                                    print('\027[1mSAVE VEHICLE\027[0m ( "\027[33m' ..
+                                        plate ..
+                                        '"\027[0m - \027[36mvector4(' ..
+                                        position.x ..
+                                        ',' ..
+                                        position.y ..
+                                        ',' ..
+                                        position.z ..
+                                        ',' ..
+                                        heading ..
+                                        ' )\027[0m Doors: ' ..
+                                        doorLockStatus ..
+                                        ', ( 0 = Open / 2 Close))\027- [1mVEHICLE DELETED\027[0m ( "\027[33m' ..
+                                        plate .. '"\027[0m )')
+                                end
+                                DeleteEntity(vehEntity)
+                                --[[if Garage.Persistent.DeleteCarDisconnect then
+                                    DeleteEntity(vehEntity)
+                                    print('\027[1mVEHICLE DELETED\027[0m ( "\027[33m' .. plate .. '"\027[0m )')
+                            else
+                                print('el nema es gay y me tiene retendio reparando scripts')
+                            end
+                            end)
+                    end
+                end
+            end
+        end
+    end
+end)]]

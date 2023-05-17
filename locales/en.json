@@ -71,7 +71,7 @@
     "title": "Vehicle Keys",
     "lock_veh": "Vehicle **LOCKED** successfully! ",
     "unlock_veh": "Vehicle **UNLOCKED** successfully!",
-    "key_description": "\n   · License Plate:  %s   \n   · Model: %s",
+    "key_description": "\n   · License Plate:  %s   ",
     "key_not_owned_car": "You don't have the keys for this vehicle.",
     "no_veh_nearby": "No nearby vehicles.",
     "keybindDesc": "Open/Close Vehicle",
@@ -89,7 +89,7 @@
     "cancelado": "Action canceled.",
     "nopropio": "You don't own any vehicles.",
     "vuelve": "Come back anytime!",
-    "llavecomprada": "You have purchased the keys for your %s for a price of %s$",
+    "llavecomprada": "You have purchased the keys for your vehicle for a price of %s$",
     "dollar": "$",
     "givekey": "Receive key of the vehicle you are in.",
     "helpgivekey": "Player ID (The player must be in the vehicle)",
@@ -114,5 +114,12 @@
     "CambiarColorMatri": "License plate color",
     "MatriculaNueva": "New license plate",
     "Matricula": "License plate",
-    "ComprarMatriDescri": "Acquire a new custom license plate for your vehicle. \n Price: %s $"
+    "ComprarMatriDescri": "Acquire a new custom license plate for your vehicle. \n Price: %s $",
+    "on": "Vehicle on.",
+    "off": "Vehicle off.",
+    "nokeysfound": "You did not find the key in the vehicle.",
+    "buscando": "Searching...",
+    "encontrada": "You found the vehicle key!",
+    "buscado": "You have already searched this vehicle before.",
+    "tuyoo": "This vehicle belongs to you."
 }

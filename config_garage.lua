@@ -30,7 +30,7 @@ Garage.OwnerCarAdmin = {
 
 
 Garage.AutoImpound = {         
-    AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+    AutoImpound = false,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
     ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
     TimeCheck = 1000 * 10 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
@@ -46,17 +46,18 @@ Garage.SaveKilometers = false -- Save Kilometers in DB
 Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
 
 --<-------------------------------------->--
+Garage.Mono_Carkeys = true -- Config_keys.lua / https://mono-2.gitbook.io/docs/mono-scrips/mono_carkeys/events-y-exports
 
 Garage.CarKeys = true -- Add keys when removing the vehicle and remove them when depositing it.
 
 --You can add the event of the script you use or use the one included in the garage. You can modify it from config_keys.lua.
 
-Garage.AddKeyEvent = function(plate, name)
-    TriggerServerEvent('mono_carkeys:CreateKey', plate, name)
+Garage.AddKeyEvent = function(plate)
+    TriggerServerEvent('mono_carkeys:CreateKey', plate)
 end
 
-Garage.DeleteKeyEvent = function(plate, name)
-    TriggerServerEvent('mono_carkeys:DeleteKey', 1, plate, name)
+Garage.DeleteKeyEvent = function(plate)
+    TriggerServerEvent('mono_carkeys:DeleteKey', 1, plate)
 end
 
 --<-------------------------------------->--
@@ -73,6 +74,7 @@ Garage.NpcImpound = {
         [3] = 'ambulance',
         [4] = 'paletoems',
         [5] = 'trafico',
+        [6] = 'mechanic'
         --[420] = '',   -- Add more jobs
     }
 }
@@ -125,7 +127,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-463.06100463867, 6025.5874023438, 30.44896697998, 135.05729675293),
+        NPCPos       = vec4(-463.06100463867, 6025.5874023438, 30.44896697998, 135.05729675293),
 
     },
     ['Pillbox Hill'] = {
@@ -161,7 +163,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(214.69429016113, -807.11199951172,29.800384521484,339.01174926758),
+        NPCPos       = vec4(214.69429016113, -807.11199951172,29.800384521484,339.01174926758),
 
     },
     ['Little Seoul'] = {
@@ -188,7 +190,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-702.84808349609, -970.89501953125,19.389713287354,179.47773742676),
+        NPCPos       = vec4(-702.84808349609, -970.89501953125,19.389713287354,179.47773742676),
 
     },
     ['Paleto Bay'] = {
@@ -213,7 +215,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-215.56448364258, 6219.1748046875,30.491662979126,225.76336669922),
+        NPCPos       = vec4(-215.56448364258, 6219.1748046875,30.491662979126,225.76336669922),
 
     },
     -- BOAT GARAGES
@@ -246,7 +248,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-718.55004882813, -1326.7746582031,0.5962884426117,48.328620910645),
+        NPCPos       = vec4(-718.55004882813, -1326.7746582031,0.5962884426117,48.328620910645),
 
     },
     ['Paleto Cove'] = {
@@ -267,7 +269,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-1604.6020507813, 5256.5966796875,1.0740420818329,27.048063278198),
+        NPCPos       = vec4(-1604.6020507813, 5256.5966796875,1.0740420818329,27.048063278198),
 
     },
     ['Boat Impound'] = {
@@ -288,7 +290,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-788.95941162109, -1490.6604003906,0.5952168703079,289.04177856445),
+        NPCPos       = vec4(-788.95941162109, -1490.6604003906,0.5952168703079,289.04177856445),
 
     },
     -- AIRCRAFT GARAGE
@@ -310,7 +312,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-990.21435546875, -2949.2897949219,12.945067405701,239.44729614258),
+        NPCPos       = vec4(-990.21435546875, -2949.2897949219,12.945067405701,239.44729614258),
 
     },
     ['Air Grand Senora'] = {
@@ -331,7 +333,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(1694.4133300781, 3267.849609375,39.96208190918,196.4981842041),
+        NPCPos       = vec4(1694.4133300781, 3267.849609375,39.96208190918,196.4981842041),
 
     },
     ['AirCraft Impound'] = {
@@ -352,7 +354,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 0,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-1284.7535400391, -3403.1101074219,12.940143585205,330.12164306641),
+        NPCPos       = vec4(-1284.7535400391, -3403.1101074219,12.940143585205,330.12164306641),
 
     },
     --- JOB GARAGE
@@ -376,7 +378,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 29,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(459.26806640625, -1008.0474853516,27.258068084717,92.018943786621),
+        NPCPos       = vec4(459.26806640625, -1008.0474853516,27.258068084717,92.018943786621),
 
 
     },
@@ -398,7 +400,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 29,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(458.42761230469, -985.85266113281,42.691696166992,293.28179931641),
+        NPCPos       = vec4(458.42761230469, -985.85266113281,42.691696166992,293.28179931641),
 
     },
     --Ambulance
@@ -421,7 +423,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 1,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(339.97662353516, -577.39678955078,27.796838760376,69.405403137207),
+        NPCPos       = vec4(339.97662353516, -577.39678955078,27.796838760376,69.405403137207),
 
 
     },
@@ -443,7 +445,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 1,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(341.15667724609, -590.27893066406,73.161689758301,359.56204223633),
+        NPCPos       = vec4(341.15667724609, -590.27893066406,73.161689758301,359.56204223633),
 
 
     },
@@ -466,7 +468,7 @@ Garage.Garages = {
         scale        = 0.6,
         colorblip    = 1,
         NPCHash      = 'csb_trafficwarden',
-        NPCPos       = vector4(-253.35675048828, 6338.904296875,31.426189422607,45.707008361816),
+        NPCPos       = vec4(-253.35675048828, 6338.904296875,31.426189422607,45.707008361816),
 
 
 
@@ -475,8 +477,8 @@ Garage.Garages = {
 
 --<-------------------------------------->--
 --Notification
-RegisterNetEvent('sy_garage:Notification')
-AddEventHandler('sy_garage:Notification', function(msg)
+RegisterNetEvent('mono_garage:Notification')
+AddEventHandler('mono_garage:Notification', function(msg)
     lib.notify({
         title = locale('Garaje'),
         description = msg,

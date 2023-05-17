@@ -141,15 +141,16 @@ CreateThread(function()
                         onSelect = function()
                             local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                             if closet then
-                                local plate = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
+                                local plate1 = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
+                                local plate2 = GetVehicleNumberPlateText(closet)
                                 local model = GetEntityModel(closet)
                                 local name = GetDisplayNameFromVehicleModel(model)
                                 local vehicleProps = ESX.Game.GetVehicleProperties(closet)
 
                                 if Garage.CarKeys then
-                                    Garage.DeleteKeyEvent(plate, name)
+                                    Garage.DeleteKeyEvent(plate2)
                                 end
-                                TriggerServerEvent('mono_garage:GuardarVehiculo', plate, json.encode(vehicleProps), k,
+                                TriggerServerEvent('mono_garage:GuardarVehiculo', plate1, json.encode(vehicleProps), k,
                                     VehToNet(closet))
                             else
                                 TriggerEvent('mono_garage:Notification', locale('mascerca'))

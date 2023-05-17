@@ -68,7 +68,7 @@
   "title": "Llaves del vehículo",
   "lock_veh": "¡Vehículo BLOQUEADO con éxito!",
   "unlock_veh": "¡Vehículo DESBLOQUEADO con éxito!",
-  "key_description": "\n · Placa de matrícula: %s \n · Modelo: %s",
+  "key_description": "\n · Placa de matrícula: %s",
   "key_not_owned_car": "No tienes las llaves para este vehículo.",
   "no_veh_nearby": "No hay vehículos cercanos.",
   "keybindDesc": "Abrir/Cerrar vehículo",
@@ -111,5 +111,12 @@
   "CambiarColorMatri": "Color de la placa de matrícula",
   "MatriculaNueva": "Nueva placa de matrícula",
   "Matricula": "Placa de matrícula",
-  "ComprarMatriDescri": "Adquiere una nueva placa de matrícula personalizada para tu vehículo. \n Precio: %s $"
+  "ComprarMatriDescri": "Adquiere una nueva placa de matrícula personalizada para tu vehículo. \n Precio: %s $",
+  "on": "Vehículo encendido.",
+  "off": "Vehículo apagado.",
+  "nokeysfound": "No encontraste la llave en el vehículo.",
+  "buscando": "Buscando...",
+  "encontrada": "¡Encontraste la llave del vehículo!",
+  "buscado": "Ya has buscado en este vehículo previamente.",
+  "tuyoo": "Este vehículo te pertenece."
 }
