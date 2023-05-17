@@ -30,9 +30,9 @@ Garage.OwnerCarAdmin = {
 
 
 Garage.AutoImpound = {         
-    AutoImpound = false,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
+    AutoImpound = true,         -- This function allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
     ImpoundIn = 'Auto Impound', -- The default impound where the vehicle will be sent if the entity does not exist in the world. (It has to match with an impound created.)
-    TimeCheck = 1000 * 10 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
+    TimeCheck = 1000 * 60 ,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
 --<-------------------------------------->--
