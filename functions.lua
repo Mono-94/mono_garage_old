@@ -1,13 +1,4 @@
 
-ESX = exports["es_extended"]:getSharedObject()
-AddStateBagChangeHandler('Mods', nil, function(bagName, key, value, _unused, replicated)
-  
-    local entity = GetEntityFromStateBagName(bagName)
-
-    if entity == 0 then return end
-    ESX.Game.SetVehicleProperties(entity, value)
-   -- lib.setVehicleProperties(entity, value)  
-end)
 
 
 Sy = {}
@@ -82,8 +73,3 @@ AddEventHandler('mono_garage:GiveCar', function()
     end
 end)
 
-
-RegisterNetEvent('mono_garage:setVehicleProperties', function(netid, props)
-    lib.setVehicleProperties(NetToVeh(netid), props)
-    --  ESX.Game.SetVehicleProperties(NetToVeh(netid), props)
-end)
