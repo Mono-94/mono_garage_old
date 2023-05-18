@@ -53,6 +53,90 @@
 
 
 
+# <center> **Events y exports**</center>
+
+* To obtain a key for a nearby vehicle with a ProgressBar:
+```LUA
+exports['mono_garage']:CarKey(time) -- Waiting time of the ProgressBar
+-- exports['mono_garage']:CarKey(1000)           1000 = 1s
+```
+* To generate a key with a wait time for the player to enter the vehicle and obtain its license plate:
+```LUA
+exports['mono_garage']:CarKeyBuy(time) --The time can be adjusted as needed and allows waiting for the player who is inside the vehicle.
+
+-- exports['mono_garage']:CarKeyBuy(1000)           1000 = 1s
+```
+* Create Key event:
+```LUA
+local ped = PlayerPedId()
+local vehicle = GetVehiclePedIsUsing(ped)
+local model = GetEntityModel(vehicle)
+local name = GetDisplayNameFromVehicleModel(model)
+local plate = GetVehicleNumberPlateText(vehicle)
+TriggerServerEvent('mono_carkeys:CreateKey', plate, name)  
+```
+* To delete the key of a player in their current vehicle (useful for when a player returns a work vehicle):
+```LUA
+TriggerEvent('mono_carkeys:DeleteClientKey', count)
+```
+* To delete specific keys:
+```LUA
+local ped = PlayerPedId()
+local vehicle = GetVehiclePedIsUsing(ped)
+local model = GetEntityModel(vehicle)
+local name = GetDisplayNameFromVehicleModel(model)
+local plate = GetVehicleNumberPlateText(vehicle)
+TriggerServerEvent('mono_carkeys:DeleteKey', count, plate, name)  
+```
+* LockPick:
+```LUA
+exports['mono_garage']:LockPick()
+```
+* HotWire:
+```LUA
+exports['mono_garage']:HotWire()
+```
+* Change Plate:
+```LUA
+exports['mono_garage']:SetMatricula()
+```
+#
+#
+#  <center>**Ox inventory Item's**</center>
+```LUA
+['carkeys'] = {
+	label = 'Car Key',
+	weight = 5,
+	stack = true
+},
+
+['ganzua'] = {
+	label = 'Lockpick',
+	weight = 25,
+	stack = true,
+	client = {
+		export = 'mono_garage:LockPick'
+	}
+},
+
+['alicates'] = {
+	label = 'Wire Cutters',
+	weight = 50,
+	stack = true,
+	client = {
+		export = 'mono_garage:HotWire'
+	}
+},
+['plate'] = {
+	label = 'Plate',
+	weight = 500,
+	stack = true,
+	client = {
+		export = 'mono_garage:SetMatricula'
+	}
+},
+
+ ```
 # <center> **Dependencies**</center>
  - ox_lib  -  https://github.com/overextended/ox_lib/releases  
  - ox_inventory  -  https://github.com/overextended/ox_inventory/releases  
