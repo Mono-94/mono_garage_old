@@ -228,7 +228,7 @@ exports['mono_garage']:SetMatricula()
 	weight = 25,
 	stack = true,
 	client = {
-		export = 'mono_garage:LockPick'
+		export = 'mono_garage.LockPick'
 	}
 },
 
@@ -237,7 +237,7 @@ exports['mono_garage']:SetMatricula()
 	weight = 50,
 	stack = true,
 	client = {
-		export = 'mono_garage:HotWire'
+		export = 'mono_garage.HotWire'
 	}
 },
 ['plate'] = {
@@ -245,7 +245,7 @@ exports['mono_garage']:SetMatricula()
 	weight = 500,
 	stack = true,
 	client = {
-		export = 'mono_garage:SetMatricula'
+		export = 'mono_garage.SetMatricula'
 	}
 },
 
