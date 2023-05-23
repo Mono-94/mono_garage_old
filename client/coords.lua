@@ -19,7 +19,7 @@ if Garage.RadialCopyCoords then
                     local coords = GetEntityCoords(ped)
                     local heading = GetEntityHeading(ped)
                     lib.setClipboard('{ x = ' .. coords.x .. ', y = ' .. coords.y .. ', z = ' ..
-                        coords.z .. ', h = ' .. heading .. '},')
+                        coords.z .. ', w = ' .. heading .. '},')
                 end
             },
             {

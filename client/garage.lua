@@ -26,6 +26,8 @@ CreateThread(function()
     end
 end)
 
+
+
 function CrearBlips()
     for k, v in pairs(Garage.Garages) do
         if v.impound then
@@ -110,20 +112,18 @@ CreateThread(function()
                     coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
                     size = vec3(1, 1, 2),
                     rotation = v.NPCPos.w,
-                    debug = v.debug,
+                    debug = Garage.Debug,
                     options = {
                         {
                             groups = v.job,
-                            distance = 1.5,
+                            distance = Garage.TargetNPCDistance,
                             icon = 'fas fa-car',
                             label = locale('SacarVehiculooo'),
                             onSelect = function()
                                 if IsPedInAnyVehicle(PlayerPedId(), false) then
-                                    TriggerEvent('mono_garage:Notification',
-                                        locale('SalirVehiculo'))
+                                    TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
                                 else
-                                    TriggerEvent('mono_garage:garage',
-                                        { garage = k, spawnpos = v.spawnpos, impound = v.impoundIn })
+                                    OpenGarage({garage = k, spawnpos = v.spawnpos, impound = v.impoundIn, SetInToVeh = v.SetInToVehicle})
                                 end
                             end
                         }
@@ -137,34 +137,27 @@ CreateThread(function()
                         icon = 'fa-solid fa-road',
                         label = locale('DepositarVeh1'),
                         groups = v.job,
-                        distance = Garage.TargetDistance,
+                        distance = Garage.TargetCarDistance,
                         onSelect = function()
                             local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
                             if closet then
-                                local plate1 = string.gsub(GetVehicleNumberPlateText(closet), "^%s*(.-)%s*$", "%1")
-                                local plate2 = GetVehicleNumberPlateText(closet)
-                                local model = GetEntityModel(closet)
-                                local name = GetDisplayNameFromVehicleModel(model)
                                 local vehicleProps = ESX.Game.GetVehicleProperties(closet)
-
-                                if Garage.CarKeys then
-                                    Garage.DeleteKeyEvent(plate2)
-                                end
-                                TriggerServerEvent('mono_garage:GuardarVehiculo', plate1, json.encode(vehicleProps), k,
-                                    VehToNet(closet))
+                                
+                                TriggerServerEvent('mono_garage:GuardarVehiculo', vehicleProps.plate, vehicleProps, k,VehToNet(closet))
                             else
                                 TriggerEvent('mono_garage:Notification', locale('mascerca'))
                             end
                         end
                     },
                 }
+
                 local optionNames = { 'mono_garage:TargetGuardar' }
 
                 lib.zones.box({
                     coords = v.pos,
                     size = v.size,
                     rotation = v.heading,
-                    debug = v.debug,
+                    debug = Garage.Debug,
                     onEnter = function()
                         exports.ox_target:addGlobalVehicle(options)
                     end,
@@ -177,7 +170,7 @@ CreateThread(function()
                     coords = v.pos,
                     size = v.size,
                     rotation = v.heading,
-                    debug = v.debug,
+                    debug = Garage.Debug,
                     onEnter = function()
                         lib.registerRadial({
                             id = 'garaga_meter_sacar',
@@ -186,45 +179,25 @@ CreateThread(function()
                                     label = locale('DepositarVeh1'),
                                     icon = 'share',
                                     onSelect = function()
+                                        local vehicle = GetVehiclePedIsIn(cache.ped, false)
+                                        local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
                                         if ESX.PlayerData.job.name == v.job then
                                             if SyGargeTypeCar(Sy.GetClase()) == v.type then
-                                                if Sy.GetProps() == nil then
-                                                    return TriggerEvent('mono_garage:Notification',
-                                                        locale('EnUnVeh'))
+                                                if vehicleProps == nil then
+                                                    return TriggerEvent('mono_garage:Notification',locale('EnUnVeh'))
                                                 end
-                                                if Garage.CarKeys then
-                                                    Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
-                                                end
-                                                local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
-                                                local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                                local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
-                                                local plate = string.gsub(GetVehicleNumberPlateText(closet),
-                                                    "^%s*(.-)%s*$", "%1")
-                                                TriggerServerEvent('mono_garage:GuardarVehiculo', plate,
-                                                    json.encode(vehicleProps), k, VehToNet(closet))
+                                                TriggerServerEvent('mono_garage:GuardarVehiculo', vehicleProps.plate, vehicleProps, k, VehToNet(vehicle))
                                             else
-                                                TriggerEvent('mono_garage:Notification',
-                                                    locale('NoAqui'))
+                                                TriggerEvent('mono_garage:Notification', locale('NoAqui'))
                                             end
                                         elseif v.job == false then
                                             if SyGargeTypeCar(Sy.GetClase()) == v.type then
-                                                if Sy.GetProps() == nil then
-                                                    return TriggerEvent('mono_garage:Notification',
-                                                        locale('EnUnVeh'))
+                                                if vehicleProps == nil then
+                                                    return TriggerEvent('mono_garage:Notification',locale('EnUnVeh'))
                                                 end
-                                                if Garage.CarKeys then
-                                                    Garage.DeleteKeyEvent(Sy.GetProps().plate, Sy.GetCar({ name = true }))
-                                                end
-                                                local closet = lib.getClosestVehicle(cache.coords, 2.5, true)
-                                                local vehicle = GetVehiclePedIsIn(cache.ped, false)
-                                                local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
-                                                local plate = string.gsub(GetVehicleNumberPlateText(closet),
-                                                    "^%s*(.-)%s*$", "%1")
-                                                TriggerServerEvent('mono_garage:GuardarVehiculo', plate,
-                                                    json.encode(vehicleProps), k, VehToNet(closet))
+                                                TriggerServerEvent('mono_garage:GuardarVehiculo', vehicleProps.plate, vehicleProps, k, VehToNet(vehicle))
                                             else
-                                                TriggerEvent('mono_garage:Notification',
-                                                    locale('NoAqui'))
+                                                TriggerEvent('mono_garage:Notification', locale('NoAqui'))
                                             end
                                         end
                                     end
@@ -235,19 +208,15 @@ CreateThread(function()
                                     onSelect = function()
                                         if v.job == ESX.PlayerData.job.name then
                                             if IsPedInAnyVehicle(PlayerPedId(), false) then
-                                                TriggerEvent('mono_garage:Notification',
-                                                    locale('SalirVehiculo'))
+                                                TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
                                             else
-                                                TriggerEvent('mono_garage:garage',
-                                                    { garage = k, spawnpos = v.spawnpos, impound = v.impoundIn })
+                                                OpenGarage({garage = k, spawnpos = v.spawnpos, impound = v.impoundIn, SetInToVeh = v.SetInToVehicle})
                                             end
                                         elseif v.job == false then
                                             if IsPedInAnyVehicle(PlayerPedId(), false) then
-                                                TriggerEvent('mono_garage:Notification',
-                                                    locale('SalirVehiculo'))
+                                                TriggerEvent('mono_garage:Notification',  locale('SalirVehiculo'))
                                             else
-                                                TriggerEvent('mono_garage:garage',
-                                                    { garage = k, spawnpos = v.spawnpos, impound = v.impoundIn })
+                                                OpenGarage({garage = k, spawnpos = v.spawnpos, impound = v.impoundIn, SetInToVeh = v.SetInToVehicle})
                                             end
                                         end
                                     end
@@ -284,14 +253,13 @@ CreateThread(function()
                     coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
                     size = vec3(1, 1, 2),
                     rotation = v.NPCPos.w,
-                    debug = v.debug,
+                    debug = Garage.Debug,
                     options = {
                         {
                             icon = 'fas fa-car',
                             label = k,
                             onSelect = function()
-                                TriggerEvent('mono_garage:garageImpound',
-                                    { garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice })
+                                TriggerEvent('mono_garage:garageImpound',{ garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice, SetInToVeh = v.SetInToVehicle})
                             end
                         }
                     }
@@ -301,7 +269,7 @@ CreateThread(function()
                     coords = v.pos,
                     size = v.size,
                     rotation = v.heading,
-                    debug = v.debug,
+                    debug = Garage.Debug,
                     onEnter = function()
                         lib.addRadialItem({
                             {
@@ -309,8 +277,7 @@ CreateThread(function()
                                 label = k,
                                 icon = 'car',
                                 onSelect = function()
-                                    TriggerEvent('mono_garage:garageImpound',
-                                        { garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice })
+                                    TriggerEvent('mono_garage:garageImpound',{ garage = k, spawnpos = v.spawnpos, precio = v.impoundPrice, SetInToVeh = v.SetInToVehicle })
                                 end
                             },
                         })
@@ -326,12 +293,14 @@ end)
 
 
 
-AddEventHandler('mono_garage:garage', function(data)
+
+function OpenGarage(data)
     local garagemenu = {}
     local vehicles = lib.callback.await('mono_garage:getOwnerVehicles')
     local spawn = data.spawnpos
     local garageName = data.garage
     local impo = data.impound
+    local sentado = data.SetInToVeh
     local vehiclesFound = false
     for i = 1, #vehicles do
         local data = vehicles[i]
@@ -345,23 +314,7 @@ AddEventHandler('mono_garage:garage', function(data)
                 data.parking = locale('VehEnLaCalle')
                 color = '#FF8787'
             end
-            if data.stored == 1 then
-                color = '#32a852'
-            end
-            if type == 8 then
-                icon = 'motorcycle'
-            elseif type == 2 then
-                icon = 'truck-pickup'
-            elseif type == 15 then
-                icon = 'helicopter'
-            elseif type == 16 then
-                icon = 'plane'
-            elseif type == 14 then
-                icon = 'ship'
-            else
-                icon = 'car'
-            end
-
+            if data.stored == 1 then color = '#32a852' end if type == 8 then icon = 'motorcycle' elseif type == 2 then icon = 'truck-pickup' elseif type == 15 then icon = 'helicopter' elseif type == 16 then icon = 'plane' elseif type == 14 then icon = 'ship' else icon = 'car' end
             if data.id == data.duen then
                 propietario = locale('dueño')
             else
@@ -398,12 +351,11 @@ AddEventHandler('mono_garage:garage', function(data)
                     model = data.model,
                     pound = data.pound,
                     stored = data.stored,
-
-
                     impo = impo,
                     duen = data.duen,
                     id = data.id,
                     amigos = data.amigos,
+                    intocar = sentado
                 },
                 event = 'mono_garage:VehiculoSeleccionado',
             })
@@ -470,6 +422,7 @@ AddEventHandler('mono_garage:garage', function(data)
                         duen = data.duen,
                         id = data.id,
                         amigos = data.amigos,
+                        intocar = sentado
                     },
                     event = 'mono_garage:VehiculoSeleccionado',
                 })
@@ -486,7 +439,6 @@ AddEventHandler('mono_garage:garage', function(data)
                     title = locale('nocars'),
                     icon = 'triangle-exclamation',
                 }
-
             }
         })
     else
@@ -497,9 +449,11 @@ AddEventHandler('mono_garage:garage', function(data)
         })
     end
     lib.showContext('mono_garage:MenuCarList')
-end)
+end
+exports('OpenGarage',OpenGarage)
 
 AddEventHandler('mono_garage:VehiculoSeleccionado', function(data)
+    
     local select = {}
     if data.stored == 1 then
         table.insert(select, {
@@ -511,15 +465,12 @@ AddEventHandler('mono_garage:VehiculoSeleccionado', function(data)
                 for j = 1, #data.spawn do
                     local v = data.spawn[j]
                     local pos = vector3(v.x, v.y, v.z)
-                    local hea = v.h
-                    local props = data.vehicle
+                    local hea = v.w
                     local model = data.model
 
                     if ESX.Game.IsSpawnPointClear(pos, 2.0) then
-                        if Garage.CarKeys then
-                            Garage.AddKeyEvent(data.plate, data.name)
-                        end
-                        TriggerServerEvent('mono_garage:RetirarVehiculo', data.plate, data.garage, pos, hea, props, model)
+     
+                        TriggerServerEvent('mono_garage:RetirarVehiculo', data.plate, data.garage, pos, hea,  model, data.intocar)
                         SpawPos = true
                         break
                     end
@@ -610,7 +561,7 @@ AddEventHandler('mono_garage:VehiculoSeleccionado', function(data)
                             local vehicleCoords = GetEntityCoords(vehicle)
                             local plate = GetVehicleNumberPlateText(vehicle)
                             if plate == data.plate then
-                                SetNewWaypoint(vehicleCoords.x, vehicleCoords.y)
+                                SetNewWaypointO(vehicleCoords.x, vehicleCoords.y)
                             end
                         end
                     end
@@ -710,6 +661,7 @@ end)
 
 
 AddEventHandler('mono_garage:garageImpound', function(nata)
+    
     local ImpoundMenu = {}
     local vehicles = lib.callback.await('mono_garage:getOwnerVehicles')
     local bank = lib.callback.await('mono_garage:getBankMoney')
@@ -757,16 +709,12 @@ AddEventHandler('mono_garage:garageImpound', function(nata)
                             for j = 1, #spawn do
                                 local v = spawn[j]
                                 local pos = vector3(v.x, v.y, v.z)
-                                local hea = v.h
+                                local hea = v.w
                                 local model = data.model
                                 if ESX.Game.IsSpawnPointClear(vector3(v.x, v.y, v.z), 3.0) then
                                     TriggerServerEvent('mono_garage:RetirarVehiculoImpound', plate, input[1], price,
-                                        data, pos, hea, model)
+                                        data, pos, hea, model, nata.SetInToVeh )
                                     SpawPos = true
-                                    if Garage.CarKeys then
-                                        Garage.AddKeyEvent(plate, name)
-                                    end
-
                                     break
                                 end
                             end
@@ -779,15 +727,13 @@ AddEventHandler('mono_garage:garageImpound', function(nata)
                             for j = 1, #spawn do
                                 local v = spawn[j]
                                 local pos = vector3(v.x, v.y, v.z)
-                                local hea = v.h
+                                local hea = v.w
                                 local model = data.model
                                 if ESX.Game.IsSpawnPointClear(vector3(v.x, v.y, v.z), 3.0) then
                                     TriggerServerEvent('mono_garage:RetirarVehiculoImpound', plate, input[1], price,
-                                        data, pos, hea, model)
+                                        data, pos, hea, model, nata.SetInToVeh )
                                     SpawPos = true
-                                    if Garage.CarKeys then
-                                        Garage.AddKeyEvent(plate, name)
-                                    end
+
                                     break
                                 end
                             end
@@ -820,7 +766,7 @@ AddEventHandler('mono_garage:garageImpound', function(nata)
     else
         lib.registerContext({
             id = 'mono_garage:ImpoundMenu',
-            title = 'Impound - ' .. nata.garage, -- usar la variable local
+            title = 'Impound - ' .. nata.garage, 
             options = ImpoundMenu
         })
     end
@@ -833,9 +779,6 @@ end)
 
 
 
-
-
-
 if Garage.SaveKilometers then
     local inVeh = false
     totalKM = 0
@@ -843,34 +786,29 @@ if Garage.SaveKilometers then
     CreateThread(function()
         while true do
             Wait(1000)
-            if IsPedInAnyVehicle(PlayerPedId(), false) and not inVeh then
-                local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+            local ped = cache.ped
+            if IsPedInAnyVehicle(ped, false) and not inVeh then
+                local veh = GetVehiclePedIsIn(ped, false)
                 local driver = GetPedInVehicleSeat(veh, -1)
                 if driver then
                     inVeh = true
-                    local plate = GetVehicleNumberPlateText(veh)
+                    local vehicleProps = ESX.Game.GetVehicleProperties(veh)
                     local vehicles = lib.callback.await('mono_garage:owner_vehicles')
                     for i = 1, #vehicles do
                         local data = vehicles[i]
-                        if plate == data.plate then
-                            local PosAnituga = GetEntityCoords(PlayerPedId())
+                        if vehicleProps.plate == data.plate then
+                            local PosAnituga = GetEntityCoords(ped)
                             Wait(1000)
-                            local PosNueva = GetEntityCoords(PlayerPedId())
-                            if SyGargeTypeCar(Sy.GetClase()) == 'car' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            elseif SyGargeTypeCar(Sy.GetClase()) == 'air' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            elseif SyGargeTypeCar(Sy.GetClase()) == 'boat' then
-                                distan = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y,
-                                    PosNueva.z)
-                            else
-                                distan = 0
+                            local PosNueva = GetEntityCoords(ped)
+                            local distance = 0
+                            local vehicleClass = SyGargeTypeCar(Sy.GetClase())
+                            if vehicleClass == 'car' or vehicleClass == 'air' or vehicleClass == 'boat' then
+                                distance = Vdist2(PosAnituga.x, PosAnituga.y, PosAnituga.z, PosNueva.x, PosNueva.y, PosNueva.z)
                             end
-                            data.mileage = data.mileage + distan
-                            TriggerServerEvent('mono_garage:AgregarKilometros', plate, data.mileage)
+                            data.mileage = data.mileage + distance
+                            TriggerServerEvent('mono_garage:AgregarKilometros', vehicleProps.plate, data.mileage)
                             inVeh = false
+                            break  -- Salir del bucle for una vez que se ha encontrado el vehículo
                         end
                     end
                 end

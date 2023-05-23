@@ -3,11 +3,10 @@ if Garage.Mono_Carkeys then
         local ped = cache.ped
         local playerCoords = GetEntityCoords(ped)
         local closet = lib.getClosestVehicle(playerCoords, Keys.Distance, true)
-        local plate = GetVehicleNumberPlateText(closet)
+        local vehicleProps = ESX.Game.GetVehicleProperties(closet)
         local keys = exports.ox_inventory:Search('slots', Keys.ItemName)
-
         for i, v in ipairs(keys) do
-            if v.metadata.plate == plate then
+            if v.metadata.plate == vehicleProps.plate then
                 return v
             end
         end
@@ -47,7 +46,7 @@ if Garage.Mono_Carkeys then
                     false)
             end
 
-            TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), prop)
+            TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet))
 
             Wait(1500)
 
@@ -194,7 +193,7 @@ if Garage.Mono_Carkeys then
 
 
 
-    RegisterNetEvent('mono_carkeys:SetMatricula')
+--[[    RegisterNetEvent('mono_carkeys:SetMatricula')
     AddEventHandler('mono_carkeys:SetMatricula', function(newPlate, newColor)
         local vehicle = GetVehiclePedIsUsing(cache.ped)
         local plate = GetVehicleNumberPlateText(vehicle)
@@ -206,7 +205,7 @@ if Garage.Mono_Carkeys then
         return newPlate, newColor
     end)
 
-
+]]
 
 
 
@@ -226,8 +225,7 @@ if Garage.Mono_Carkeys then
         local vehicle = GetVehiclePedIsIn(ped, false)
 
         if not IsPedInAnyVehicle(ped, false) then
-            TriggerEvent('mono_carkeys:Notification', locale('title'),
-                locale('incar'), 'car', '#3232a8')
+           
             return
         end
 
@@ -450,19 +448,22 @@ if Garage.Mono_Carkeys then
         end
     end
 
-    function SetMatricula()
+    --[[function SetMatricula()
         local ped = cache.ped
         local inVehicle = IsPedInAnyVehicle(ped)
 
         if inVehicle then
             local vehicle = GetVehiclePedIsIn(ped, false)
-            local plate = GetVehicleNumberPlateText(vehicle)
-
+            local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
+            local plate = vehicleProps.plate
+        
             local input = lib.inputDialog(locale('MatriculaNueva'), {
                 {
                     type = 'input',
                     label = locale('ActualMatri', plate),
-                    description = locale('MatriculaMax')
+                    description = locale('MatriculaMax'),
+                    min = 1,
+                    max = 8
                 },
                 {
                     type = 'select',
@@ -478,7 +479,8 @@ if Garage.Mono_Carkeys then
                 },
             })
             if not input then return end
-            local count = 0
+            print('revisar esta funcion de cambiar matricula')
+          local count = 0
             for i = 1, #input[1] do
                 local c = string.sub(input[1], i, i)
                 if c == ' ' then
@@ -491,7 +493,7 @@ if Garage.Mono_Carkeys then
             if count > 8 or count == 0 then
                 TriggerEvent('mono_carkeys:Notification', locale('title'), locale('MatriculaMax'), 'car', '#3232a8')
             else
-                local newPlate = string.upper(input[1])
+                local newPlate = input[1]
                 local newColor = input[2]
 
 
@@ -501,7 +503,7 @@ if Garage.Mono_Carkeys then
             TriggerEvent('mono_carkeys:Notification', locale('title'), locale('CambiarMatriDentro'), 'car', '#3232a8')
         end
     end
-
+]]
     function CarKey(time)
         local ped = cache.ped
         local pedcords = GetEntityCoords(ped)
@@ -533,12 +535,11 @@ if Garage.Mono_Carkeys then
 
     exports('LockPick', LockPick)
 
-    exports('CarKey', CarKey)
-
-    exports('SetMatricula', SetMatricula)
+   -- exports('SetMatricula', SetMatricula)
 
     exports('FindKeys', FindKeys)
 
+    exports('ToggleEngine',ToggleEngine)
 
 
     -- KeyBinds

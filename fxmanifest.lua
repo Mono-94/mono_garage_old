@@ -6,7 +6,7 @@ name 'mono_garage'
 
 repository 	'https://github.com/Mono-94/mono_garage'
 
-version 		'1.1.1'
+version 		'1.1.2'
 
 author 'Symbiote#3027'
 
