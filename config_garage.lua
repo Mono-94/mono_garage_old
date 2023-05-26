@@ -18,7 +18,7 @@ Garage.Version = true         -- Check GitHub version.
 
 Garage.Target = true         -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 
-Garage.TargetNPCDistance = 2.5   -- Distance to open Menu in NPC
+Garage.TargetNPCDistance = 1.5   -- Distance to open Menu in NPC
 
 Garage.TargetCarDistance = 2.5   -- Distance to deposit the vehicle with ox_target
 
