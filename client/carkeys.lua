@@ -1,4 +1,4 @@
---"HOLAAA"
+
 if Garage.Mono_Carkeys then
     function GetPlayerKey()
         local ped = cache.ped
