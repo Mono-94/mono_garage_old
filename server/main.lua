@@ -1,12 +1,12 @@
-ESX = exports["es_extended"]:getSharedObject()
+--ESX = exports["es_extended"]:getSharedObject()
 
 lib.locale()
 local ox_inventory = exports.ox_inventory
 
 
 lib.callback.register('mono_garage:getOwnerVehicles', function(source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local identifier = xPlayer.getIdentifier()
+    --local xPlayer = Framework.Functions.GetPlayer(source)
+    local identifier = Framework.Functions.GetPlayerID(source)
     local vehicles = {}
 
     local results = MySQL.Sync.fetchAll(
@@ -86,8 +86,7 @@ end)
 
 RegisterServerEvent('mono_garage:EliminarAmigo', function(Amigo, plate)
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local xIndidentifier = xPlayer.getIdentifier()
+    local xIndidentifier = Framework.Functions.GetPlayerID(source)
     MySQL.Async.fetchAll("SELECT amigos FROM owned_vehicles WHERE owner = @identifier AND plate = @plate", {
         ['@identifier'] = xIndidentifier,
         ['@plate'] = plate
