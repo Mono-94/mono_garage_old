@@ -134,10 +134,10 @@ end)
 
 RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local xIndidentifier = xPlayer.getIdentifier()
-    local xAmigo = ESX.GetPlayerFromId(Amigo)
-    local identifier = xAmigo.getIdentifier()
+   -- local xPlayer = ESX.GetPlayerFromId(source)
+    local xIndidentifier = Framework.Functions.GetPlayerID(source)
+   -- local xAmigo = ESX.GetPlayerFromId(Amigo)
+    local identifier = Framework.Functions.GetPlayerID(Amigo)
 
     if identifier == xIndidentifier then
         return TriggerClientEvent('mono_garage:Notification', source, locale('noatimismo'))
@@ -164,7 +164,7 @@ RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
                 }, function(rowsChanged)
                     if rowsChanged > 0 then
                         TriggerClientEvent('mono_garage:Notification', source,
-                            locale('AmigosLista3', plate, xAmigo.getName()))
+                            locale('AmigosLista3', plate, Framework.Functions.GetName(Amigo)))
                         TriggerClientEvent('mono_garage:Notification', xAmigo.source, locale('AmigosLista4', plate))
                     else
                         TriggerClientEvent('mono_garage:Notification', source, locale('AmigosLista5', xAmigo.getName()))

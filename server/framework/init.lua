@@ -1,3 +1,5 @@
+--Convertir todo a una metatabla con OOP
+
 Framework = setmetatable({}, {
     __newindex = function(self, key, value)
         rawset(self, key, value)
@@ -20,6 +22,10 @@ function Framework:Init()
     end
 end
 
-function Framework:GetData()
+function Framework:GetData(source)
     Framework.Player = Framework.Core.GetPlayerData()
 end
+
+
+
+

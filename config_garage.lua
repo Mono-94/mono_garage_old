@@ -22,6 +22,7 @@ Garage.TargetNPCDistance = 2.5   -- Distance to open Menu in NPC
 
 Garage.TargetCarDistance = 2.5   -- Distance to deposit the vehicle with ox_target
 
+Garage.Core = "esx" -- Core to work with.
 --<-------------------------------------->--
 Garage.OwnerCarAdmin = {
     -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
