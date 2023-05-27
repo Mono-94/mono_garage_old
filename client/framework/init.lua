@@ -9,17 +9,21 @@ Framework = setmetatable({}, {
 
 function Framework:Init()
     if GetResourceState("qb-core") == "started" then
-        Framework.Core = exports["qb-core"]:GetCoreObject()
-        Framework:GetData()
+        self.Frame = exports["qb-core"]:GetCoreObject()
         lib.require "client.framework.qb"
+        Framework:GetData()
+        return
     end
     if GetResourceState("es_extended") == "started" then
         Framework.Core = exports["es_extended"]:getSharedObject()
-        Framework:GetData()
         lib.require "client.framework.esx"
+        Framework:GetData()
+        return
     end
 end
 
 function Framework:GetData()
     Framework.Player = Framework.Core.GetPlayerData()
 end
+
+Framework:Init()

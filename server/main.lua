@@ -134,9 +134,9 @@ end)
 
 RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
     local source = source
-   -- local xPlayer = ESX.GetPlayerFromId(source)
+    -- local xPlayer = ESX.GetPlayerFromId(source)
     local xIndidentifier = Framework.Functions.GetPlayerID(source)
-   -- local xAmigo = ESX.GetPlayerFromId(Amigo)
+    -- local xAmigo = ESX.GetPlayerFromId(Amigo)
     local identifier = Framework.Functions.GetPlayerID(Amigo)
 
     if identifier == xIndidentifier then
@@ -165,7 +165,8 @@ RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
                     if rowsChanged > 0 then
                         TriggerClientEvent('mono_garage:Notification', source,
                             locale('AmigosLista3', plate, Framework.Functions.GetName(Amigo)))
-                        TriggerClientEvent('mono_garage:Notification', xAmigo.source, locale('AmigosLista4', plate))
+                        TriggerClientEvent('mono_garage:Notification', Framework.Functions.GetSource(xAmigo),
+                            locale('AmigosLista4', plate))
                     else
                         TriggerClientEvent('mono_garage:Notification', source, locale('AmigosLista5', xAmigo.getName()))
                     end
@@ -181,7 +182,7 @@ end)
 
 RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle, plate2)
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
+    local xPlayer = Framework.Functions.GetPlayerID(source)
     local identifier = xPlayer.getIdentifier()
     local encontrado = false
 
@@ -266,10 +267,7 @@ end)
 
 
 lib.callback.register('mono_garage:getBankMoney', function(source)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local bank = xPlayer.getAccount("bank")
-    local money = xPlayer.getMoney()
-    return { bank = bank.money, money = money }
+    return Framework.Functions.GetMoney(source)
 end)
 
 
@@ -288,28 +286,30 @@ RegisterServerEvent('mono_garage:RetirarVehiculo', function(plate, lastparking, 
                         ['@plate'] = plate,
                     }, function(rowsChanged)
                         if rowsChanged > 0 then
-                            ESX.OneSync.SpawnVehicle(model, pos, hea, vehicleProps, function(NetworkId)
-                                Wait(100)
-                                local Vehicle = NetworkGetEntityFromNetworkId(NetworkId)
+                            Framework.Functions.SpawnVehicle(source, model, pos, hea, vehicleProps, true)
+                            --FALTA EL TEMA DE LOS PROPS EN QB
+                            -- ESX.OneSync.SpawnVehicle(model, pos, hea, vehicleProps, function(NetworkId)
+                            --     Wait(100)
+                            --     local Vehicle = NetworkGetEntityFromNetworkId(NetworkId)
 
-                                while not DoesEntityExist(Vehicle) do
-                                    Wait(0)
-                                end
-                                if Garage.CarKeys then
-                                    ox_inventory:AddItem(source, Keys.ItemName, 1,
-                                        {
-                                            plate = vehicleProps.plate,
-                                            description = locale('key_description', vehicleProps.plate)
-                                        })
-                                end
-                                if intocar then
-                                    while not NetworkGetEntityOwner(source) == source do
-                                        Wait(0)
-                                        print("NO SOY EL DUEÑO")
-                                    end
-                                    TaskWarpPedIntoVehicle(source, Vehicle, -1)
-                                end
-                            end)
+                            --     while not DoesEntityExist(Vehicle) do
+                            --         Wait(0)
+                            --     end
+                            --     if Garage.CarKeys then
+                            --         ox_inventory:AddItem(source, Keys.ItemName, 1,
+                            --             {
+                            --                 plate = vehicleProps.plate,
+                            --                 description = locale('key_description', vehicleProps.plate)
+                            --             })
+                            --     end
+                            --     if intocar then
+                            --         while not NetworkGetEntityOwner(source) == source do
+                            --             Wait(0)
+                            --             print("NO SOY EL DUEÑO")
+                            --         end
+                            --         TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                            --     end
+                            -- end)
 
                             TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_retirar'))
                         else
@@ -331,7 +331,7 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
     local bank = xPlayer.getAccount("bank")
     local price = price
     if money == 'money' then
-        if xPlayer.getMoney() >= price then
+        if Framework.Functions.GetMoney(source) >= price then
             local lastparkingResult = MySQL.Sync.fetchAll(
                 "SELECT lastparking FROM owned_vehicles WHERE owner = @identifier AND plate = @plate", {
                     ['@identifier'] = identifier,

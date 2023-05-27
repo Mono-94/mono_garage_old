@@ -50,7 +50,7 @@ end
 RegisterCommand(Garage.NpcImpound.Command, function()
     local jobAllowed = false
     for i = 1, #Garage.NpcImpound.jobs do
-        if ESX.PlayerData.job.name == Garage.NpcImpound.jobs[i] then
+        if Framework.Functions.GetJob() == Garage.NpcImpound.jobs[i] then
             jobAllowed = true
             if Sy.CarCloset({ dist = 7, pedcar = true }) then
                 local input
@@ -98,7 +98,7 @@ RegisterCommand(Garage.NpcImpound.Command, function()
     if not jobAllowed then
         TriggerEvent('mono_garage:Notification', locale('impound3'))
     end
-end)
+end, false)
 
 AddEventHandler('mono_garage:NPCImpound', function()
     if Sy.CarCloset({ dist = 7, pedcar = true }) then
@@ -142,7 +142,3 @@ AddEventHandler('mono_garage:NPCImpound', function()
         TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
     end
 end)
-
-
-
-
