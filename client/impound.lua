@@ -1,8 +1,17 @@
+
+
+
+
+
+
+
+
+
 function NPCImpoundGarage(impound)
     local playerPed = PlayerPedId()
     local playerPos = GetEntityCoords(playerPed)
     local npcHash = GetHashKey(Garage.NpcImpound.NpcHash)
-    local vehicle = lib.getClosestVehicle(playerPos, 7.0, false)
+    local vehicle = lib.getClosestVehicle(cache.coords, 7.0, false)
     local plate = GetVehicleNumberPlateText(vehicle)
     if vehicle then
         if Garage.NpcImpound.NPCAnim then
@@ -52,7 +61,7 @@ RegisterCommand(Garage.NpcImpound.Command, function()
     for i = 1, #Garage.NpcImpound.jobs do
         if ESX.PlayerData.job.name == Garage.NpcImpound.jobs[i] then
             jobAllowed = true
-            if Sy.CarCloset({ dist = 7, pedcar = true }) then
+            if lib.getClosestVehicle(cache.coords, 7, true) then
                 local input
                 local imp = {}
                 for k, v in pairs(Garage.Garages) do
@@ -98,10 +107,10 @@ RegisterCommand(Garage.NpcImpound.Command, function()
     if not jobAllowed then
         TriggerEvent('mono_garage:Notification', locale('impound3'))
     end
-end)
+end, false)
 
 AddEventHandler('mono_garage:NPCImpound', function()
-    if Sy.CarCloset({ dist = 7, pedcar = true }) then
+    if lib.getClosestVehicle(cache.coords, 7, true) then
         local input
         local imp = {}
         for k, v in pairs(Garage.Garages) do
@@ -142,6 +151,7 @@ AddEventHandler('mono_garage:NPCImpound', function()
         TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
     end
 end)
+
 
 
 

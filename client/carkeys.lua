@@ -1,8 +1,7 @@
 if Garage.Mono_Carkeys then
+    
     function GetPlayerKey()
-        local ped = cache.ped
-        local playerCoords = GetEntityCoords(ped)
-        local closet = lib.getClosestVehicle(playerCoords, Keys.Distance, true)
+        local closet = lib.getClosestVehicle(cache.coords, Keys.Distance, true)
         local vehicleProps = ESX.Game.GetVehicleProperties(closet)
         local keys = exports.ox_inventory:Search('slots', Keys.ItemName)
         for i, v in ipairs(keys) do
@@ -15,8 +14,7 @@ if Garage.Mono_Carkeys then
 
     function AbrirCerrar()
         local ped = cache.ped
-        local playerCoords = GetEntityCoords(ped)
-        local closet = lib.getClosestVehicle(playerCoords, Keys.Distance, true)
+        local closet = lib.getClosestVehicle(cache.coords, Keys.Distance, true)
         local prop = GetHashKey('p_car_keys_01')
         local inCar = IsPedInAnyVehicle(ped, true)
         if closet then
@@ -193,7 +191,7 @@ if Garage.Mono_Carkeys then
 
 
 
---[[    RegisterNetEvent('mono_carkeys:SetMatricula')
+    --[[    RegisterNetEvent('mono_carkeys:SetMatricula')
     AddEventHandler('mono_carkeys:SetMatricula', function(newPlate, newColor)
         local vehicle = GetVehiclePedIsUsing(cache.ped)
         local plate = GetVehicleNumberPlateText(vehicle)
@@ -225,7 +223,6 @@ if Garage.Mono_Carkeys then
         local vehicle = GetVehiclePedIsIn(ped, false)
 
         if not IsPedInAnyVehicle(ped, false) then
-           
             return
         end
 
@@ -456,7 +453,7 @@ if Garage.Mono_Carkeys then
             local vehicle = GetVehiclePedIsIn(ped, false)
             local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
             local plate = vehicleProps.plate
-        
+
             local input = lib.inputDialog(locale('MatriculaNueva'), {
                 {
                     type = 'input',
@@ -535,11 +532,11 @@ if Garage.Mono_Carkeys then
 
     exports('LockPick', LockPick)
 
-   -- exports('SetMatricula', SetMatricula)
+    -- exports('SetMatricula', SetMatricula)
 
     exports('FindKeys', FindKeys)
 
-    exports('ToggleEngine',ToggleEngine)
+    exports('ToggleEngine', ToggleEngine)
 
 
     -- KeyBinds

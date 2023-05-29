@@ -28,7 +28,6 @@ lib.callback.register('mono_garage:getOwnerVehicles', function(source)
             veh.id = identifier
             veh.duen = result.owner
             veh.amigos = result.amigos
-
             local isFriend = false
             if amigos ~= nil then
                 for j = 1, #amigos do
@@ -46,7 +45,8 @@ lib.callback.register('mono_garage:getOwnerVehicles', function(source)
         end
     end
 
-    local sharedResults = MySQL.Sync.fetchAll("SELECT * FROM owned_vehicles WHERE JSON_CONTAINS(amigos, @identifier, '$')", {
+    local sharedResults = MySQL.Sync.fetchAll(
+        "SELECT * FROM owned_vehicles WHERE JSON_CONTAINS(amigos, @identifier, '$')", {
             ['@identifier'] = json.encode({ identifier = identifier }),
         })
 
@@ -64,7 +64,6 @@ lib.callback.register('mono_garage:getOwnerVehicles', function(source)
             veh.duen = result.owner
             veh.amigos = json.decode(result.amigos)
             veh.props = result.vehicle
-            --AGregar vehiculo si esta compartido a la lista.
             if result.owner ~= identifier then
                 veh.owned = false
                 vehicles[#vehicles + 1] = veh
@@ -85,47 +84,47 @@ end)
 
 RegisterServerEvent('mono_garage:EliminarAmigo', function(Amigo, plate)
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
     local xIndidentifier = xPlayer.getIdentifier()
     MySQL.Async.fetchAll("SELECT amigos FROM owned_vehicles WHERE owner = @identifier AND plate = @plate", {
-            ['@identifier'] = xIndidentifier,
-            ['@plate'] = plate
-        }, function(result)
-            if result[1] ~= nil then
-                local amigosTable = {}
-                if result[1].amigos ~= nil and result[1].amigos ~= '' then
-                    amigosTable = json.decode(result[1].amigos)
-                end
-                local found = false
-                for i, amigo in ipairs(amigosTable) do
-                    if amigo.name == Amigo then
-                        table.remove(amigosTable, i)
-                        found = true
-                        break
-                    end
-                end
-                if found then
-                    local amigosStr = json.encode(amigosTable)
-                    if #amigosTable == 0 then
-                        amigosStr = nil
-                    end
-                    MySQL.Async.execute("UPDATE owned_vehicles SET amigos = @amigos WHERE owner = @identifier AND plate = @plate",
-                        {
-                            ['@identifier'] = xIndidentifier,
-                            ['@plate'] = plate,
-                            ['@amigos'] = amigosStr
-                        }, function(rowsChanged)
-                            if rowsChanged > 0 then
-                                TriggerClientEvent('mono_garage:Notification', source,
-                                    locale('AmigosLista1', Amigo, plate))
-                            else
-                                TriggerClientEvent('mono_garage:Notification', source,
-                                    locale('AmigosLista2', Amigo, plate))
-                            end
-                        end)
+        ['@identifier'] = xIndidentifier,
+        ['@plate'] = plate
+    }, function(result)
+        if result[1] ~= nil then
+            local amigosTable = {}
+            if result[1].amigos ~= nil and result[1].amigos ~= '' then
+                amigosTable = json.decode(result[1].amigos)
+            end
+            local found = false
+            for i, amigo in ipairs(amigosTable) do
+                if amigo.name == Amigo then
+                    table.remove(amigosTable, i)
+                    found = true
+                    break
                 end
             end
-        end)
+            if found then
+                local amigosStr = json.encode(amigosTable)
+                if #amigosTable == 0 then
+                    amigosStr = nil
+                end
+                MySQL.Async.execute(
+                    "UPDATE owned_vehicles SET amigos = @amigos WHERE owner = @identifier AND plate = @plate",
+                    {
+                        ['@identifier'] = xIndidentifier,
+                        ['@plate'] = plate,
+                        ['@amigos'] = amigosStr
+                    }, function(rowsChanged)
+                        if rowsChanged > 0 then
+                            TriggerClientEvent('mono_garage:Notification', source,
+                                locale('AmigosLista1', Amigo, plate))
+                        else
+                            TriggerClientEvent('mono_garage:Notification', source,
+                                locale('AmigosLista2', Amigo, plate))
+                        end
+                    end)
+            end
+        end
+    end)
 end)
 
 
@@ -178,28 +177,27 @@ RegisterServerEvent('mono_garage:CompartirAmigo', function(Amigo, Name, plate)
 end)
 
 
-RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle, plate2)
+RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, garageName, vehicle)
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     local identifier = xPlayer.getIdentifier()
     local encontrado = false
 
+
     local vehicles = MySQL.Sync.fetchAll("SELECT * FROM owned_vehicles")
     for i = 1, #vehicles do
         local data = vehicles[i]
-        local stored = data.store
-        local parking = garageName
-        if stored ~= 1 then stored = 1 end
         local amigos = json.decode(data.amigos) or {}
         if vehicleData.plate == data.plate then
             if data.owner == xPlayer.identifier then -- propiedad
-                MySQL.Async.execute("UPDATE owned_vehicles SET vehicle = @vehicleData, stored = @stored,pound = @pound, parking = @parking WHERE owner = @identifier AND plate = @plate",
+                MySQL.Async.execute(
+                    "UPDATE owned_vehicles SET calle = 0 , vehicle = @vehicleData, stored = @stored, pound = @pound, parking = @parking WHERE owner = @identifier AND plate = @plate",
                     {
                         ['@identifier'] = identifier,
                         ['@vehicleData'] = json.encode(vehicleData),
                         ['@plate'] = vehicleData.plate,
-                        ['@stored'] = stored,
-                        ['@parking'] = parking,
+                        ['@stored'] = 1,
+                        ['@parking'] = garageName,
 
                         ['@pound'] = nil
                     },
@@ -222,12 +220,13 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
                 for j = 1, #amigos do
                     local amigo = amigos[j]
                     if amigo.identifier == xPlayer.identifier then -- de un amigo.
-                        MySQL.Async.execute("UPDATE owned_vehicles SET vehicle = @vehicleData, stored = @stored, pound = @pound,  parking = @parking WHERE  plate = @plate",
+                        MySQL.Async.execute(
+                            "UPDATE owned_vehicles SET calle = 0, vehicle = @vehicleData, stored = @stored, pound = @pound,  parking = @parking WHERE  plate = @plate",
                             {
                                 ['@vehicleData'] = json.encode(vehicleData),
                                 ['@plate'] = vehicleData.plate,
-                                ['@stored'] = stored,
-                                ['@parking'] = parking,
+                                ['@stored'] = 1,
+                                ['@parking'] = garageName,
                                 ['@pound'] = nil
                             },
                             function(rowsChanged)
@@ -246,7 +245,6 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
                             end
                         )
                         encontrado = true
-                        break
                     end
                 end
             end
@@ -269,7 +267,6 @@ lib.callback.register('mono_garage:getBankMoney', function(source)
     return { bank = bank.money, money = money }
 end)
 
-
 RegisterServerEvent('mono_garage:RetirarVehiculo', function(plate, lastparking, pos, hea, model, intocar)
     local source = source
     MySQL.Async.fetchAll("SELECT vehicle FROM owned_vehicles WHERE plate = @plate",
@@ -279,25 +276,36 @@ RegisterServerEvent('mono_garage:RetirarVehiculo', function(plate, lastparking, 
             if result and #result > 0 then
                 local vehicleProps = json.decode(result[1].vehicle)
                 MySQL.Async.execute(
-                    "UPDATE owned_vehicles SET stored = 0, lastparking = @lastparking WHERE plate = @plate",
+                    "UPDATE owned_vehicles SET stored = 0, lastparking = @lastparking, calle = 1 WHERE plate = @plate",
                     {
                         ['@lastparking'] = lastparking,
                         ['@plate'] = plate,
                     }, function(rowsChanged)
                         if rowsChanged > 0 then
-                            ESX.OneSync.SpawnVehicle(model, pos, hea, vehicleProps, function(NetworkId)
-                                Wait(100)
-                                local Vehicle = NetworkGetEntityFromNetworkId(NetworkId)
+            
+                             ESX.OneSync.SpawnVehicle(model, pos, hea, vehicleProps, function(NetworkId)
+                                 Wait(100)
+                                 local Vehicle = NetworkGetEntityFromNetworkId(NetworkId)
 
                                 while not DoesEntityExist(Vehicle) do
                                     Wait(0)
                                 end
+                                
                                 if Garage.CarKeys then
-                                    ox_inventory:AddItem(source, Keys.ItemName, 1, { plate = vehicleProps.plate, description = locale('key_description', vehicleProps.plate) })
+                                    ox_inventory:AddItem(source, Keys.ItemName, 1,
+                                        {
+                                            plate = vehicleProps.plate,
+                                            description = locale('key_description', vehicleProps.plate)
+                                        })
                                 end
                                 if intocar then
-                                 --   Wait(500)
-                                    TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                    while true do
+                                        Wait(0)
+                                        TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                        if GetPedInVehicleSeat(Vehicle, -1) > 0 then
+                                            break
+                                        end
+                                    end
                                 end
                             end)
 
@@ -322,13 +330,14 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
     local price = price
     if money == 'money' then
         if xPlayer.getMoney() >= price then
-            local lastparkingResult = MySQL.Sync.fetchAll("SELECT lastparking FROM owned_vehicles WHERE owner = @identifier AND plate = @plate", {
+            local lastparkingResult = MySQL.Sync.fetchAll(
+                "SELECT lastparking FROM owned_vehicles WHERE owner = @identifier AND plate = @plate", {
                     ['@identifier'] = identifier,
                     ['@plate'] = plate
                 })
             local lastparking = lastparkingResult[1].lastparking
             MySQL.Async.execute(
-                "UPDATE owned_vehicles SET pound = NULL, parking = @lastparking WHERE owner = @identifier AND plate = @plate",
+                "UPDATE owned_vehicles SET pound = NULL, parking = @lastparking, calle = 1  WHERE owner = @identifier AND plate = @plate",
                 {
                     ['@lastparking'] = lastparking,
                     ['@identifier'] = identifier,
@@ -343,14 +352,19 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
                             while not DoesEntityExist(Vehicle) do
                                 Wait(0)
                             end
-
+                           
                             if Garage.CarKeys then
                                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                                     { plate = plate, description = locale('key_description', plate) })
                             end
                             if intocar then
-                             --   Wait(500)
-                                TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                while true do
+                                    Wait(0)
+                                    TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                    if GetPedInVehicleSeat(Vehicle, -1) > 0 then
+                                        break
+                                    end
+                                end
                             end
                         end)
                         xPlayer.removeAccountMoney("money", price)
@@ -375,7 +389,7 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
                 })
             local lastparking = lastparkingResult[1].lastparking
             MySQL.Async.execute(
-                "UPDATE owned_vehicles SET pound = NULL, parking = @lastparking WHERE owner = @identifier AND plate = @plate",
+                "UPDATE owned_vehicles SET pound = NULL, parking = @lastparking, calle = 1  WHERE owner = @identifier AND plate = @plate",
                 {
                     ['@lastparking'] = lastparking,
                     ['@identifier'] = identifier,
@@ -390,15 +404,22 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
                             while not DoesEntityExist(Vehicle) do
                                 Wait(0)
                             end
-
+                           
                             if Garage.CarKeys then
                                 ox_inventory:AddItem(source, Keys.ItemName, 1,
-                                    { plate = plate,
-                                        description = locale('key_description', plate) })
+                                    {
+                                        plate = plate,
+                                        description = locale('key_description', plate)
+                                    })
                             end
                             if intocar then
-                           --     Wait(500)
-                                TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                while true do
+                                    Wait(0)
+                                    TaskWarpPedIntoVehicle(source, Vehicle, -1)
+                                    if GetPedInVehicleSeat(Vehicle, -1) > 0 then
+                                        break
+                                    end
+                                end
                             end
                         end)
                         xPlayer.removeAccountMoney("bank", price)
@@ -434,7 +455,7 @@ RegisterServerEvent('mono_garage:MandarVehiculoImpound', function(plate, impo)
     local identifier = xPlayer.getIdentifier()
 
     MySQL.Async.execute(
-        "UPDATE owned_vehicles SET parking = @impo, pound = 1 WHERE owner = @identifier AND plate = @plate",
+        "UPDATE owned_vehicles SET parking = @impo, pound = 1, calle = 0 WHERE owner = @identifier AND plate = @plate",
         {
             ['@identifier'] = identifier,
             ['@plate'] = plate,
@@ -540,7 +561,7 @@ if Garage.AutoImpound.AutoImpound then
                         end
                     end
                 end
-                if not vehicleFound and data.stored == 0 and data.pound == nil then
+                if not vehicleFound and data.stored == 0 and data.pound == nil and data.calle == 0 then
                     MySQL.Async.execute("UPDATE owned_vehicles SET parking = @impo, pound = 1 WHERE  plate = @plate",
                         {
                             ['@plate'] = data.plate,
@@ -566,18 +587,29 @@ end
 
 
 CreateThread(function()
-	while true do
-		local plateList = {}
-		local allVeh = GetAllVehicles()
-		for i=1, #allVeh do
-			local plate = GetVehicleNumberPlateText(allVeh[i])
-			local model = GetEntityModel(allVeh[i])
-			if not plateList[plate] then 
-				plateList[plate] = model
-			elseif model == plateList[plate] then
-				DeleteEntity(allVeh[i])
-			end
-		end
-		Wait(5000)
-	end
+    while true do
+        local plateList = {}
+        local allVeh = GetAllVehicles()
+        for i = 1, #allVeh do
+            local plate = GetVehicleNumberPlateText(allVeh[i])
+            local model = GetEntityModel(allVeh[i])
+            if not plateList[plate] then
+                plateList[plate] = model
+            elseif model == plateList[plate] then
+                DeleteEntity(allVeh[i])
+            end
+        end
+        Wait(5000)
+    end
+end)
+
+
+lib.callback.register('mono_garage:GetVehicleCoords', function(source, plate)
+    local allVeh = GetAllVehicles()
+    for i = 1, #allVeh do
+        local plate1 = GetVehicleNumberPlateText(allVeh[i])
+        if plate1 == plate then
+            return GetEntityCoords(allVeh[i])
+        end
+    end
 end)

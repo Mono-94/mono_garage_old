@@ -1,3 +1,4 @@
+
 CREATE TABLE `owned_vehicles` (
   `amigos` longtext DEFAULT NULL,
   `owner` varchar(46) DEFAULT NULL,
@@ -12,7 +13,9 @@ CREATE TABLE `owned_vehicles` (
   `glovebox` longtext DEFAULT NULL,
   `trunk` longtext DEFAULT NULL,
   `lastparking` longtext DEFAULT NULL,
-  `carseller` int(11) DEFAULT 0
+  `lastposition` longtext DEFAULT NULL,
+  `carseller` int(11) DEFAULT 0,
+  `calle` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -22,3 +25,9 @@ ALTER TABLE `owned_vehicles`
   ADD KEY `amigos_2` (`amigos`(1024));
 COMMIT;
 
+
+---
+
+ALTER TABLE owned_vehicles
+ADD COLUMN calle tinyint(4) NOT NULL DEFAULT 0,
+ADD COLUMN lastposition longtext DEFAULT NULL;

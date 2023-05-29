@@ -5,15 +5,12 @@ if Garage.Mono_Carkeys then
     local ox_inventory = exports.ox_inventory
 
 
-
-
     RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate)
         local source = source
+        print(plate)
         exports.ox_inventory:RemoveItem(source, 'carkeys', count,
             { plate = plate, description = locale('key_description', plate) })
     end)
-
-
 
 
 

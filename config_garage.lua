@@ -12,7 +12,7 @@ Garage = {}
 
 Garage.Debug = false          -- Debug, prints etc...
 
-Garage.RadialCopyCoords = false -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = true -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
 Garage.Version = true         -- Check GitHub version.
 
@@ -21,7 +21,6 @@ Garage.Target = true         -- If it's true, it will use ox_target, if it's fal
 Garage.TargetNPCDistance = 2.5   -- Distance to open Menu in NPC
 
 Garage.TargetCarDistance = 2.5   -- Distance to deposit the vehicle with ox_target
-
 --<-------------------------------------->--
 Garage.OwnerCarAdmin = {
     -- The vehicle you are in will be saved in the database and become your property. (ADMIN)
@@ -38,6 +37,11 @@ Garage.AutoImpound = {
     TimeCheck = 1000 * 4,      -- (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
+Garage.Persistent = {
+    persitenent = true,
+    debug = true
+} 
+
 --<-------------------------------------->--
 
 Garage.SharedGarage = false   -- If it is "true" it will be able to withdraw the vehicles in any garage, if it is "false" it will only be able to withdraw the vehicle in the garage that kept it.
@@ -45,8 +49,6 @@ Garage.SharedGarage = false   -- If it is "true" it will be able to withdraw the
 Garage.ShareCarFriend = true  -- Share vehicles with friends.
 
 Garage.SaveKilometers = true -- Save Kilometers in DB
-
-Garage.SetInToVehicle = false -- Set ped into vehicle upon spawn.
 
 --<-------------------------------------->--
 Garage.Mono_Carkeys = true -- Config_keys.lua / https://mono-2.gitbook.io/docs/mono-scrips/mono_carkeys/events-y-exports
@@ -167,7 +169,7 @@ Garage.Garages = {
         pos          = vector4(1700.13671875, 4931.6333007813,42.078128814697,62.388843536377),
         size         = vec3(40, 30, 5),
         heading      = 57.604652404785,
-        SetInToVehicle = false,
+        SetInToVehicle = true,
         spawnpos     = {
             { x = 1695.2021484375, y = 4940.17578125, z = 41.75191116333, w = 99.631744384766},
    
