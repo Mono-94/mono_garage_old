@@ -38,8 +38,8 @@ Garage.AutoImpound = {
 }
 
 Garage.Persistent = {
-    persitenent = true,
-    debug = true
+    persitenent = false,
+    debug = false
 } 
 
 --<-------------------------------------->--
