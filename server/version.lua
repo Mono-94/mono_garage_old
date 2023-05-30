@@ -4,7 +4,7 @@ if Garage.Version then
       function(error, result, headers)
         local actual = GetResourceMetadata(GetCurrentResourceName(), 'version')
 
-        if not result then print("^6SY GARAGE^7 -  version couldn't be checked") end
+        if not result then print("^6MONO GARAGE^7 -  version couldn't be checked") end
 
         local version = string.sub(result, string.find(result, "%d.%d.%d"))
 
