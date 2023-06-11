@@ -12,16 +12,6 @@
 * Garage - https://mono-2.gitbook.io/docs/mono-scrips/mono_garage
 * CarKeys - https://mono-2.gitbook.io/docs/mono-scrips/mono_carkeys
 # 
-❗ **ATTENTION YOU HAVE TO IMPORT THESE 2 NEW COLUMNS TO YOUR DATABASE.** 
-*It is necessary to add these 2 new columns even if you don't use the persistence feature.*
-```sql
-ALTER TABLE owned_vehicles
-ADD COLUMN calle tinyint(4) NOT NULL DEFAULT 0,
-ADD COLUMN lastposition longtext DEFAULT NULL;
-```
-*f you have any problems with the persistent system, just disable it and leave a comment about the bug you have. I will be improving this option.* ❗
-
-
 # <center>**Features**</center>
 * Work with radial menu from ox_lib or ox_target
 * Share vehicles with colleagues, including a list to manage shared access to the vehicle.
@@ -37,7 +27,9 @@ ADD COLUMN lastposition longtext DEFAULT NULL;
 #  <center>**Commands**</center>
 
 * **/impound** - */impound - With this command, you can impound a vehicle. An NPC will appear and take the nearest vehicle to you. It only works for jobs, and you can add as many jobs as you want in Garage.NpcImpound.*
+
 * **/givecar** - *The vehicle you are in will be saved in the database and become your property. (ADMIN)*
+
 
 # 
 #
