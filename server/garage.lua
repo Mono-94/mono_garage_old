@@ -88,7 +88,6 @@ end)
 
 lib.callback.register('mono_garage:GetTotalKm', function(source, plate)
     local totalkm = MySQL.Sync.fetchAll("SELECT * FROM owned_vehicles")
-
     for _, vehicle in ipairs(totalkm) do
         if plate == vehicle.plate then
             return vehicle.mileage
@@ -488,7 +487,11 @@ RegisterServerEvent('mono_garage:MandarVehiculoImpound', function(plate, impound
             s
         }, function(rowsChanged)
             if rowsChanged > 0 then
-                DeleteVehicleByPlate(plate)
+                for k, v in pairs(vehiculoCreado) do
+                    if v == plate then
+                        DeleteEntity(k)
+                    end
+                end
                 TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_MandarVehiculoImpound'))
             else
                 TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_MandarMal'))
@@ -760,7 +763,7 @@ if Garage.Persistent then
 end
 
 
-AddEventHandler('entityRemoved',function (entity)
+AddEventHandler('entityRemoved', function(entity)
     vehiculoCreado[entity] = nil
 end)
 
@@ -770,7 +773,7 @@ lib.addCommand('mono_garage:table', {
     restricted = Garage.OwnerCarAdmin.Group,
 }, function(source, args)
     for entity, plate in pairs(vehiculoCreado) do
-        print('Entity: '..entity..', Plate: '..plate)
+        print('Entity: ' .. entity .. ', Plate: ' .. plate)
     end
 end)
 

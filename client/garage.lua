@@ -490,7 +490,7 @@ function VehicleSelected(data)
                 arrow = true,
                 description = locale('DescriDepoti'),
                 onSelect = function()
-                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', data.plate, data.impo)
+                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', string.gsub(data.plate, "^%s*(.-)%s*$", "%1"), data.impo)
                 end
             })
             if Garage.ShareCarFriend then
