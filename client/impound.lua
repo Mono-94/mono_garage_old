@@ -1,158 +1,191 @@
-
-
-
-
-
-
-
-
-
-function NPCImpoundGarage(impound)
-    local playerPed = PlayerPedId()
-    local playerPos = GetEntityCoords(playerPed)
-    local npcHash = GetHashKey(Garage.NpcImpound.NpcHash)
-    local vehicle = lib.getClosestVehicle(cache.coords, 7.0, false)
-    local plate = GetVehicleNumberPlateText(vehicle)
-    if vehicle then
-        if Garage.NpcImpound.NPCAnim then
-            RequestModel(npcHash)
-            while not HasModelLoaded(npcHash) do
-                Wait(0)
+for i = 1, #Garage.NpcImpound.jobs do
+    local options = {
+        {
+            icon = 'fa-solid fa-car-on',
+            label = 'Impound vehicle',
+            groups = Garage.NpcImpound.jobs[i],
+            canInteract = function(entity, distance, coords, name, bone)
+                vehicle = { entity = entity, distance = distance, coords = coords, name = name, bone = bone }
+                return vehicle
+            end,
+            onSelect = function()
+                ImpoundVehicle(vehicle)
             end
-
-            local npcPed = CreatePed(5, npcHash, playerPos.x + 2, playerPos.y + 2, playerPos.z - 1, 0.0, true, false)
-
-            SetPedRelationshipGroupHash(npcPed, GetHashKey("PLAYER"))
-            SetRelationshipBetweenGroups(0, GetHashKey("PLAYER"), GetPedRelationshipGroupHash(npcPed))
-
-
-            SetEntityNoCollisionEntity(npcPed, playerPed, true)
-            SetEveryoneIgnorePlayer(npcPed, true)
-
-            Wait(1000)
-
-            TaskEnterVehicle(npcPed, vehicle, -1, -1, 1.0, 1, 0)
-
-            SetVehicleEngineOn(vehicle, true, true)
-            SetVehicleDoorsLocked(vehicle, 0)
-            TaskVehicleDriveToCoordLongrange(npcPed, vehicle, 408.81500244141, -1637.9078369141, 29.291925430298, 60.0,
-                447,
-                2.0)
-            local tiempo = Garage.NpcImpound.TimeDeleteVehicle
-            Wait(tiempo)
-            ClearPedTasks(npcPed)
-            DeletePed(npcPed)
-            DeleteEntity(vehicle)
-            TriggerServerEvent('mono_garage:MandarVehiculoImpound', plate, impound)
-            TriggerEvent('mono_garage:Notification', locale('impound1', plate))
-        else
-            Wait(5000)
-            DeleteEntity(vehicle)
-            TriggerServerEvent('mono_garage:MandarVehiculoImpound', plate, impound)
-            TriggerEvent('mono_garage:Notification', locale('impound1', plate))
-        end
-    else
-        TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
-    end
+        }
+    }
+    exports.ox_target:addGlobalVehicle(options)
 end
 
+
 RegisterCommand(Garage.NpcImpound.Command, function()
-    local jobAllowed = false
-    for i = 1, #Garage.NpcImpound.jobs do
-        if ESX.PlayerData.job.name == Garage.NpcImpound.jobs[i] then
-            jobAllowed = true
-            if lib.getClosestVehicle(cache.coords, 7, true) then
-                local input
-                local imp = {}
-                for k, v in pairs(Garage.Garages) do
-                    if v.impound then
-                        table.insert(imp, {
-                            value = k, label = k
-                        })
-                    end
-                end
+    local trabajo = false
+    local noti = false
 
-                input = lib.inputDialog(locale('impound5'), {
-                    {
-                        type = 'select',
-                        icon = 'warehouse',
-                        label = locale('impound2'),
-                        options = imp
-                    },
-                })
-                if not input then return end
-                if lib.progressBar({
-                        duration = Garage.NpcImpound.ProgressBarTime,
-                        label = locale('impound4'),
-                        useWhileDead = false,
-                        canCancel = true,
-                        disable = {
-                            car = true,
-                        },
-                        anim = {
-                            scenario = 'WORLD_HUMAN_CLIPBOARD',
-                        },
-
-                    }) then
-                    NPCImpoundGarage(input[1])
-                else
-                    TriggerEvent('mono_garage:Notification', locale('cancelado'))
-                end
+    for k, v in pairs(Garage.NpcImpound.jobs) do
+        if ESX.PlayerData.job.name == v then
+            trabajo = true
+            local entity, coords = lib.getClosestVehicle(cache.coords, 3.0, true)
+            local veh = { coords = coords, entity = entity }
+            if coords then
+                ImpoundVehicle(veh)
             else
-                TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
+                if not noti then
+                    TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
+                    noti = true
+                end
             end
-            break
         end
     end
-    if not jobAllowed then
+
+    if not trabajo and not noti then
         TriggerEvent('mono_garage:Notification', locale('impound3'))
-    end
-end, false)
-
-AddEventHandler('mono_garage:NPCImpound', function()
-    if lib.getClosestVehicle(cache.coords, 7, true) then
-        local input
-        local imp = {}
-        for k, v in pairs(Garage.Garages) do
-            if v.impound then
-                table.insert(imp, {
-                    value = k, label = k
-                })
-            end
-        end
-
-        input = lib.inputDialog(locale('impound5'), {
-            {
-                type = 'select',
-                icon = 'warehouse',
-                label = locale('impound2'),
-                options = imp
-            },
-        })
-        if not input then return end
-        if lib.progressBar({
-                duration = Garage.NpcImpound.ProgressBarTime,
-                label = locale('impound4'),
-                useWhileDead = false,
-                canCancel = true,
-                disable = {
-                    car = true,
-                },
-                anim = {
-                    scenario = 'WORLD_HUMAN_CLIPBOARD',
-                },
-
-            }) then
-            NPCImpoundGarage(input[1])
-        else
-            TriggerEvent('mono_garage:Notification', locale('cancelado'))
-        end
-    else
-        TriggerEvent('mono_garage:Notification', locale('no_veh_nearby'))
+        noti = true
     end
 end)
 
 
 
+function ImpoundVehicle(vehicle)
+    local props = lib.getVehicleProperties(vehicle.entity)
+    local name = lib.callback.await('mono_garage:GetPlayerNamePlate', source, string.gsub(props.plate, "^%s*(.-)%s*$", "%1"))
+    if name == nil then
+        name = 'Name not found'
+    end
+    local imp = {}
+    for k, v in pairs(Garage.Garages) do
+        if v.impound then
+            if GetVehicleCategory(vehicle.entity) == v.type then
+                table.insert(imp, { value = k, label = k })
+            end
+        end
+    end
+    local vehiclename = GetMakeNameFromVehicleModel(props.model)..' - '..GetDisplayNameFromVehicleModel(props.model)
 
+    local input = lib.inputDialog(locale('impound5'), {
+        {
+            type = 'input',
+            icon = 'address-card',
+            disabled = true,
+            label = locale('impfunc_owner'),
+            required = false,
+            placeholder =
+                name
+        },
+        {
+            type = 'input',
+            icon = 'window-maximize',
+            disabled = true,
+            label = locale('impfunc_plate'),
+            required = false,
+            placeholder =
+                props.plate
+        },
+        {
+            type = 'input',
+            icon = 'car',
+            disabled = true,
+            label = locale('impfunc_model'),
+            required = false,
+            placeholder = vehiclename
+        },
+        {
+            type = 'textarea',
+            icon = 'pen-to-square',
+            label = 'Reason',
+            required = true,
+            placeholder = locale('impfunc_reasonholder'),
+            max = 200,
+        },
+        {
+            type = 'number',
+            icon = 'money-bill-trend-up',
+            label = locale('impfunc_price'),
+            required = true,
+            default = 1,
+            min = 1,
+            max = 10000000
+        },
+        {
+            type = 'date',
+            label = locale('impfunc_date'),
+            icon = { 'far', 'calendar' },
+            disabled = false,
+            required = true,
+            format = "DD/MM/YYYY"
+        },
+        {
+            type = 'select',
+            icon = 'warehouse',
+            label = locale('impound2'),
+            required = true,
+            options = imp
+        },
 
+    })
+    if not input then return end
+    local reason = input[4]
+    local price = input[5]
+    local date = input[6] / 1000
+    local impound = input[7]
+
+    if lib.progressBar({
+            duration = Garage.NpcImpound.ProgressBarTime,
+            label = locale('impound4'),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                car = true,
+            },
+            anim = {
+                scenario = 'WORLD_HUMAN_CLIPBOARD',
+            },
+
+        }) then
+        NpcImpound({
+            impound = impound,
+            entity = vehicle.entity,
+            coords = vehicle.coords,
+            plate = string.gsub(props.plate, "^%s*(.-)%s*$", "%1"),
+            price = price,
+            reason = reason,
+            date = date
+        })
+    else
+        TriggerEvent('mono_garage:Notification', locale('cancelado'))
+    end
+end
+
+exports('ImpoundVehicle', ImpoundVehicle)
+
+function NpcImpound(data)
+    local props = lib.getVehicleProperties(data.entity)
+
+    if Garage.NpcImpound.NPCAnim then
+        local playerPos = data.coords
+        local hcar = GetEntityHeading(data.entity)
+        local pos = vec4(playerPos.x, playerPos.y + 3, playerPos.z - 1, hcar + 50)
+        local Spawned = CreateNPC(Garage.NpcImpound.NPCHash, pos)
+        FreezeEntityPosition(Spawned, false)
+        SetPedRelationshipGroupHash(Spawned, GetHashKey("PLAYER"))
+        SetRelationshipBetweenGroups(0, GetHashKey("PLAYER"), GetPedRelationshipGroupHash(Spawned))
+        SetVehicleDoorsLocked(data.entity, 0)
+        SetEntityNoCollisionEntity(Spawned, cache.ped, true)
+        SetEveryoneIgnorePlayer(Spawned, true)
+        TaskEnterVehicle(Spawned, data.entity, -1, -1, 1.0, 1, 0)
+
+        while true do
+            Wait(0)
+            if GetPedInVehicleSeat(data.entity, -1) > 0 then
+                SetVehicleEngineOn(data.entity, true, true)
+                break
+            end
+        end
+
+        TaskVehicleDriveToCoordLongrange(Spawned, data.entity, 408.81500244141, -1637.9078369141, 29.291925430298, 60.0,
+            447, 2.0)
+        Wait(Garage.NpcImpound.TimeDeleteVehicle)
+        DeletePed(Spawned)
+    end
+    DeleteEntity(data.entity)
+    TriggerServerEvent('mono_garage:ImpoundJoB', data.plate, data.impound, data.price, data.reason, data.date)
+end

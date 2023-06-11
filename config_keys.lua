@@ -49,10 +49,12 @@ Keys.EntityVehicleSpawn = {
     OpenDoorProbability = 0.9, -- Min 0.0 , Max 1.0.
 }
 --<-------------------------------------->--
+
 -- The player can search for the key inside the vehicle.
+
 Keys.FindKeys = {
     FindKey = true,      -- The player can search for the key inside the vehicle.
-    FindKeyCommand = false, -- Enable/disable Command
+    FindKeyCommand = true, -- Enable/disable Command
     Command = 'FindKey', -- Command name
     Probability = 0.1,   -- Probability of finding the key in the vehicle.
     ProgressTime = 5000, -- Time to search

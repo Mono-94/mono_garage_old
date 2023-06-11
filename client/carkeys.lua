@@ -1,11 +1,10 @@
 if Garage.Mono_Carkeys then
-    
     function GetPlayerKey()
         local closet = lib.getClosestVehicle(cache.coords, Keys.Distance, true)
-        local vehicleProps = ESX.Game.GetVehicleProperties(closet)
+        local props = lib.getVehicleProperties(closet)
         local keys = exports.ox_inventory:Search('slots', Keys.ItemName)
         for i, v in ipairs(keys) do
-            if v.metadata.plate == vehicleProps.plate then
+            if string.gsub(v.metadata.plate, "^%s*(.-)%s*$", "%1") == string.gsub(props.plate, "^%s*(.-)%s*$", "%1") then
                 return v
             end
         end
@@ -58,40 +57,6 @@ if Garage.Mono_Carkeys then
         local state = GetVehicleEngineHealth(vehicle) > 0 and GetIsVehicleEngineRunning(vehicle)
         return state
     end
-
-    if Keys.OnExitCar then
-        local MotorOn = false
-        local MotorOnSalir = nil
-        MotorOnSalir = SetInterval(function()
-            local ped = cache.ped
-            local vehicle = GetVehiclePedIsIn(ped, false)
-            local inCar = IsPedInAnyVehicle(ped, false)
-            if inCar and vehicle ~= nil and vehicle ~= 0 then
-                if IsControlPressed(2, 75) then
-                    Wait(100)
-                    if GetPlayerKey() ~= nil and IsControlPressed(2, 75) then
-                        Wait(100)
-                        if not MotorOn and GetVehicleEngineState(vehicle) then
-                            MotorOn = true
-                        end
-                        if MotorOn then
-                            SetVehicleEngineOn(vehicle, true, true, false)
-                        end
-                    end
-                else
-                    if GetVehicleEngineState(vehicle) then
-                        MotorOn = true
-                    else
-                        MotorOn = false
-                    end
-                end
-            else
-                SetInterval(MotorOnSalir, 500)
-            end
-        end, 10)
-    end
-
-
 
     RegisterNetEvent('mono_carkeys:LucesLocas', function(netId, lockStatus)
         local vehicle = NetToVeh(netId)
@@ -180,39 +145,39 @@ if Garage.Mono_Carkeys then
                     end
                 end
 
-                Wait(vehicle and 0 or 500)
+                Wait(0)
             end
         end)
+        if Keys.OnExitCar then
+            local MotorOn = false
+            local MotorOnSalir = nil
+            MotorOnSalir = SetInterval(function()
+                local vehicle = cache.vehicle
+                if vehicle then
+                    if IsControlPressed(2, 75) then
+                        Wait(100)
+                        if GetPlayerKey() ~= nil and IsControlPressed(2, 75) then
+                            Wait(100)
+                            if not MotorOn and GetVehicleEngineState(vehicle) then
+                                MotorOn = true
+                            end
+                            if MotorOn then
+                                SetVehicleEngineOn(vehicle, true, true, false)
+                            end
+                        end
+                    else
+                        if GetVehicleEngineState(vehicle) then
+                            MotorOn = true
+                        else
+                            MotorOn = false
+                        end
+                    end
+                else
+                    SetInterval(MotorOnSalir, 500)
+                end
+            end, 10)
+        end
     end
-
-
-
-
-
-
-
-    --[[    RegisterNetEvent('mono_carkeys:SetMatricula')
-    AddEventHandler('mono_carkeys:SetMatricula', function(newPlate, newColor)
-        local vehicle = GetVehiclePedIsUsing(cache.ped)
-        local plate = GetVehicleNumberPlateText(vehicle)
-
-        SetVehicleNumberPlateText(vehicle, newPlate)
-        SetVehicleNumberPlateTextIndex(vehicle, newColor)
-        TriggerServerEvent('mono_carkeys:DeleteKey', 1, plate)
-        TriggerServerEvent('mono_carkeys:CreateKey', newPlate)
-        return newPlate, newColor
-    end)
-
-]]
-
-
-
-
-
-
-
-
-
 
     -- Funcitions
 
@@ -249,12 +214,9 @@ if Garage.Mono_Carkeys then
     if Keys.FindKeys.FindKey then
         local searchedVehicles = {}
         function FindKeys()
-            local coords = GetEntityCoords(cache.ped)
-            local vehicle = lib.getClosestVehicle(coords, 0.5, true)
+            local vehicle = cache.vehicle
             local plate = GetVehicleNumberPlateText(vehicle)
             local vehicles = lib.callback.await('mono_carkeys:getVehicles')
-
-
             if vehicle then
                 for i = 1, #vehicles do
                     local data = vehicles[i]
@@ -302,8 +264,7 @@ if Garage.Mono_Carkeys then
     function LockPick()
         for k, v in pairs(Keys.LockPick) do
             local ped = cache.ped
-            local pedcords = GetEntityCoords(ped)
-            local closet = lib.getClosestVehicle(pedcords, 3, true)
+            local closet = lib.getClosestVehicle(cache.coords, 3, true)
             local EstadoPuertas = GetVehicleDoorLockStatus(closet)
             lib.requestAnimDict(v.animDict)
             if closet then
@@ -378,23 +339,22 @@ if Garage.Mono_Carkeys then
     function HotWire()
         for k, v in pairs(Keys.HotWire) do
             local ped = cache.ped
-            local inVehicle2 = GetVehiclePedIsIn(ped, false)
-            local inVehicle = IsPedInAnyVehicle(ped)
+            local vehicle = cache.vehicle
             lib.requestAnimDict(v.animDict)
-            if inVehicle then
+            if vehicle then
                 if v.SkillCheck then
                     TaskPlayAnim(ped, v.animDict, v.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
                     local success = lib.skillCheck(table.unpack(v.Skills))
                     if success then
-                        local engineRunning = GetIsVehicleEngineRunning(inVehicle2)
+                        local engineRunning = GetIsVehicleEngineRunning(vehicle)
                         if engineRunning then
-                            SetVehicleEngineOn(inVehicle2, false, true, true)
+                            SetVehicleEngineOn(vehicle, false, true, true)
                             if Keys.Debug then
                                 print('Motor off')
                             end
                             DisableControlAction(2, 71, false)
                         else
-                            SetVehicleEngineOn(inVehicle2, true, true, true)
+                            SetVehicleEngineOn(vehicle, true, true, true)
                             if Keys.Debug then
                                 print('Motor on')
                             end
@@ -418,21 +378,21 @@ if Garage.Mono_Carkeys then
                                 clip = v.anim
                             },
                         }) then
-                        local engineRunning = GetIsVehicleEngineRunning(inVehicle2)
+                        local engineRunning = GetIsVehicleEngineRunning(vehicle)
                         if engineRunning then
-                            SetVehicleEngineOn(inVehicle2, false, true, true)
+                            SetVehicleEngineOn(vehicle, false, true, true)
                             if Keys.Debug then
                                 print('Motor off')
                             end
                         else
-                            SetVehicleEngineOn(inVehicle2, true, true, true)
+                            SetVehicleEngineOn(vehicle, true, true, true)
                             if Keys.Debug then
                                 print('Motor on')
                             end
                         end
                     else
                         if math.random() < v.alarmProbability then
-                            SetVehicleAlarmTimeLeft(inVehicle2, v.alarmTime)
+                            SetVehicleAlarmTimeLeft(vehicle, v.alarmTime)
                         end
                         TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
                             '#3232a8')
@@ -445,62 +405,6 @@ if Garage.Mono_Carkeys then
         end
     end
 
-    --[[function SetMatricula()
-        local ped = cache.ped
-        local inVehicle = IsPedInAnyVehicle(ped)
-
-        if inVehicle then
-            local vehicle = GetVehiclePedIsIn(ped, false)
-            local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
-            local plate = vehicleProps.plate
-
-            local input = lib.inputDialog(locale('MatriculaNueva'), {
-                {
-                    type = 'input',
-                    label = locale('ActualMatri', plate),
-                    description = locale('MatriculaMax'),
-                    min = 1,
-                    max = 8
-                },
-                {
-                    type = 'select',
-                    label = locale('CambiarColorMatri'),
-                    options = {
-                        { value = 0, label = 'Blue / White' },
-                        { value = 1, label = 'Yellow / black' },
-                        { value = 2, label = 'Yellow / Blue' },
-                        { value = 3, label = 'Blue/ White 2' },
-                        { value = 4, label = 'Blue / White 3' },
-                        { value = 5, label = 'Yankton' },
-                    }
-                },
-            })
-            if not input then return end
-            print('revisar esta funcion de cambiar matricula')
-          local count = 0
-            for i = 1, #input[1] do
-                local c = string.sub(input[1], i, i)
-                if c == ' ' then
-                    count = count + 1
-                else
-                    count = count + utf8.len(c)
-                end
-            end
-
-            if count > 8 or count == 0 then
-                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('MatriculaMax'), 'car', '#3232a8')
-            else
-                local newPlate = input[1]
-                local newColor = input[2]
-
-
-                TriggerServerEvent('mono_carkeys:SetMatriculaServer', plate, newPlate, newColor)
-            end
-        else
-            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('CambiarMatriDentro'), 'car', '#3232a8')
-        end
-    end
-]]
     function CarKey(time)
         local ped = cache.ped
         local pedcords = GetEntityCoords(ped)
@@ -531,8 +435,6 @@ if Garage.Mono_Carkeys then
     exports('HotWire', HotWire)
 
     exports('LockPick', LockPick)
-
-    -- exports('SetMatricula', SetMatricula)
 
     exports('FindKeys', FindKeys)
 
@@ -625,7 +527,6 @@ if Garage.Mono_Carkeys then
         end
     end)
 
-
     function MenuKeys(precio, tiempoprogress)
         local KeyMenu = {}
         local vehicles = lib.callback.await('mono_carkeys:getVehicles')
@@ -695,3 +596,93 @@ if Garage.Mono_Carkeys then
         lib.showContext('mono_carkeys:SelectCarKey')
     end
 end
+
+
+
+
+
+
+
+local options = {
+    {
+        icon = 'fa-solid fa-window-maximize',
+        label = 'Change Plate',
+        distance = 1,
+        canInteract = function(entity, distance, coords, name, bone)
+            local plate = string.gsub(lib.getVehicleProperties(entity).plate, "^%s*(.-)%s*$", "%1")
+            local owner = lib.callback.await('mono_garage:ChangePlateOwner', source, plate)
+            if not owner then return end
+            local count = exports.ox_inventory:Search('count', Keys.ItemPlate)
+            if count < 1 then return end
+            return #(coords - GetEntityBonePosition_2(entity, GetEntityBoneIndexByName(entity, 'platelight'))) < 0.2
+        end,
+        onSelect = function(data)
+            local entityh = GetEntityHeading(data.entity)
+            local vehicleProps = lib.getVehicleProperties(data.entity)
+            local oldplate = string.gsub(vehicleProps.plate, "^%s*(.-)%s*$", "%1")
+            local input = lib.inputDialog(locale('MatriculaNueva'), {
+                {
+                    type = 'input',
+                    icon = 'window-maximize',
+                    disabled = true,
+                    label = 'Vehicle Owner Plate',
+                    required = false,
+                    placeholder = oldplate
+                },
+                {
+                    type = 'input',
+                    label = 'New Plate',
+                    required = true,
+                    description = locale('MatriculaMax'),
+                    min = 1,
+                    max = 8
+                },
+                {
+                    type = 'select',
+                    icon = 'droplet',
+                    required = true,
+                    label = locale('CambiarColorMatri'),
+                    options = {
+                        { value = 0, label = 'Blue / White' },
+                        { value = 1, label = 'Yellow / black' },
+                        { value = 2, label = 'Yellow / Blue' },
+                        { value = 3, label = 'Blue/ White 2' },
+                        { value = 4, label = 'Blue / White 3' },
+                        { value = 5, label = 'Yankton' },
+                    }
+                },
+            })
+            if not input then return end
+            local newPlate = string.upper(input[2])
+            SetEntityHeading(cache.ped, entityh)
+
+            if lib.progressBar({
+                    duration = 2000,
+                    label = 'plate',
+                    useWhileDead = false,
+                    canCancel = true,
+                    disable = {
+                        car = true,
+                        move = true,
+                    },
+                    anim = {
+                        dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
+                        clip = 'machinic_loop_mechandplayer',
+                        flag = 1,
+
+                    },
+                    prop = {
+                        model = 'p_num_plate_01',
+                        pos = vec3(0.0, 0.2, 0.1),
+                        rot = vec3(100, 100.0, 0.0)
+                    },
+                }) then
+                SetVehicleNumberPlateTextIndex(data.entity, input[3])
+                SetVehicleNumberPlateText(data.entity, newPlate)
+                TriggerServerEvent('mono_carkeys:SetMatriculaServer', oldplate, newPlate)
+            end
+        end
+    }
+}
+
+exports.ox_target:addGlobalVehicle(options)

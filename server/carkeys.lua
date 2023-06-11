@@ -7,7 +7,6 @@ if Garage.Mono_Carkeys then
 
     RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate)
         local source = source
-        print(plate)
         exports.ox_inventory:RemoveItem(source, 'carkeys', count,
             { plate = plate, description = locale('key_description', plate) })
     end)
@@ -45,7 +44,7 @@ if Garage.Mono_Carkeys then
         local identifier = xPlayer.getIdentifier()
         local vehicles = {}
 
-        local results = MySQL.Sync.fetchAll("SELECT * FROM `owned_vehicles` WHERE `owner` = @identifier", {
+        local results = MySQL.Sync.fetchAll("SELECT * FROM owned_vehicles WHERE owner = @identifier", {
             ['@identifier'] = identifier,
         })
 
@@ -67,35 +66,41 @@ if Garage.Mono_Carkeys then
     end)
 
 
-
-
-    RegisterServerEvent('mono_carkeys:SetMatriculaServer')
-    AddEventHandler('mono_carkeys:SetMatriculaServer', function(oldPlate, newPlate, newColor)
+    RegisterServerEvent('mono_carkeys:SetMatriculaServer', function(oldPlate, newPlate)
         local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
-        local identifier = xPlayer.getIdentifier()
+        local identifier = xPlayer.identifier
 
         local result = MySQL.Sync.fetchAll(
-            "SELECT * FROM `owned_vehicles` WHERE `owner` = @identifier AND `plate` = @oldPlate", {
+            "SELECT * FROM owned_vehicles WHERE owner = @identifier AND plate = @oldPlate", {
                 ['@identifier'] = identifier,
                 ['@oldPlate'] = oldPlate
             })
 
         if result[1] ~= nil then
             local decodedVehicle = json.decode(result[1].vehicle)
+            decodedVehicle.plate = newPlate
             local newVehicle = json.encode(decodedVehicle)
+
             MySQL.Async.execute(
-                'UPDATE `owned_vehicles` SET `plate` = @newPlate, `vehicle` = @newVehicle WHERE `owner` = @identifier AND `plate` = @oldPlate',
+                'UPDATE owned_vehicles SET plate = @newPlate, vehicle = @newVehicle WHERE owner = @identifier AND plate = @oldPlate',
                 {
                     ['@identifier'] = identifier,
                     ['@oldPlate'] = oldPlate,
-                    ['@newPlate'] = decodedVehicle.plate,
+                    ['@newPlate'] = newPlate,
                     ['@newVehicle'] = newVehicle
                 }, function(rowsChanged)
                     if rowsChanged > 0 then
-                        TriggerClientEvent('mono_carkeys:SetMatricula', source, decodedVehicle.plate, newColor)
+                        local count = exports.ox_inventory:GetItem(source, Keys.ItemName, { plate = oldPlate, description = locale('key_description', oldPlate) }, true)
+
+                        exports.ox_inventory:RemoveItem(source, Keys.ItemName, count, { plate = oldPlate, description = locale('key_description', oldPlate) })
+
+                        ox_inventory:AddItem(source, Keys.ItemName, count,{ plate = newPlate, description = locale('key_description', newPlate) })
+
+                        ox_inventory:RemoveItem(source, Keys.ItemPlate, 1)
+                        
                         TriggerClientEvent('mono_carkeys:Notification', source,
-                            locale('MatriculaActualizada', oldPlate, decodedVehicle.plate))
+                            locale('MatriculaActualizada', oldPlate, newPlate))
                     else
                         TriggerClientEvent('mono_carkeys:Notification', source, locale('ErrorActualizar'))
                     end
@@ -104,12 +109,6 @@ if Garage.Mono_Carkeys then
             TriggerClientEvent('mono_carkeys:Notification', source, locale('NoTienesMatricula'))
         end
     end)
-
-
-
-
-
-
 
     if Keys.EntityVehicleSpawn.CloseDoorEmptyCar then
         AddEventHandler('entityCreated', function(entity)
