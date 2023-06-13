@@ -17,7 +17,7 @@
 * Share vehicles with colleagues, including a list to manage shared access to the vehicle.
 * Garage for independent work.
 * Generate a key when removing the vehicle from the garage and delete it when returning to the garage.
-* 3 types of garages: "air", "car", and "boat".
+* 4 types of garages: "all","air","car", and "boat".
 * Vehicle impound system and recovery points.
 * Vehicle mileage is stored in the database and can be viewed in the garage.
 * Garage.RadialCopyCoords: Radial menu to copy coordinates and easily create garages. (Only use this on your development server!)
