@@ -614,7 +614,7 @@ local options = {
             if not owner then return end
             local count = exports.ox_inventory:Search('count', Keys.ItemPlate)
             if count < 1 then return end
-            return #(coords - GetEntityBonePosition_2(entity, GetEntityBoneIndexByName(entity, 'platelight'))) < 0.2
+            return #(coords - GetEntityBonePosition_2(entity, GetEntityBoneIndexByName(entity, 'platelight'))) < 0.4
         end,
         onSelect = function(data)
             local entityh = GetEntityHeading(data.entity)
@@ -677,12 +677,16 @@ local options = {
                         rot = vec3(100, 100.0, 0.0)
                     },
                 }) then
-                SetVehicleNumberPlateTextIndex(data.entity, input[3])
-                SetVehicleNumberPlateText(data.entity, newPlate)
-                TriggerServerEvent('mono_carkeys:SetMatriculaServer', oldplate, newPlate)
+                TriggerServerEvent('mono_carkeys:SetMatriculaServer', oldplate, newPlate, data.entity, input[3])
             end
         end
     }
 }
 
 exports.ox_target:addGlobalVehicle(options)
+
+
+RegisterNetEvent('mono_carkeys:SetVehiclePlate', function(entity,newPlate,color)
+    SetVehicleNumberPlateTextIndex(entity, color)
+    SetVehicleNumberPlateText(entity, newPlate)
+end)
