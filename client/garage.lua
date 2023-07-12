@@ -299,8 +299,11 @@ function OpenGarage(info)
             else
                 propietario = locale('deunamigo')
             end
-
-            local equivalenteEnKilometros = tonumber(data.mileage) / 520.000
+            if data.mileage == nil then
+                equivalenteEnKilometros = 0
+            else
+                equivalenteEnKilometros = tonumber(data.mileage) / 520.000
+            end
             local formattedEquivalente = string.format("%.1f", equivalenteEnKilometros)
 
             table.insert(garagemenu, {

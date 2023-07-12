@@ -1,4 +1,5 @@
 
+
 CREATE TABLE `owned_vehicles` (
   `amigos` longtext DEFAULT NULL,
   `owner` varchar(46) DEFAULT NULL,
@@ -19,11 +20,14 @@ CREATE TABLE `owned_vehicles` (
   `infoimpound` longtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+
 ALTER TABLE `owned_vehicles`
   ADD PRIMARY KEY (`plate`),
   ADD KEY `amigos` (`amigos`(1024)),
   ADD KEY `amigos_2` (`amigos`(1024));
 COMMIT;
+
+
 
 ALTER TABLE `owned_vehicles`
 ADD COLUMN IF NOT EXISTS `infoimpound` LONGTEXT DEFAULT NULL,
@@ -33,5 +37,9 @@ ADD COLUMN IF NOT EXISTS `calle` TINYINT(4) DEFAULT NULL;
 ALTER TABLE `owned_vehicles`
 MODIFY COLUMN `mileage` INT(11);
 COMMIT;
+
+
+ALTER TABLE `owned_vehicles`
+MODIFY COLUMN `mileage` INT(11) DEFAULT 0;
 
 UPDATE `owned_vehicles` SET `mileage` = 0;
