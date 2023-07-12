@@ -4,18 +4,20 @@ game 'gta5'
 
 name 'mono_garage'
 
+lua54 'yes'
+
 repository 'https://github.com/Mono-94/mono_garage'
 
-version '1.1.6'
+version '1.2.0'
 
-author 'Symbiote#3027'
+author 'Discord: symbiote_ --  https://discord.gg/Vk7eY8xYV2'
 
 
 shared_scripts {
     '@es_extended/imports.lua',
     '@ox_lib/init.lua',
-    'config_garage.lua',
-    'config_keys.lua',
+  --  '@mono_lib/extras.lua',  
+    'Config/*.lua',
 }
 
 
@@ -28,10 +30,7 @@ server_scripts {
     'server/*.lua'
 }
 
-
 files {
     'locales/*.json',
-
+--    'AllVehicleEntitys.json'
 }
-
-lua54 'yes'

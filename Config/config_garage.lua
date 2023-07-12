@@ -4,27 +4,27 @@
 --──▄█▄▄▄█▄─▐──▌   |
 --▄█▀█████▐▌─▀─▐   |
 --▀─▄██▀██▀█▀▄▄▀   | ─────────────────────────────────────|
--- Symbiote#3027 - Discord: https://discord.gg/Vk7eY8xYV2 |
+-- symbiote_ - Discord: https://discord.gg/Vk7eY8xYV2     |
 --────────────────────────────────────────────────────────|
 
 Garage = {}
 
 Garage.Debug = {
-    Prints = false,              -- Prints data events, functions etc...
-    Zones = false,               -- Garage Zones 
+    Prints = false,               -- Prints data events, functions etc...
+    Zones = false,                -- Garage Zones 
     Persistent = false,           -- Prints Persistent
     Autoimpound = false,          -- Autoimpound
 }
 
-Garage.RadialCopyCoords = false -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords = true -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 
-Garage.Version = true          -- Check GitHub version.
+Garage.Version = true           -- Check GitHub version.
 
-Garage.Target = true           -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
+Garage.Target = true            -- If it's true, it will use ox_target, if it's false, Radial Menu will be used.
 
-Garage.TargetNPCDistance = 2.5 -- Distance to open Menu in NPC
+Garage.TargetNPCDistance = 2.5  -- Distance to open Menu in NPC
 
-Garage.TargetCarDistance = 2.5 -- Distance to deposit the vehicle with ox_target
+Garage.TargetCarDistance = 2.5  -- Distance to deposit the vehicle with ox_target
 
 --<-------------------------------------->--
 Garage.OwnerCarAdmin = {
@@ -32,6 +32,8 @@ Garage.OwnerCarAdmin = {
     Command = 'givecar', -- Command
 
     Group = 'admin',     -- Group
+
+    GarageName =  'Pillbox Hill' -- Default garage where the vehicle will be stored in DB
 }
 
 Garage.AutoImpound = {
@@ -42,14 +44,13 @@ Garage.AutoImpound = {
     TimeCheck = 1000 * 60,       --  (Default 1min) Time to check for vehicles that do not exist in the world and are not found in the garage in order to impound them.
 }
 
-Garage.Persistent = true        
+Garage.Persistent = true      
 
 --<-------------------------------------->--
 
 Garage.ShareCarFriend = true -- Share vehicles with friends.
 
-Garage.SaveKilometers = true -- Save Kilometers in DB
-
+-- Garage.TrasnferVehicles = true  Work in
 --<-------------------------------------->--
 
 Garage.Mono_Carkeys = true -- Config_keys.lua / https://mono-2.gitbook.io/docs/mono-scrips/mono_carkeys
@@ -59,26 +60,21 @@ Garage.CarKeys = true      -- Add keys when removing the vehicle and remove them
 --<-------------------------------------->--
 
 Garage.NpcImpound = {
-    NPCAnim = true,
+    NPCAnim = false,
     NPCHash = 's_m_m_dockwork_01',
+    Command = 'impound',
     TimeDeleteVehicle = 15000,
     ProgressBarTime = 5000,
-    Command = 'impound',
     jobs = {
         [1] = 'police',
-        [2] = 'sheriff',
-        [3] = 'ambulance',
-        [4] = 'paletoems',
-        [5] = 'trafico',
-        [6] = 'mechanic'
         --[420] = '',   -- Add more jobs
     }
 }
 
-
 --<-------------------------------------->--
 
 Garage.Garages = {
+    -- Impound
     ['Auto Impound'] = {
         impound        = true,
         ShareGarage    = false,
@@ -86,6 +82,7 @@ Garage.Garages = {
         type           = 'car',
         impoundIn      = false,
         job            = false,
+        Society        = false,
         pos            = vec3(408.81500244141, -1637.9078369141, 29.291925430298),
         size           = vec3(15, 30, 3),
         heading        = 141.7584991455078,
@@ -111,6 +108,7 @@ Garage.Garages = {
         type           = 'car',
         impoundIn      = false,
         job            = false,
+        Society        = false,
         pos            = vec3(-469.83917236328, 6032.5634765625, 31.34037399292),
         size           = vec3(15, 40, 3),
         heading        = 313.0982666015625,
@@ -130,6 +128,7 @@ Garage.Garages = {
         NPCPos         = vec4(-463.06100463867, 6025.5874023438, 30.44896697998, 135.05729675293),
 
     },
+    -- Garage
     ['Pillbox Hill'] = {
         impound        = false,
         ShareGarage    = false,
@@ -166,6 +165,98 @@ Garage.Garages = {
         NPCPos         = vec4(214.69429016113, -807.11199951172, 29.800384521484, 339.01174926758),
 
     },
+    ['Beach Garage'] = {
+        impound        = false,
+        ShareGarage    = false,
+        impoundPrice   = false,
+        type           = 'car',
+        impoundIn      = 'Auto Impound',
+        job            = false,
+        pos            = vector4(-1186.9885253906, -1485.1993408203,4.3795204162598,125.26085662842),
+        size           = vec3(34, 43, 5),
+        heading        = 35.44283294677734,
+        SetInToVehicle = false,
+        spawnpos       = {
+            vector4(-1183.7606201172, -1496.3354492188,3.9706411361694,124.90840148926),
+            vector4(-1185.7902832031, -1493.615234375,3.9681849479675,125.64490509033),
+            vector4(-1187.5167236328, -1490.9871826172,3.9701550006866,124.67469787598),
+            vector4(-1189.0646972656, -1488.5158691406,3.9695651531219,123.46624755859),
+            vector4(-1191.1324462891, -1485.9688720703,3.9685642719269,126.22340393066),
+            vector4(-1192.7150878906, -1483.1861572266,3.9685180187225,124.46572113037),
+            vector4(-1194.4948730469, -1480.1081542969,3.970828294754,124.8539276123),
+            vector4(-1204.2700195313, -1484.6954345703,3.9610035419464,305.99017333984),
+            vector4(-1202.2098388672, -1488.3464355469,3.9569838047028,306.90289306641),
+            vector4(-1198.900390625, -1490.4631347656,3.9644057750702,306.28082275391),
+            vector4(-1197.5792236328, -1493.8762207031,3.9614400863647,307.00152587891),
+            vector4(-1196.1829833984, -1497.0876464844,3.9586639404297,304.75402832031),
+            vector4(-1190.4721679688, -1503.7625732422,3.9637606143951,307.09887695313),
+        },
+        blip           = true,
+        sprite         = 50,
+        scale          = 0.6,
+        colorblip      = 0,
+        NPCHash        = 'csb_trafficwarden',
+        NPCPos         = vector4(-1179.2971191406, -1494.8515625,3.379668712616,210.91143798828),
+
+    },
+    ['VineWood Center'] = {
+        impound        = false,
+        ShareGarage    = false,
+        impoundPrice   = false,
+        type           = 'car',
+        impoundIn      = 'Auto Impound',
+        job            = false,
+        pos            = vector4(372.28897094727, 280.52334594727,102.97301483154,70.706298828125),
+        size           = vec3(34, 43, 5),
+        heading        = 70.706298828125,
+        SetInToVehicle = false,
+        spawnpos       = {
+            vector4(374.85760498047, 294.43109130859,102.86688995361,165.0818939209),
+            vector4(378.56265258789, 293.04306030273,102.78726959229,163.20666503906),
+            vector4(382.55520629883, 291.36309814453,102.70172119141,163.94944763184),
+            vector4(386.67111206055, 290.53021240234,102.63737487793,164.09982299805),
+            vector4(390.22622680664, 288.65908813477,102.58652496338,164.05674743652),
+            vector4(361.58099365234, 293.32504272461,103.08926391602,249.62924194336),
+            vector4(360.5810546875, 289.76022338867,103.07821655273,247.47273254395),
+            vector4(358.81109619141, 286.13931274414,103.07056427002,253.79345703125),
+            vector4(357.28283691406, 282.52239990234,102.99289703369,253.17288208008),
+            vector4(360.27276611328, 272.29049682617,102.69003295898,338.95504760742),
+            vector4(363.72314453125, 269.96838378906,102.65316009521,340.4401550293),
+            vector4(370.71759033203, 284.26663208008,102.8475112915,336.60717773438),
+            vector4(374.66918945313, 282.80575561523,102.77003479004,336.00482177734),
+        },
+        blip           = true,
+        sprite         = 50,
+        scale          = 0.6,
+        colorblip      = 0,
+        NPCHash        = 'csb_trafficwarden',
+        NPCPos         = vector4(363.22973632813, 298.1669921875,102.88312530518,252.08975219727),
+
+    },
+
+--[[    --Truck and Trailer garage (work-in)
+    ['Elysian Island Truck'] = {
+        impound        = false,
+        ShareGarage    = false,
+        impoundPrice   = false,
+        type           = 'car',
+        impoundIn      = 'Truck Impound',
+        job            = false,
+        pos            = vector4(153.26777648926, -2819.2109375,6.0001978874207,6.0922379493713),
+        size           = vec3(70, 80, 5),
+        heading        = 267.8787536621094,
+        SetInToVehicle = false,
+        spawnpos       = {
+            vector4(374.85760498047, 294.43109130859,102.86688995361,165.0818939209),
+        },
+        blip           = true,
+        sprite         = 50,
+        scale          = 0.6,
+        colorblip      = 0,
+        NPCHash        = 'csb_trafficwarden',
+        NPCPos         = vector4(157.4217376709, -2828.09375,5.1511669158936,177.23825073242),
+
+    },]]
     ['Grape Seed'] = {
         impound        = false,
         ShareGarage    = false,
@@ -178,7 +269,7 @@ Garage.Garages = {
         heading        = 57.604652404785,
         SetInToVehicle = true,
         spawnpos       = {
-            vec4(1695.2021484375, 4940.17578125, 41.75191116333, 99.631744384766)
+            vec4(1695.2021484375, 4940.17578125, 40.75191116333, 99.631744384766)
 
 
         },
@@ -226,7 +317,7 @@ Garage.Garages = {
         impoundIn      = 'Auto Impound',
         job            = false,
         pos            = vec3(-199.8488, 6216.9556, 31.1998),
-        size           = vec3(25, 20, 3),
+        size           = vec3(27, 27, 3),
         heading        = 226.0117,
         SetInToVehicle = true,
         spawnpos       = {
@@ -307,6 +398,7 @@ Garage.Garages = {
         type           = 'boat',
         impoundIn      = false,
         job            = false,
+        Society        = false,
         pos            = vec3(-781.90472412109, -1497.3582763672, 1.2815128564835),
         size           = vec3(80, 80, 10),
         heading        = 242.03529357910156,
@@ -374,6 +466,7 @@ Garage.Garages = {
         type           = 'air',
         impoundIn      = false,
         job            = false,
+        Society        = false,
         pos            = vec3(-1273.9510498047, -3384.6257324219, 14.940139770508),
         size           = vec3(80, 80, 10),
         heading        = 242.03529357910156,
@@ -389,9 +482,11 @@ Garage.Garages = {
         NPCPos         = vec4(-1284.7535400391, -3403.1101074219, 12.940143585205, 330.12164306641),
 
     },
-    --- JOB GARAGE
+
+    --JOB GARAGE
 
     --Police
+
     ['Mission Row'] = {
         impound        = false,
         ShareGarage    = false,
@@ -415,6 +510,7 @@ Garage.Garages = {
 
 
     },
+
     ['Mission Row Air'] = {
         impound        = false,
         ShareGarage    = false,
@@ -437,7 +533,32 @@ Garage.Garages = {
         NPCPos         = vec4(458.42761230469, -985.85266113281, 42.691696166992, 293.28179931641),
 
     },
+
+    ['Mission Row Impound'] = {
+        impound        = true,
+        ShareGarage    = false,
+        impoundPrice   = false,
+        type           = 'car',
+        impoundIn      = false,
+        job            = 'police',
+        Society        = 'society_police',
+        pos            = vec4(474.15145874023, -1095.3350830078,29.202104568481,155.19471740723),
+        size           = vec3(15, 30, 3),
+        heading        = 270.60968017578,
+        SetInToVehicle = false,
+        spawnpos       = {
+            vec4(442.40338134766, -1020.0192260742,28.22324180603,90.319671630859),
+        },
+        blip           = true,
+        sprite         = 524,
+        scale          = 0.6,
+        colorblip      = 0,
+        NPCHash        = 'csb_trafficwarden',
+        NPCPos         = vec4(458.69915771484, -1017.1785888672,27.191934585571,98.036026000977),
+    },
+
     --Ambulance
+
     ['PillBox EMS'] = {
         impound        = false,
         ShareGarage    = false,
@@ -512,15 +633,4 @@ Garage.Garages = {
     },
 }
 
---<-------------------------------------->--
---Notification
-RegisterNetEvent('mono_garage:Notification')
-AddEventHandler('mono_garage:Notification', function(msg)
-    lib.notify({
-        title = locale('Garaje'),
-        description = msg,
-        position = 'top',
-        icon = 'car',
-        iconColor = 'rgb(36,116,255)'
-    })
-end)
+

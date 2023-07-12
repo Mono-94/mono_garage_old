@@ -1,3 +1,27 @@
+-- GetType
+function GetVehicleCategory(vehicle)
+    local ListaCategoria = {}
+
+    VehicleCategories = {
+        ['car'] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 17, 19, 13, 20, 18 },
+        ['boat'] = { 14 },
+        ['air'] = { 15, 16 },
+
+    }
+    local function GetClase()
+        local clase = GetVehicleClass(vehicle)
+        return clase
+    end
+
+    for categoria, clase in pairs(VehicleCategories) do
+        for _, class in pairs(clase) do
+            ListaCategoria[class] = categoria
+        end
+    end
+
+    return ListaCategoria[GetClase()]
+end
+
 -- Blips
 
 function CrearBlip(pos, sprite, scale, colorblip, blipName)
@@ -37,7 +61,7 @@ RegisterNetEvent('mono_garage:GiveVehicle', function()
     local playerVehicle = cache.vehicle
 
     local props = lib.getVehicleProperties(playerVehicle)
-    local plate = string.gsub(props.plate, "^%s*(.-)%s*$", "%1")
+    local plate = SP(props.plate)
     if playerVehicle then
         TriggerServerEvent('mono_garage:SetCarDB', props, plate)
     else
@@ -46,43 +70,14 @@ RegisterNetEvent('mono_garage:GiveVehicle', function()
 end)
 
 
-
--- GetType
-function GetVehicleCategory(vehicle)
-    local ListaCategoria = {}
-
-    VehicleCategories = {
-        ['car'] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 17, 19, 13, 20 },
-        ['boat'] = { 14 },
-        ['air'] = { 15, 16 },
-
-    }
-
-    local function GetClase()
-        local clase = GetVehicleClass(vehicle)
-        return clase
-    end
-
-    for categoria, clase in pairs(VehicleCategories) do
-        for _, class in pairs(clase) do
-            ListaCategoria[class] = categoria
-        end
-    end
-
-    return ListaCategoria[GetClase()]
-end
-
 -- Get Total Km
+
 function GetTotalKm(plate)
-
-    local cleanedPlate = string.gsub(plate, "^%s*(.-)%s*$", "%1")
-
-    local totalkm = lib.callback.await('mono_garage:GetTotalKm', source, cleanedPlate)
+    local totalkm = lib.callback.await('mono_garage:GetTotalKm', source, SP(plate))
     local equivalenteEnKilometros = tonumber(totalkm) / 520.000
     local formattedEquivalente = string.format("%.1f", equivalenteEnKilometros)
-
     return formattedEquivalente
-end 
+end
 
 exports('GetTotalKm', GetTotalKm)
 
@@ -95,7 +90,7 @@ function SaveVehicle(data)
     local vehicle = lib.getClosestVehicle(cache.coords, data.distance, true)
     if vehicle then
         local vehicleProps = lib.getVehicleProperties(vehicle)
-        local plate = string.gsub(vehicleProps.plate, "^%s*(.-)%s*$", "%1")
+        local plate = SP(vehicleProps.plate)
         if data.type == 'all' then
             TriggerServerEvent('mono_garage:GuardarVehiculo', plate, vehicleProps, data.garage,
                 VehToNet(vehicle))
@@ -143,8 +138,8 @@ function FadeInEntity(entity)
     NetworkFadeInEntity(entity, true)
 end
 
-
 -- Fade Out
+
 RegisterNetEvent('mono_garage:FadeOut', function(vehicle)
     NetworkFadeOutEntity(NetToVeh(vehicle), false, true)
 end)
@@ -152,9 +147,10 @@ end)
 -- StateBag Props
 
 AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _unused, replicated)
+
     if not value then return end
 
-    local entity = bagName:gsub('entity:', '')
+    local entity = bagName:gsub('entity:','')
 
     while not NetworkDoesEntityExistWithNetworkId(tonumber(entity)) do
         Wait(0)
@@ -175,7 +171,24 @@ AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _un
     Entity(vehicle).state:set('CrearVehiculo', nil, true)
 end)
 
+-- StringPlate
 
+function SP(plate)
+    return string.gsub(plate, "^%s*(.-)%s*$", "%1")
+end
+
+--- Garage notifications
+--<-------------------------------------->--
+--Notification
+RegisterNetEvent('mono_garage:Notification', function(msg)
+    lib.notify({
+        title = locale('Garaje'),
+        description = msg,
+        position = 'top',
+        icon = 'car',
+        iconColor = 'rgb(36,116,255)'
+    })
+end)
 
 
 ---Copi coords
@@ -195,7 +208,7 @@ if Garage.RadialCopyCoords then
         items = {
 
             {
-                label = '{x= 0,y= 0,z= 0,w= 0}',
+                label = '{ x = 0, y = 0, z = 0, w = 0}',
                 onSelect = function()
                     local ped = cache.ped
                     local coords = GetEntityCoords(ped)
@@ -218,7 +231,7 @@ if Garage.RadialCopyCoords then
                     local ped = cache.ped
                     local coords = GetEntityCoords(ped)
                     local heading = GetEntityHeading(ped)
-                    lib.setClipboard('vector4(' .. coords.x .. ', ' .. coords.y .. ',' ..
+                    lib.setClipboard('vec4(' .. coords.x .. ', ' .. coords.y .. ',' ..
                         coords.z .. ',' .. heading .. '),')
                 end
             },

@@ -6,7 +6,9 @@ local ox_inventory = exports.ox_inventory
 
 local vehiculoCreado, vehiclesSpawned = {}, {}
 
-
+function SP(plate)
+    return string.gsub(plate, "^%s*(.-)%s*$", "%1")
+end
 
 function CrearVehiculo(model, coords, heading, props)
     local vehicle = CreateVehicleServerSetter(model, "automobile", coords.x, coords.y, coords.z, heading)
@@ -14,9 +16,7 @@ function CrearVehiculo(model, coords, heading, props)
     while not DoesEntityExist(vehicle) do
         Wait(0)
     end
-
-    vehiculoCreado[vehicle] = string.gsub(props.plate, "^%s*(.-)%s*$", "%1")
-
+    vehiculoCreado[vehicle] = SP(props.plate)
 
     Entity(vehicle).state.CrearVehiculo = props
 
@@ -34,14 +34,14 @@ end)
 
 lib.callback.register('mono_garage:getOwnerVehicles', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local identifier = xPlayer.identifier
-    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE owner = ? OR amigos LIKE ?",
-        { identifier, '%' .. identifier .. '%' })
 
+    local identifier = xPlayer.identifier
+
+    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE owner = ? OR amigos LIKE ?", { identifier, '%' .. identifier .. '%' })
+    
     for i, result in ipairs(vehicles) do
         local amigos = json.decode(result.amigos)
         local isOwner = result.owner == identifier
-
         if not isOwner and amigos then
             for j, amigo in ipairs(amigos) do
                 if amigo.identifier == identifier then
@@ -50,7 +50,6 @@ lib.callback.register('mono_garage:getOwnerVehicles', function(source)
                 end
             end
         end
-
         result.isOwner = isOwner
     end
 
@@ -83,15 +82,18 @@ lib.callback.register('mono_garage:ChangePlateOwner', function(source, plate)
             return true
         end
     end
+
     return false
 end)
-
 
 lib.callback.register('mono_garage:GetTotalKm', function(source, plate)
     local totalkm = MySQL.query.await("SELECT * FROM owned_vehicles")
     for _, vehicle in ipairs(totalkm) do
         if plate == vehicle.plate then
+                
             return vehicle.mileage
+        else
+            return 0
         end
     end
 end)
@@ -101,13 +103,13 @@ lib.callback.register('mono_garage:GetVehicleCoords', function(source, plate1)
     local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles")
     for i = 1, #vehicles do
         local data = vehicles[i]
-        if string.gsub(data.plate, "^%s*(.-)%s*$", "%1") == plate1 then
+        if SP(data.plate) == plate1 then
             local pos = json.decode(data.lastposition)
             if pos == nil then
                 local allVeh = GetAllVehicles()
                 for i = 1, #allVeh do
                     local plate = GetVehicleNumberPlateText(allVeh[i])
-                    if string.gsub(plate, "^%s*(.-)%s*$", "%1") == plate1 then
+                    if SP(plate) == plate1 then
                         return GetEntityCoords(allVeh[i])
                     end
                 end
@@ -122,7 +124,8 @@ lib.callback.register('mono_garage:getBankMoney', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
     local bank = xPlayer.getAccount("bank")
     local money = xPlayer.getMoney()
-    return { bank = bank.money, money = money }
+    local job = xPlayer.getJob().name
+    return { bank = bank.money, money = money, job = job }
 end)
 
 
@@ -228,7 +231,7 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
     for i, result in ipairs(vehicles) do
         local amigos = json.decode(result.amigos)
         local isOwner = result.owner == identifier
-        local cleanedPlate = string.gsub(result.plate, "^%s*(.-)%s*$", "%1") -- Eliminar espacios en blanco de result.plate
+        local cleanedPlate = SP(result.plate) 
 
         if cleanedPlate == plate then
             encontrado = true
@@ -258,7 +261,7 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
                         TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_VehiculoGuardado'))
                         if Garage.CarKeys then
                             ox_inventory:RemoveItem(source, Keys.ItemName, 1,
-                                { plate = cleanedPlate, description = locale('key_description', cleanedPlate) })
+                                { plate = plate, description = locale('key_description', plate) })
                         end
                         TriggerClientEvent('mono_garage:FadeOut', source, vehicle)
                         Wait(1500)
@@ -280,7 +283,7 @@ RegisterServerEvent('mono_garage:RetirarVehiculo', function(plateP, lastparking,
     if Garage.Debug.Prints then
         print('mono_garage:RetirarVehiculo ' .. plateP, lastparking, pos, hea, model, intocar)
     end
-    local plate = string.gsub(plateP, "^%s*(.-)%s*$", "%1")
+    local plate = SP(plateP)
     local source = source
     MySQL.query("SELECT vehicle FROM owned_vehicles WHERE plate = ?",
         { plate },
@@ -296,8 +299,8 @@ RegisterServerEvent('mono_garage:RetirarVehiculo', function(plateP, lastparking,
                             if Garage.CarKeys then
                                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                                     {
-                                        plate = vehicleProps.plate,
-                                        description = locale('key_description', vehicleProps.plate)
+                                        plate = plate,
+                                        description = locale('key_description', plate)
                                     })
                             end
                             if intocar then
@@ -320,7 +323,7 @@ RegisterServerEvent('mono_garage:RetirarVehiculo', function(plateP, lastparking,
         end)
 end)
 
-RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money, price, pos, hea, intocar)
+RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money, price, pos, hea, intocar, society)
     if Garage.Debug.Prints then
         print('mono_garage:RetirarVehiculoImpound ' .. plate, money, price, pos, hea, intocar)
     end
@@ -365,7 +368,14 @@ RegisterServerEvent('mono_garage:RetirarVehiculoImpound', function(plate, money,
                                         end
                                     end
 
-                                    xPlayer.removeAccountMoney(money, (info.price or price))
+                                    if not society then
+                                        xPlayer.removeAccountMoney(money, (info.price or price))
+                                    else
+                                        TriggerEvent('esx_addonaccount:getSharedAccount', society, function(cuenta)
+                                            xPlayer.removeAccountMoney(money, (info.price or price))
+                                            cuenta.addMoney((info.price or price))
+                                        end)
+                                    end
                                     TriggerClientEvent('mono_garage:Notification', source,
                                         locale('SERVER_RetirarImpound', (info.price or price)))
                                 else
@@ -415,7 +425,7 @@ RegisterServerEvent('mono_garage:ImpoundJoB', function(plate, impound, price, re
     local formattedDate = os.date("%d/%m/%Y", date)
     local info = { date = formattedDate, price = price, reason = reason }
     MySQL.update(
-        "UPDATE owned_vehicles SET parking = ?, infoimpound = ?, pound = 1, calle = 0 WHERE owner = ? AND plate = ?",
+        "UPDATE owned_vehicles SET parking = ?, infoimpound = ?, pound = 1, calle = 0, stored = 0  WHERE owner = ? AND plate = ?",
         { impound, json.encode(info), identifier, plate }, function(rowsChanged)
             if rowsChanged > 0 then
                 for entity, plate2 in pairs(vehiculoCreado) do
@@ -484,8 +494,8 @@ RegisterNetEvent('mono_garage:SetCarDB', function(vehicleData, plate)
             vehicleData.plate = plate
             local jsonVehicleData = json.encode(vehicleData)
             MySQL.update.await(
-                "INSERT INTO owned_vehicles (owner, plate, vehicle) VALUES (?, ?, ?)",
-                { xPlayer.identifier, plate, jsonVehicleData, })
+                "INSERT INTO owned_vehicles (owner, plate, vehicle, parking) VALUES (?, ?, ?, ?)",
+                { xPlayer.identifier, plate, jsonVehicleData, Garage.OwnerCarAdmin.GarageName })
             if Garage.CarKeys then
                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                     { plate = plate, description = locale('key_description', plate) })
@@ -580,41 +590,38 @@ if Garage.AutoImpound.AutoImpound then
 end
 
 
-
-if Garage.SaveKilometers then
-    CreateThread(function()
-        while true do
-            Wait(1000)
-            local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles")
-            for i = 1, #vehicles do
-                local data = vehicles[i]
-                local all = GetAllVehicles()
-                for i = 1, #all, 1 do
-                    local entity = all[i]
-                    local plate1 = string.gsub(data.plate, "^%s*(.-)%s*$", "%1")
-                    local plate2 = string.gsub(GetVehicleNumberPlateText(entity), "^%s*(.-)%s*$", "%1")
-                    if plate1 == plate2 then
-                        local driver = GetPedInVehicleSeat(entity, -1)
-                        if driver > 0 then
-                            local PosAnituga = GetEntityCoords(entity)
-                            Wait(1000)
-                            local PosNueva = GetEntityCoords(entity)
-                            local distance = #(PosAnituga - PosNueva)
-                            data.mileage = data.mileage + tonumber(distance)
-                            if Garage.Debug.Prints then
-                                print('Actual km: ' .. data.mileage .. ', Distancia: ' .. distance)
-                            end
-                            MySQL.update(
-                                'UPDATE owned_vehicles SET mileage = @kms WHERE plate = @plate',
-                                { ['@plate'] = plate2, ['@kms'] = data.mileage })
-                            break
+CreateThread(function()
+    while true do
+        Wait(1000)
+        local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles")
+        for i = 1, #vehicles do
+            local data = vehicles[i]
+            local all = GetAllVehicles()
+            for i = 1, #all, 1 do
+                local entity = all[i]
+                local plate1 = SP(data.plate)
+                local plate2 = SP(GetVehicleNumberPlateText(entity))
+                if plate1 == plate2 then
+                    local driver = GetPedInVehicleSeat(entity, -1)
+                    if driver > 0 then
+                        local PosAnituga = GetEntityCoords(entity)
+                        Wait(1000)
+                        local PosNueva = GetEntityCoords(entity)
+                        local distance = #(PosAnituga - PosNueva)
+                        data.mileage = data.mileage + tonumber(distance)
+                        if Garage.Debug.Prints then
+                            print('Actual km: ' .. data.mileage .. ', Distancia: ' .. distance)
                         end
+                        MySQL.update(
+                            'UPDATE owned_vehicles SET mileage = @kms WHERE plate = @plate',
+                            { ['@plate'] = plate2, ['@kms'] = data.mileage })
+                        break
                     end
                 end
             end
         end
-    end)
-end
+    end
+end)
 
 if Garage.Persistent then
     RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew)
@@ -713,7 +720,7 @@ end
 
 
 
-lib.addCommand('mono_garage:table', {
+--[[lib.addCommand('mono_garage:table', {
     help = 'mono_garage:vehicle_table',
     restricted = Garage.OwnerCarAdmin.Group,
 }, function(source, args)
@@ -721,7 +728,7 @@ lib.addCommand('mono_garage:table', {
         print('Entity: ' .. entity .. ', Plate: ' .. plate)
     end
 end)
-
+]]
 
 
 lib.addCommand(Garage.OwnerCarAdmin.Command, {

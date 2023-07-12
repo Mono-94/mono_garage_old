@@ -5,7 +5,8 @@ for i = 1, #Garage.NpcImpound.jobs do
             label = 'Impound vehicle',
             groups = Garage.NpcImpound.jobs[i],
             canInteract = function(entity, distance, coords, name, bone)
-                vehicle = { entity = entity, distance = distance, coords = coords, name = name, bone = bone }
+                vehicle = { entity = entity, distance = distance, coords = coords, name = name, bone = bone,
+                    job = Garage.NpcImpound.jobs[i] }
                 return vehicle
             end,
             onSelect = function()
@@ -20,12 +21,11 @@ end
 RegisterCommand(Garage.NpcImpound.Command, function()
     local trabajo = false
     local noti = false
-
     for k, v in pairs(Garage.NpcImpound.jobs) do
         if ESX.PlayerData.job.name == v then
             trabajo = true
             local entity, coords = lib.getClosestVehicle(cache.coords, 3.0, true)
-            local veh = { coords = coords, entity = entity }
+            local veh = { coords = coords, entity = entity, job = v }
             if coords then
                 ImpoundVehicle(veh)
             else
@@ -47,19 +47,24 @@ end)
 
 function ImpoundVehicle(vehicle)
     local props = lib.getVehicleProperties(vehicle.entity)
-    local name = lib.callback.await('mono_garage:GetPlayerNamePlate', source, string.gsub(props.plate, "^%s*(.-)%s*$", "%1"))
+    local name = lib.callback.await('mono_garage:GetPlayerNamePlate', source,
+        string.gsub(props.plate, "^%s*(.-)%s*$", "%1"))
     if name == nil then
-        name = 'Name not found'
+        name = 'Name not found!'
     end
+
     local imp = {}
+
     for k, v in pairs(Garage.Garages) do
         if v.impound then
-            if GetVehicleCategory(vehicle.entity) == v.type then
-                table.insert(imp, { value = k, label = k })
+            if v.job == vehicle.job then
+                if GetVehicleCategory(vehicle.entity) == v.type then
+                    table.insert(imp, { value = k, label = k })
+                end
             end
         end
     end
-    local vehiclename = GetMakeNameFromVehicleModel(props.model)..' - '..GetDisplayNameFromVehicleModel(props.model)
+    local vehiclename = GetMakeNameFromVehicleModel(props.model) .. ' - ' .. GetDisplayNameFromVehicleModel(props.model)
 
     local input = lib.inputDialog(locale('impound5'), {
         {
@@ -155,11 +160,7 @@ function ImpoundVehicle(vehicle)
     end
 end
 
-exports('ImpoundVehicle', ImpoundVehicle)
-
 function NpcImpound(data)
-    local props = lib.getVehicleProperties(data.entity)
-
     if Garage.NpcImpound.NPCAnim then
         local playerPos = data.coords
         local hcar = GetEntityHeading(data.entity)
@@ -183,9 +184,15 @@ function NpcImpound(data)
 
         TaskVehicleDriveToCoordLongrange(Spawned, data.entity, 408.81500244141, -1637.9078369141, 29.291925430298, 60.0,
             447, 2.0)
-        Wait(Garage.NpcImpound.TimeDeleteVehicle)
+            Wait(Garage.NpcImpound.TimeDeleteVehicle)
         DeletePed(Spawned)
+        DeleteEntity(data.entity)
+        TriggerServerEvent('mono_garage:ImpoundJoB', data.plate, data.impound, data.price, data.reason, data.date)
+    else
+        NetworkFadeOutEntity(data.entity,false, true)
+        Wait(2000)
+        DeleteEntity(data.entity)
+        TriggerServerEvent('mono_garage:ImpoundJoB', data.plate, data.impound, data.price, data.reason, data.date)
     end
-    DeleteEntity(data.entity)
-    TriggerServerEvent('mono_garage:ImpoundJoB', data.plate, data.impound, data.price, data.reason, data.date)
+   
 end

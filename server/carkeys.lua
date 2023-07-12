@@ -4,24 +4,15 @@ if Garage.Mono_Carkeys then
 
     local ox_inventory = exports.ox_inventory
 
-
     RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate)
-        local source = source
-        exports.ox_inventory:RemoveItem(source, 'carkeys', count,
-            { plate = plate, description = locale('key_description', plate) })
+        ox_inventory:RemoveItem(source, Keys.ItemName, count, { plate = plate, description = locale('key_description', plate) })
     end)
-
-
 
     RegisterServerEvent('mono_carkeys:CreateKey', function(plate)
-        local source = source
-        if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
-            ox_inventory:AddItem(source, Keys.ItemName, 1,
-                { plate = plate, description = locale('key_description', plate) })
-        end
+        ox_inventory:AddItem(source, Keys.ItemName, 1, { plate = plate, description = locale('key_description', plate) })
     end)
 
-
+    
     RegisterServerEvent('mono_carkeys:BuyKeys', function(plate, precio)
         local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
@@ -31,7 +22,7 @@ if Garage.Mono_Carkeys then
                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                     { plate = plate, description = locale('key_description', plate) })
                 TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('llavecomprada', precio),
-                    'key', '#fffff')
+                    'key', '#fffff  ')
             else
                 TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('NoDinero'), 'ban',
                     '#fffff')
@@ -66,87 +57,63 @@ if Garage.Mono_Carkeys then
     end)
 
 
-    RegisterServerEvent('mono_carkeys:SetMatriculaServer', function(oldPlate, newPlate)
+    RegisterServerEvent('mono_carkeys:SetMatriculaServer', function(oldPlate, newPlate, entity, color)
         local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
         local identifier = xPlayer.identifier
 
-        local result = MySQL.Sync.fetchAll(
-            "SELECT * FROM owned_vehicles WHERE owner = @identifier AND plate = @oldPlate", {
-                ['@identifier'] = identifier,
-                ['@oldPlate'] = oldPlate
-            })
+        MySQL.query("SELECT * FROM owned_vehicles WHERE owner = ? AND plate = ?", { identifier, newPlate },
+            function(result)
+                if result[1] ~= nil then
+                    print("No se puede cambiar la matrícula porque ya existe")
+                else
+                    MySQL.query("SELECT * FROM owned_vehicles WHERE owner = ? AND plate = ?", { identifier, oldPlate },
+                        function(result)
+                            if result[1] ~= nil then
+                                local decodedVehicle = json.decode(result[1].vehicle)
+                                decodedVehicle.plate = newPlate
+                                local newVehicle = json.encode(decodedVehicle)
 
-        if result[1] ~= nil then
-            local decodedVehicle = json.decode(result[1].vehicle)
-            decodedVehicle.plate = newPlate
-            local newVehicle = json.encode(decodedVehicle)
+                                MySQL.Async.execute(
+                                    'UPDATE owned_vehicles SET plate = @newPlate, vehicle = @newVehicle WHERE owner = @identifier AND plate = @oldPlate',
+                                    {
+                                        ['@identifier'] = identifier,
+                                        ['@oldPlate'] = oldPlate,
+                                        ['@newPlate'] = newPlate,
+                                        ['@newVehicle'] = newVehicle
+                                    }, function(rowsChanged)
+                                        if rowsChanged > 0 then
+                                            local count = exports.ox_inventory:GetItem(source, Keys.ItemName,
+                                                { plate = oldPlate, description = locale('key_description', oldPlate) },
+                                                true)
 
-            MySQL.Async.execute(
-                'UPDATE owned_vehicles SET plate = @newPlate, vehicle = @newVehicle WHERE owner = @identifier AND plate = @oldPlate',
-                {
-                    ['@identifier'] = identifier,
-                    ['@oldPlate'] = oldPlate,
-                    ['@newPlate'] = newPlate,
-                    ['@newVehicle'] = newVehicle
-                }, function(rowsChanged)
-                    if rowsChanged > 0 then
-                        local count = exports.ox_inventory:GetItem(source, Keys.ItemName, { plate = oldPlate, description = locale('key_description', oldPlate) }, true)
+                                            exports.ox_inventory:RemoveItem(source, Keys.ItemName, count,
+                                                { plate = oldPlate, description = locale('key_description', oldPlate) })
 
-                        exports.ox_inventory:RemoveItem(source, Keys.ItemName, count, { plate = oldPlate, description = locale('key_description', oldPlate) })
+                                            ox_inventory:AddItem(source, Keys.ItemName, count,
+                                                { plate = newPlate, description = locale('key_description', newPlate) })
 
-                        ox_inventory:AddItem(source, Keys.ItemName, count,{ plate = newPlate, description = locale('key_description', newPlate) })
-
-                        ox_inventory:RemoveItem(source, Keys.ItemPlate, 1)
-                        
-                        TriggerClientEvent('mono_carkeys:Notification', source,
-                            locale('MatriculaActualizada', oldPlate, newPlate))
-                    else
-                        TriggerClientEvent('mono_carkeys:Notification', source, locale('ErrorActualizar'))
-                    end
-                end)
-        else
-            TriggerClientEvent('mono_carkeys:Notification', source, locale('NoTienesMatricula'))
-        end
+                                            ox_inventory:RemoveItem(source, Keys.ItemPlate, 1)
+                                            TriggerClientEvent('mono_carkeys:SetVehiclePlate', source, entity, newPlate,
+                                                color)
+                                            TriggerClientEvent('mono_carkeys:Notification', source,
+                                                locale('MatriculaActualizada', oldPlate, newPlate))
+                                        else
+                                            TriggerClientEvent('mono_carkeys:Notification', source,
+                                                locale('ErrorActualizar'))
+                                        end
+                                    end)
+                            else
+                                TriggerClientEvent('mono_carkeys:Notification', source, locale('NoTienesMatricula'))
+                            end
+                        end)
+                end
+            end)
     end)
 
-    if Keys.EntityVehicleSpawn.CloseDoorEmptyCar then
-        AddEventHandler('entityCreated', function(entity)
-            if not DoesEntityExist(entity) then
-                return
-            end
 
-            local entityType = GetEntityType(entity)
-            if entityType ~= 2 then
-                return
-            end
 
-            if GetEntityPopulationType(entity) > 5 then
-                return
-            end
 
-            local plate = GetVehicleNumberPlateText(entity)
-
-            local motor = GetIsVehicleEngineRunning(entity)
-
-            if motor then
-                if Keys.Debug then
-                    print('Vehiculo encendido ', plate)
-                end
-            end
-            if not motor then
-                if Keys.Debug then
-                    print('Vehiculo apagado ', plate .. ', Puertas cerradas.')
-                end
-                if Keys.EntityVehicleSpawn.DoorProbability then
-                    if math.random() > Keys.EntityVehicleSpawn.OpenDoorProbability then
-                        return
-                    end
-                end
-                SetVehicleDoorsLocked(entity, 2)
-            end
-        end)
-    end
 
     --Commands
 
@@ -191,21 +158,6 @@ if Garage.Mono_Carkeys then
         TriggerClientEvent('mono_carkeys:DeleteClientKey', id, args.count)
     end)
 
-    RegisterServerEvent('mono_carkeys:ComprarMatricula', function()
-        local xPlayer = ESX.GetPlayerFromId(source)
-        if ox_inventory:CanCarryItem(source, Keys.ItemPlate, 1) then
-            if xPlayer.getMoney() >= Keys.PriceItemPlate then
-                exports.ox_inventory:RemoveItem(source, 'money', Keys.PriceItemPlate)
-                ox_inventory:AddItem(source, Keys.ItemPlate, 1)
-                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'),
-                    locale('MatriculaComprada') 'success')
-            else
-                TriggerClientEvent('mono_carkeys:Notification', xPlayer.source, locale('title'), locale('NoDinero'),
-                    'error')
-            end
-        end
-    end)
-
 
     RegisterNetEvent('mono_carkeys:ServerDoors', function(id)
         local source = source
@@ -225,3 +177,8 @@ if Garage.Mono_Carkeys then
         TriggerClientEvent('mono_carkeys:LucesLocas', source, id, status ~= 2)
     end)
 end
+
+
+
+
+

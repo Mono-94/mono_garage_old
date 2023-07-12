@@ -37,9 +37,6 @@ function CrearBlips()
     end
 end
 
-
-
-
 CreateThread(function()
     CrearBlips()
     for k, v in pairs(Garage.Garages) do
@@ -53,7 +50,7 @@ CreateThread(function()
                         groups = v.job,
                         distance = Garage.TargetCarDistance,
                         onSelect = function()
-                            SaveVehicle({garage = k, distance = 2.5, type = v.type})
+                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
                         end
                     },
                 }
@@ -114,7 +111,7 @@ CreateThread(function()
                                         label = locale('DepositarVeh1'),
                                         icon = 'share',
                                         onSelect = function()
-                                            SaveVehicle({garage = k, distance = 2.5, type = v.type})
+                                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
                                         end
                                     },
                                     {
@@ -153,7 +150,7 @@ CreateThread(function()
                                         label = locale('DepositarVeh1'),
                                         icon = 'share',
                                         onSelect = function()
-                                            SaveVehicle({garage = k, distance = 2.5, type = v.type})
+                                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
                                         end
                                     },
                                     {
@@ -203,7 +200,7 @@ CreateThread(function()
                         {
                             icon = 'fas fa-car',
                             label = k,
-                            onSelect = function()
+                            onSelect = function(data)
                                 if cache.vehicle then
                                     TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
                                 else
@@ -211,7 +208,9 @@ CreateThread(function()
                                         garage = k,
                                         spawnpos = v.spawnpos,
                                         precio = v.impoundPrice,
-                                        SetInToVeh = v.SetInToVehicle
+                                        SetInToVeh = v.SetInToVehicle,
+                                        job = v.job,
+                                        Society = v.Society
                                     })
                                 end
                             end
@@ -238,7 +237,9 @@ CreateThread(function()
                                             garage = k,
                                             spawnpos = v.spawnpos,
                                             precio = v.impoundPrice,
-                                            SetInToVeh = v.SetInToVehicle
+                                            SetInToVeh = v.SetInToVehicle,
+                                            job = v.job,
+                                            Society = v.Society
                                         })
                                     end
                                 end
@@ -265,7 +266,7 @@ function OpenGarage(info)
         local name = GetDisplayNameFromVehicleModel(props.model)
         local marca = GetMakeNameFromVehicleModel(props.model)
         local type = GetVehicleClassFromName(name)
-     
+
         if info.shareGarage then
             shared = true
         else
@@ -301,14 +302,14 @@ function OpenGarage(info)
 
             local equivalenteEnKilometros = tonumber(data.mileage) / 520.000
             local formattedEquivalente = string.format("%.1f", equivalenteEnKilometros)
-            
+
             table.insert(garagemenu, {
                 title = marca .. ' - ' .. name,
                 icon = icon,
                 iconColor = color,
                 arrow = true,
                 metadata = {
-                    { label = 'Total',             value =  formattedEquivalente ..' KM'},
+                    { label = 'Total',             value = formattedEquivalente .. ' KM' },
                     { label = locale('VehDescri'), value = data.parking },
                     {
                         label = locale('VehDescrigas'),
@@ -460,7 +461,7 @@ function VehicleSelected(data)
                 icon = 'location-dot',
                 arrow = true,
                 onSelect = function()
-                    local allVeh = lib.callback.await('mono_garage:GetVehicleCoords', source, data.plate)
+                    local allVeh = lib.callback.await('mono_garage:GetVehicleCoords', source, SP(data.plate))
                     if allVeh == nil then return locale('to_far') end
                     SetNewWaypoint(allVeh.x, allVeh.y)
                 end
@@ -490,7 +491,7 @@ function VehicleSelected(data)
                 arrow = true,
                 description = locale('DescriDepoti'),
                 onSelect = function()
-                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', string.gsub(data.plate, "^%s*(.-)%s*$", "%1"), data.impo)
+                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', SP(data.plate), data.impo)
                 end
             })
             if Garage.ShareCarFriend then
@@ -575,7 +576,8 @@ function GarageImpound(info)
             local price = infoimpound and infoimpound.price or info.precio
 
             table.insert(ImpoundMenu, {
-                title = GetMakeNameFromVehicleModel(props.model) .. ' - ' .. GetDisplayNameFromVehicleModel(props.model),
+                title = GetMakeNameFromVehicleModel(props.model) ..
+                    ' - ' .. GetDisplayNameFromVehicleModel(props.model),
                 icon = 'car',
                 iconColor = '#fcba03',
                 arrow = true,
@@ -583,7 +585,7 @@ function GarageImpound(info)
                 metadata = {
                     { label = locale('imp_date'),   value = date },
                     { label = locale('imp_reason'), value = reason },
-                    { label = locale('imp_price'),  value = price..' $' }
+                    { label = locale('imp_price'),  value = price .. ' $' }
                 },
                 onSelect = function()
                     local SpawPos = false
@@ -609,8 +611,9 @@ function GarageImpound(info)
                             local pos = vec3(v.x, v.y, v.z)
                             local hea = v.w
                             if SpawnClearArea(pos, 3.0) then
-                                TriggerServerEvent('mono_garage:RetirarVehiculoImpound', data.plate, input, info.precio,
-                                    pos, hea, info.SetInToVeh)
+                                TriggerServerEvent('mono_garage:RetirarVehiculoImpound', data.plate, input,
+                                    price,
+                                    pos, hea, info.SetInToVeh, info.Society)
                                 SpawPos = true
                                 break
                             end
@@ -618,14 +621,14 @@ function GarageImpound(info)
                     end
 
                     if input[1] == 'money' then
-                        if money.money >= info.precio then
+                        if money.money >= price then
                             Retirar(input[1])
                         else
                             SpawPos = true
                             TriggerEvent('mono_garage:Notification', locale('SERVER_SinDinero'))
                         end
                     elseif input[1] == 'bank' then
-                        if money.bank >= info.precio then
+                        if money.bank >= price then
                             Retirar(input[1])
                         else
                             SpawPos = true
@@ -662,4 +665,3 @@ function GarageImpound(info)
 
     lib.showContext('mono_garage:ImpoundMenu')
 end
-

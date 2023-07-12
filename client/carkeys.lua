@@ -3,12 +3,14 @@ if Garage.Mono_Carkeys then
         local closet = lib.getClosestVehicle(cache.coords, Keys.Distance, true)
         local props = lib.getVehicleProperties(closet)
         local keys = exports.ox_inventory:Search('slots', Keys.ItemName)
+
         for i, v in ipairs(keys) do
-            if string.gsub(v.metadata.plate, "^%s*(.-)%s*$", "%1") == string.gsub(props.plate, "^%s*(.-)%s*$", "%1") then
-                return v
+            if SP(v.metadata.plate) == SP(props.plate) then
+                return true
             end
         end
-        return nil
+
+        return false
     end
 
     function AbrirCerrar()
@@ -75,11 +77,9 @@ if Garage.Mono_Carkeys then
     end)
 
 
-    RegisterNetEvent('mono_carkeys:AddKeysCars')
-    AddEventHandler('mono_carkeys:AddKeysCars', function()
-        local ped = cache.ped
-        local playerVehicle = GetVehiclePedIsIn(ped, false)
-        if playerVehicle ~= 0 then
+    RegisterNetEvent('mono_carkeys:AddKeysCars', function()
+        local playerVehicle = cache.vehicle
+        if playerVehicle then
             local vehicleProps = lib.getVehicleProperties(playerVehicle)
             TriggerServerEvent('mono_carkeys:CreateKey', vehicleProps.plate)
         else
@@ -87,11 +87,9 @@ if Garage.Mono_Carkeys then
         end
     end)
 
-    RegisterNetEvent('mono_carkeys:DeleteClientKey')
-    AddEventHandler('mono_carkeys:DeleteClientKey', function(count)
-        local ped = cache.ped
-        local playerVehicle = GetVehiclePedIsIn(ped, false)
-        if playerVehicle ~= 0 then
+    RegisterNetEvent('mono_carkeys:DeleteClientKey', function(count)
+        local playerVehicle = cache.vehicle
+        if playerVehicle then
             local vehicleProps = lib.getVehicleProperties(playerVehicle)
             TriggerServerEvent('mono_carkeys:DeleteKey', count, vehicleProps.plate)
         else
@@ -100,17 +98,13 @@ if Garage.Mono_Carkeys then
     end)
 
 
-
-
-
     local vehiculocerrado = nil
-
 
     vehiculocerrado = SetInterval(function()
         local ped = cache.ped
         local veh = GetVehiclePedIsTryingToEnter(ped)
         local lock = GetVehicleDoorLockStatus(veh)
-        if DoesEntityExist(GetVehiclePedIsTryingToEnter(ped)) then
+        if DoesEntityExist(veh) then
             if lock == 2 then
                 ClearPedTasks(ped)
             end
@@ -131,8 +125,6 @@ if Garage.Mono_Carkeys then
         end
     end, 0)
 
-
-
     if Keys.Engine then
         CreateThread(function()
             while true do
@@ -148,6 +140,7 @@ if Garage.Mono_Carkeys then
                 Wait(0)
             end
         end)
+
         if Keys.OnExitCar then
             local MotorOn = false
             local MotorOnSalir = nil
@@ -182,10 +175,11 @@ if Garage.Mono_Carkeys then
     -- Funcitions
 
     local engineStatus = nil
+
     function ToggleEngine()
         local ped = cache.ped
 
-        local vehicle = GetVehiclePedIsIn(ped, false)
+        local vehicle = cache.vehicle
 
         if not IsPedInAnyVehicle(ped, false) then
             return
@@ -211,232 +205,8 @@ if Garage.Mono_Carkeys then
         end
     end
 
-    if Keys.FindKeys.FindKey then
-        local searchedVehicles = {}
-        function FindKeys()
-            local vehicle = cache.vehicle
-            local plate = GetVehicleNumberPlateText(vehicle)
-            local vehicles = lib.callback.await('mono_carkeys:getVehicles')
-            if vehicle then
-                for i = 1, #vehicles do
-                    local data = vehicles[i]
-                    if data.plate == plate then
-                        return TriggerEvent('mono_carkeys:Notification', locale('title'), 'Este vehiculo te pertenese')
-                    end
-                end
-
-                if not searchedVehicles[plate] then
-                    if lib.progressBar({
-                            duration = Keys.FindKeys.ProgressTime,
-                            label = locale('buscando'),
-                            useWhileDead = false,
-                            canCancel = false,
-                            disable = {
-                                car = false,
-                            },
-                        }) then
-                        if math.random() > Keys.FindKeys.Probability then
-                            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('nokeysfound'))
-                            searchedVehicles[plate] = true
-                        else
-                            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('encontrada'))
-                            TriggerServerEvent('mono_carkeys:CreateKey', plate)
-                            searchedVehicles[plate] = true
-                        end
-                    end
-                else
-                    TriggerEvent('mono_carkeys:Notification', locale('title'), locale('buscado'))
-                end
-            else
-                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('dentrocar'))
-            end
-        end
-
-        if Keys.FindKeys.FindKeyCommand then
-            RegisterCommand(Keys.FindKeys.Command, function()
-                FindKeys()
-            end)
-        end
-    end
-
-
-
-    function LockPick()
-        for k, v in pairs(Keys.LockPick) do
-            local ped = cache.ped
-            local closet = lib.getClosestVehicle(cache.coords, 3, true)
-            local EstadoPuertas = GetVehicleDoorLockStatus(closet)
-            lib.requestAnimDict(v.animDict)
-            if closet then
-                if v.SkillCheck then
-                    if EstadoPuertas == 1 then
-                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
-                            '#3232a8'
-                        )
-                        return
-                    end
-                    TaskPlayAnim(ped, v.animDict, v.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
-                    local success = lib.skillCheck(table.unpack(v.Skills))
-                    if success then
-                        ClearPedTasks(ped)
-                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), 'LockPick success', 'car',
-                            '#3232a8'
-                        )
-                        TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
-                        if math.random() < v.alarmProbability then
-                            SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                        end
-                        if v.Disptach then
-                            v.DispatchFunction()
-                        end
-                    else
-                        ClearPedTasks(ped)
-                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
-                            '#3232a8')
-                    end
-                else
-                    if EstadoPuertas == 1 then
-                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
-                            '#3232a8'
-                        )
-                        return
-                    end
-                    if lib.progressBar({
-                            duration = v.TimeProgress,
-                            label = locale('LocPickProgress'),
-                            useWhileDead = false,
-                            canCancel = false,
-                            disable = {
-                                car = true,
-                            },
-                            anim = {
-                                dict = v.animDict,
-                                clip = v.anim
-                            },
-                        }) then
-                        TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
-                        if math.random() < v.alarmProbability then
-                            SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                        end
-                        if v.Disptach then
-                            v.DispatchFunction()
-                            TriggerEvent('mono_carkeys:Dispatch')
-                        end
-                    else
-                        if math.random() < v.alarmProbability then
-                            SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                        end
-                        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
-                            '#3232a8')
-                    end
-                end
-            else
-                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('nocarcerca'), 'car', '#3232a8')
-            end
-        end
-    end
-
-    function HotWire()
-        for k, v in pairs(Keys.HotWire) do
-            local ped = cache.ped
-            local vehicle = cache.vehicle
-            lib.requestAnimDict(v.animDict)
-            if vehicle then
-                if v.SkillCheck then
-                    TaskPlayAnim(ped, v.animDict, v.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
-                    local success = lib.skillCheck(table.unpack(v.Skills))
-                    if success then
-                        local engineRunning = GetIsVehicleEngineRunning(vehicle)
-                        if engineRunning then
-                            SetVehicleEngineOn(vehicle, false, true, true)
-                            if Keys.Debug then
-                                print('Motor off')
-                            end
-                            DisableControlAction(2, 71, false)
-                        else
-                            SetVehicleEngineOn(vehicle, true, true, true)
-                            if Keys.Debug then
-                                print('Motor on')
-                            end
-                        end
-                        ClearPedTasks(ped)
-                    else
-                        TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
-                            '#3232a8')
-                    end
-                else
-                    if lib.progressBar({
-                            duration = v.TimeProgress,
-                            label = locale('LocPickProgress'),
-                            useWhileDead = false,
-                            canCancel = false,
-                            disable = {
-                                car = true,
-                            },
-                            anim = {
-                                dict = v.animDict,
-                                clip = v.anim
-                            },
-                        }) then
-                        local engineRunning = GetIsVehicleEngineRunning(vehicle)
-                        if engineRunning then
-                            SetVehicleEngineOn(vehicle, false, true, true)
-                            if Keys.Debug then
-                                print('Motor off')
-                            end
-                        else
-                            SetVehicleEngineOn(vehicle, true, true, true)
-                            if Keys.Debug then
-                                print('Motor on')
-                            end
-                        end
-                    else
-                        if math.random() < v.alarmProbability then
-                            SetVehicleAlarmTimeLeft(vehicle, v.alarmTime)
-                        end
-                        TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
-                            '#3232a8')
-                    end
-                end
-            else
-                TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireInCar'), 'car',
-                    '#3232a8')
-            end
-        end
-    end
-
-    function CarKey(time)
-        local ped = cache.ped
-        local pedcords = GetEntityCoords(ped)
-        local car = lib.getClosestVehicle(pedcords, Keys.DistanceCreate, true)
-        local plate = GetVehicleNumberPlateText(car)
-        if car == nil then
-            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('nocarcerca'), 'car', '#3232a8')
-        else
-            if lib.progressBar({
-                    duration = time,
-                    label = locale('forjar'),
-                    useWhileDead = false,
-                    canCancel = true,
-                    disable = {
-                        car = true,
-                    },
-                })
-            then
-                TriggerServerEvent('mono_carkeys:CreateKey', plate)
-            else
-                TriggerEvent('mono_carkeys:Notification', locale('title'), locale('calcelado'), 'car', '#3232a8')
-            end
-        end
-    end
-
     --Exports
 
-    exports('HotWire', HotWire)
-
-    exports('LockPick', LockPick)
-
-    exports('FindKeys', FindKeys)
 
     exports('ToggleEngine', ToggleEngine)
 
@@ -464,51 +234,16 @@ if Garage.Mono_Carkeys then
         })
     end
 
-    if Keys.FindKeys.FindKeyBind then
-        lib.addKeybind({
-            name = 'mono_carkeys_search',
-            description = 'Buscar llaves en el vehiculo',
-            defaultKey = Keys.FindKeyBindKEY,
-            onPressed = function()
-                FindKeys()
-            end
-        })
-    end
-
-
-    function CreateBlip(Position, Sprite, Display, Scale, Colour, ShortRange, Name)
-        local blip = AddBlipForCoord(Position.x, Position.y, Position.z)
-        SetBlipSprite(blip, Sprite)
-        SetBlipDisplay(blip, Display)
-        SetBlipScale(blip, Scale)
-        SetBlipColour(blip, Colour)
-        SetBlipAsShortRange(blip, ShortRange)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentSubstringPlayerName(Name)
-        EndTextCommandSetBlipName(blip)
-    end
-
-    function SetPedPos(Hash, Pos, Scenario)
-        RequestModel(Hash)
-        while not HasModelLoaded(Hash) do Wait(0) end
-        NPC = CreatePed(2, Hash, Pos.x, Pos.y, Pos.z, Pos.w, false, false)
-        SetPedFleeAttributes(NPC, 0, 0)
-        SetPedDiesWhenInjured(NPC, false)
-        if Scenario == false then else
-            TaskStartScenarioInPlace(NPC, Scenario, 0, true)
-        end
-        SetPedKeepTask(NPC, true)
-        SetBlockingOfNonTemporaryEvents(NPC, true)
-        SetEntityInvincible(NPC, true)
-        FreezeEntityPosition(NPC, true)
-    end
 
     CreateThread(function()
         for k, v in pairs(Keys.NpcReclameKey) do
             if v.Blip then
-                CreateBlip(v.pos, v.Sprite, v.Display, v.Scale, v.Colour, v.ShortRange, locale('cerrajero'))
+                CrearBlip(v.pos.xyz, v.Sprite, v.Scale, v.Colour, k)
             end
-            SetPedPos(v.hash, v.pos, v.PedScenario)
+            
+            local NPC = CreateNPC(v.hash, v.pos)
+
+            TaskStartScenarioInPlace(NPC, v.PedScenario, 0, true)
             exports.ox_target:addBoxZone({
                 coords = vec3(v.pos.x, v.pos.y, v.pos.z + 1),
                 size = vec3(1, 1, 2),
@@ -598,18 +333,13 @@ if Garage.Mono_Carkeys then
 end
 
 
-
-
-
-
-
 local options = {
     {
         icon = 'fa-solid fa-window-maximize',
         label = 'Change Plate',
         distance = 1,
         canInteract = function(entity, distance, coords, name, bone)
-            local plate = string.gsub(lib.getVehicleProperties(entity).plate, "^%s*(.-)%s*$", "%1")
+            local plate = SP(lib.getVehicleProperties(entity).plate)
             local owner = lib.callback.await('mono_garage:ChangePlateOwner', source, plate)
             if not owner then return end
             local count = exports.ox_inventory:Search('count', Keys.ItemPlate)
@@ -619,7 +349,7 @@ local options = {
         onSelect = function(data)
             local entityh = GetEntityHeading(data.entity)
             local vehicleProps = lib.getVehicleProperties(data.entity)
-            local oldplate = string.gsub(vehicleProps.plate, "^%s*(.-)%s*$", "%1")
+            local oldplate = SP(vehicleProps.plate)
             local input = lib.inputDialog(locale('MatriculaNueva'), {
                 {
                     type = 'input',
@@ -686,7 +416,7 @@ local options = {
 exports.ox_target:addGlobalVehicle(options)
 
 
-RegisterNetEvent('mono_carkeys:SetVehiclePlate', function(entity,newPlate,color)
+RegisterNetEvent('mono_carkeys:SetVehiclePlate', function(entity, newPlate, color)
     SetVehicleNumberPlateTextIndex(entity, color)
     SetVehicleNumberPlateText(entity, newPlate)
 end)

@@ -31,19 +31,6 @@
 * **/givecar** - *The vehicle you are in will be saved in the database and become your property. (ADMIN)*
 
 
-# 
-#
-
-# <center> **Preview**</center>
-# 
-- https://streamable.com/22ksd7 -- Share vehicle
-- https://streamable.com/f9ekle -- Command /impound
-- https://streamable.com/o0hmej -- Command /givecar
-- https://streamable.com/jnj6y6 -- Boat Type
-- https://streamable.com/8xea51 -- Air Type 
-- https://streamable.com/bc4wug -- Mix
-- https://streamable.com/4mjkzz -- Ox_target
-#
 #
 
 
