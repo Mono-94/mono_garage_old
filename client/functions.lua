@@ -63,7 +63,20 @@ RegisterNetEvent('mono_garage:GiveVehicle', function()
     local props = lib.getVehicleProperties(playerVehicle)
     local plate = SP(props.plate)
     if playerVehicle then
-        TriggerServerEvent('mono_garage:SetCarDB', props, plate)
+        local opt = {}
+        for k, v in pairs(Garage.Garages) do
+            if not v.impound and not v.job then
+                table.insert(opt, { label = k, value = k })
+            end
+        end
+        local input = lib.inputDialog('GiveCar', {
+            { type = 'select', label = 'Select garage', required = true, options = opt },
+        })
+        if not input then return end
+
+
+
+        TriggerServerEvent('mono_garage:SetCarDB', props, plate, input[1])
     else
         TriggerEvent('mono_garage:Notification', locale('dentrocar'))
     end
@@ -147,10 +160,9 @@ end)
 -- StateBag Props
 
 AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _unused, replicated)
-
     if not value then return end
 
-    local entity = bagName:gsub('entity:','')
+    local entity = bagName:gsub('entity:', '')
 
     while not NetworkDoesEntityExistWithNetworkId(tonumber(entity)) do
         Wait(0)

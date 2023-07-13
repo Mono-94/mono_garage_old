@@ -476,7 +476,7 @@ end)
 
 
 
-RegisterNetEvent('mono_garage:SetCarDB', function(vehicleData, plate)
+RegisterNetEvent('mono_garage:SetCarDB', function(vehicleData, plate, garage)
     if Garage.Debug.Prints then
         print('mono_garage:SetCarDB ' .. json.encode(vehicleData), plate)
     end
@@ -495,7 +495,7 @@ RegisterNetEvent('mono_garage:SetCarDB', function(vehicleData, plate)
             local jsonVehicleData = json.encode(vehicleData)
             MySQL.update.await(
                 "INSERT INTO owned_vehicles (owner, plate, vehicle, parking) VALUES (?, ?, ?, ?)",
-                { xPlayer.identifier, plate, jsonVehicleData, Garage.OwnerCarAdmin.GarageName })
+                { xPlayer.identifier, plate, jsonVehicleData, garage })
             if Garage.CarKeys then
                 ox_inventory:AddItem(source, Keys.ItemName, 1,
                     { plate = plate, description = locale('key_description', plate) })

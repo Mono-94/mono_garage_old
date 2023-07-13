@@ -33,7 +33,6 @@ Garage.OwnerCarAdmin = {
 
     Group = 'admin',     -- Group
 
-    GarageName =  'Pillbox Hill' -- Default garage where the vehicle will be stored in DB
 }
 
 Garage.AutoImpound = {
