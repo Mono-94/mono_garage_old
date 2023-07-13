@@ -8,7 +8,7 @@ lua54 'yes'
 
 repository 'https://github.com/Mono-94/mono_garage'
 
-version '1.2.0'
+version '1.2.1'
 
 author 'Discord: symbiote_ --  https://discord.gg/Vk7eY8xYV2'
 
