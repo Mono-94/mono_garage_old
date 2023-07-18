@@ -8,9 +8,9 @@ lua54 'yes'
 
 repository 'https://github.com/Mono-94/mono_garage'
 
-version '1.2.0'
+version '1.2.2'
 
-author 'Discord: symbiote_ --  https://discord.gg/Vk7eY8xYV2'
+author 'Discord ID & Link & tebex : symbiote_  ,  https://discord.gg/Vk7eY8xYV2 , https://mono-scripts.tebex.io/'
 
 
 shared_scripts {

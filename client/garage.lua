@@ -1,14 +1,18 @@
+
 lib.locale()
 
 local blips, currentJob = {}, nil
 
 RegisterNetEvent('esx:setJob', function(job)
+
     currentJob = job.name
-    CrearBlips()
+
+    StartGarageBlips()
+
 end)
 
 
-function CrearBlips()
+function StartGarageBlips()
     for k, v in pairs(Garage.Garages) do
         if v.impound then
             if not blips[k] then
@@ -37,48 +41,97 @@ function CrearBlips()
     end
 end
 
-CreateThread(function()
-    CrearBlips()
-    for k, v in pairs(Garage.Garages) do
-        if not v.impound then
-            if Garage.Target then
-                local options = {
-                    {
-                        name = 'mono_garage:TargetGuardar',
-                        icon = 'fa-solid fa-road',
-                        label = locale('DepositarVeh1'),
-                        groups = v.job,
-                        distance = Garage.TargetCarDistance,
-                        onSelect = function()
-                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
-                        end
-                    },
-                }
-                local optionNames = { 'mono_garage:TargetGuardar' }
-                lib.zones.box({
-                    coords = v.pos,
-                    size = v.size,
-                    rotation = v.heading,
-                    debug = Garage.Debug.Zones,
-                    onEnter = function()
-                        ped = CreateNPC(v.NPCHash, v.NPCPos)
-                        exports.ox_target:addBoxZone({
-                            coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
-                            size = vec3(1, 1, 2),
-                            rotation = v.NPCPos.w,
-                            debug = Garage.Debug.Zones,
-                            options = {
+
+StartGarageBlips()
+
+
+for k, v in pairs(Garage.Garages) do
+    if not v.impound then
+        if Garage.Target then
+            local options = {
+                {
+                    name = 'mono_garage:TargetGuardar',
+                    icon = 'fa-solid fa-road',
+                    label = locale('DepositarVeh1'),
+                    groups = v.job,
+                    distance = Garage.TargetCarDistance,
+                    onSelect = function()
+                        SaveVehicle({ garage = k, distance = 2.5, type = v.type })
+                    end
+                },
+            }
+            local optionNames = { 'mono_garage:TargetGuardar' }
+            lib.zones.box({
+                coords = v.pos,
+                size = v.size,
+                rotation = v.heading,
+                debug = Garage.Debug.Zones,
+                onEnter = function()
+                    ped = CreateNPC(v.NPCHash, v.NPCPos)
+                    exports.ox_target:addBoxZone({
+                        coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
+                        size = vec3(1, 1, 2),
+                        rotation = v.NPCPos.w,
+                        debug = Garage.Debug.Zones,
+                        options = {
+                            {
+                                groups = v.job,
+                                distance = Garage.TargetNPCDistance,
+                                icon = 'fas fa-car',
+                                label = locale('SacarVehiculooo'),
+                                onSelect = function()
+                                    if IsPedInAnyVehicle(PlayerPedId(), false) then
+                                        TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
+                                    else
+                                        OpenGarage({
+                                            garage = k,
+                                            type = v.type,
+                                            spawnpos = v.spawnpos,
+                                            impound = v.impoundIn,
+                                            SetInToVeh = v.SetInToVehicle,
+                                            shareGarage = v.ShareGarage
+                                        })
+                                    end
+                                end
+                            }
+                        }
+                    })
+                    exports.ox_target:addGlobalVehicle(options)
+                end,
+                onExit = function()
+                    DeleteEntity(ped)
+
+                    exports.ox_target:removeGlobalVehicle(optionNames)
+                end
+            })
+        else
+            lib.zones.box({
+                coords = v.pos,
+                size = v.size,
+                rotation = v.heading,
+                debug = Garage.Debug.Zones,
+                onEnter = function()
+                    if currentJob == v.job then
+                        lib.registerRadial({
+                            id = 'garaga_meter_sacar',
+                            items = {
                                 {
-                                    groups = v.job,
-                                    distance = Garage.TargetNPCDistance,
-                                    icon = 'fas fa-car',
-                                    label = locale('SacarVehiculooo'),
+                                    label = locale('DepositarVeh1'),
+                                    icon = 'share',
                                     onSelect = function()
-                                        if IsPedInAnyVehicle(PlayerPedId(), false) then
+                                        SaveVehicle({ garage = k, distance = 2.5, type = v.type })
+                                    end
+                                },
+                                {
+                                    label = locale('SacarVehiculooo'),
+                                    icon = 'car',
+                                    onSelect = function()
+                                        if cache.vehicle then
                                             TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
                                         else
                                             OpenGarage({
                                                 garage = k,
+                                                type = v.type,
                                                 spawnpos = v.spawnpos,
                                                 impound = v.impoundIn,
                                                 SetInToVeh = v.SetInToVehicle,
@@ -86,121 +139,109 @@ CreateThread(function()
                                             })
                                         end
                                     end
-                                }
+                                },
+
                             }
                         })
-                        exports.ox_target:addGlobalVehicle(options)
-                    end,
-                    onExit = function()
-                        DeleteEntity(ped)
-                        exports.ox_target:removeGlobalVehicle(optionNames)
+                        lib.addRadialItem({
+                            {
+                                id = 'garage_menu',
+                                label = locale('Garaje-', k),
+                                icon = 'warehouse',
+                                menu = 'garaga_meter_sacar'
+                            },
+                        })
+                    elseif v.job == false then
+                        lib.registerRadial({
+                            id = 'garaga_meter_sacar',
+                            items = {
+                                {
+                                    label = locale('DepositarVeh1'),
+                                    icon = 'share',
+                                    onSelect = function()
+                                        SaveVehicle({ garage = k, distance = 2.5, type = v.type })
+                                    end
+                                },
+                                {
+                                    label = locale('SacarVehiculooo'),
+                                    icon = 'car',
+                                    onSelect = function()
+                                        if cache.vehicle then
+                                            TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
+                                        else
+                                            OpenGarage({
+                                                garage = k,
+                                                type = v.type,
+                                                spawnpos = v.spawnpos,
+                                                impound = v.impoundIn,
+                                                SetInToVeh = v.SetInToVehicle,
+                                                shareGarage = v.ShareGarage
+                                            })
+                                        end
+                                    end
+                                },
+
+                            }
+                        })
+                        lib.addRadialItem({
+                            {
+                                id = 'garage_menu',
+                                label = locale('Garaje-', k),
+                                icon = 'warehouse',
+                                menu = 'garaga_meter_sacar'
+                            },
+                        })
                     end
-                })
-            else
-                lib.zones.box({
-                    coords = v.pos,
-                    size = v.size,
-                    rotation = v.heading,
-                    debug = Garage.Debug.Zones,
-                    onEnter = function()
-                        if currentJob == v.job then
-                            lib.registerRadial({
-                                id = 'garaga_meter_sacar',
-                                items = {
-                                    {
-                                        label = locale('DepositarVeh1'),
-                                        icon = 'share',
-                                        onSelect = function()
-                                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
-                                        end
-                                    },
-                                    {
-                                        label = locale('SacarVehiculooo'),
-                                        icon = 'car',
-                                        onSelect = function()
-                                            if cache.vehicle then
-                                                TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
-                                            else
-                                                OpenGarage({
-                                                    garage = k,
-                                                    spawnpos = v.spawnpos,
-                                                    impound = v.impoundIn,
-                                                    SetInToVeh = v.SetInToVehicle,
-                                                    shareGarage = v.ShareGarage
-                                                })
-                                            end
-                                        end
-                                    },
+                end,
+                onExit = function()
+                    lib.removeRadialItem('garage_menu')
+                end
+            })
+        end
+    else
+        if Garage.Target then
 
-                                }
-                            })
-                            lib.addRadialItem({
-                                {
-                                    id = 'garage_menu',
-                                    label = locale('Garaje-', k),
-                                    icon = 'warehouse',
-                                    menu = 'garaga_meter_sacar'
-                                },
-                            })
-                        elseif v.job == false then
-                            lib.registerRadial({
-                                id = 'garaga_meter_sacar',
-                                items = {
-                                    {
-                                        label = locale('DepositarVeh1'),
-                                        icon = 'share',
-                                        onSelect = function()
-                                            SaveVehicle({ garage = k, distance = 2.5, type = v.type })
-                                        end
-                                    },
-                                    {
-                                        label = locale('SacarVehiculooo'),
-                                        icon = 'car',
-                                        onSelect = function()
-                                            if cache.vehicle then
-                                                TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
-                                            else
-                                                OpenGarage({
-                                                    garage = k,
-                                                    spawnpos = v.spawnpos,
-                                                    impound = v.impoundIn,
-                                                    SetInToVeh = v.SetInToVehicle,
-                                                    shareGarage = v.ShareGarage
-                                                })
-                                            end
-                                        end
-                                    },
+            CreateNPC(v.NPCHash, v.NPCPos)
 
-                                }
-                            })
-                            lib.addRadialItem({
-                                {
-                                    id = 'garage_menu',
-                                    label = locale('Garaje-', k),
-                                    icon = 'warehouse',
-                                    menu = 'garaga_meter_sacar'
-                                },
-                            })
+            exports.ox_target:addBoxZone({
+                coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
+                size = vec3(1, 1, 2),
+                rotation = v.NPCPos.w,
+                debug = Garage.Debug.Zones,
+                options = {
+                    {
+                        icon = 'fas fa-car',
+                        label = k,
+                        onSelect = function(data)
+                            if cache.vehicle then
+                                TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
+                            else
+                                GarageImpound({
+                                    garage = k,
+                                    spawnpos = v.spawnpos,
+                                    precio = v.impoundPrice,
+                                    SetInToVeh = v.SetInToVehicle,
+                                    job = v.job,
+                                    Society = v.Society
+                                })
+                            end
                         end
-                    end,
-                    onExit = function()
-                        lib.removeRadialItem('garage_menu')
-                    end
-                })
-            end
+                    }
+                }
+            })
         else
-            if Garage.Target then
-                CreateNPC(v.NPCHash, v.NPCPos)
-                exports.ox_target:addBoxZone({
-                    coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
-                    size = vec3(1, 1, 2),
-                    rotation = v.NPCPos.w,
-                    debug = Garage.Debug.Zones,
-                    options = {
+            lib.zones.box({
+                coords = v.pos,
+                size = v.size,
+                rotation = v.heading,
+                debug = Garage.Debug.Zones,
+                onEnter = function()
+                    lib.addRadialItem({
                         {
-                            icon = 'fas fa-car',
+                            id = 'impound',
                             label = k,
-                            onSelect = function(data)
+                            icon = 'car',
+                            onSelect = function()
                                 if cache.vehicle then
                                     TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
                                 else
@@ -214,46 +255,17 @@ CreateThread(function()
                                     })
                                 end
                             end
-                        }
-                    }
-                })
-            else
-                lib.zones.box({
-                    coords = v.pos,
-                    size = v.size,
-                    rotation = v.heading,
-                    debug = Garage.Debug.Zones,
-                    onEnter = function()
-                        lib.addRadialItem({
-                            {
-                                id = 'impound',
-                                label = k,
-                                icon = 'car',
-                                onSelect = function()
-                                    if cache.vehicle then
-                                        TriggerEvent('mono_garage:Notification', locale('SalirVehiculo'))
-                                    else
-                                        GarageImpound({
-                                            garage = k,
-                                            spawnpos = v.spawnpos,
-                                            precio = v.impoundPrice,
-                                            SetInToVeh = v.SetInToVehicle,
-                                            job = v.job,
-                                            Society = v.Society
-                                        })
-                                    end
-                                end
-                            },
-                        })
-                    end,
-                    onExit = function()
-                        lib.removeRadialItem('impound')
-                    end
-                })
-            end
+                        },
+                    })
+                end,
+                onExit = function()
+                    lib.removeRadialItem('impound')
+                end
+            })
         end
     end
-end)
+end
+
 
 
 function OpenGarage(info)
@@ -272,6 +284,7 @@ function OpenGarage(info)
         else
             shared = data.parking == info.garage
         end
+
         if shared then
             vehiclesFound = true
             if data.stored == 0 or data.stored == 2 then
@@ -299,12 +312,6 @@ function OpenGarage(info)
             else
                 propietario = locale('deunamigo')
             end
-            if data.mileage == nil then
-                equivalenteEnKilometros = 0
-            else
-                equivalenteEnKilometros = tonumber(data.mileage) / 520.000
-            end
-            local formattedEquivalente = string.format("%.1f", equivalenteEnKilometros)
 
             table.insert(garagemenu, {
                 title = marca .. ' - ' .. name,
@@ -312,7 +319,6 @@ function OpenGarage(info)
                 iconColor = color,
                 arrow = true,
                 metadata = {
-                    { label = 'Total',             value = formattedEquivalente .. ' KM' },
                     { label = locale('VehDescri'), value = data.parking },
                     {
                         label = locale('VehDescrigas'),
@@ -328,7 +334,9 @@ function OpenGarage(info)
                         garage = info.garage,
                         spawn = info.spawnpos,
                         plate = props.plate,
+                        owner = data.owner,
                         name = name,
+                        type = info.type,
                         marca = marca,
                         model = props.model,
                         stored = data.stored,
@@ -373,16 +381,14 @@ function VehicleSelected(data)
         table.insert(select, {
             title = locale('SacarVehiculooo'),
             icon = 'car-side',
+            arrow = true,
             onSelect = function()
                 local SpawPos = false
-                for j = 1, #data.spawn do
-                    local v = data.spawn[j]
+                for posis = 1, #data.spawn do
+                    local v = data.spawn[posis]
                     local pos = vector3(v.x, v.y, v.z)
-                    local hea = v.w
-                    local model = data.model
                     if SpawnClearArea(pos, 2.0) then
-                        TriggerServerEvent('mono_garage:RetirarVehiculo', data.plate, data.garage, pos, hea, model,
-                            data.intocar)
+                        TriggerServerEvent('mono_garage:RetirarVehiculo', data.plate, data.garage, pos, v.w, data.model, data.intocar)
                         SpawPos = true
                         break
                     end
@@ -392,6 +398,40 @@ function VehicleSelected(data)
                 end
             end
         })
+        if data.isOwner then
+            table.insert(select, {
+                title = locale('sendvehicle'),
+                icon = 'car-side',
+                arrow = true,
+                onSelect = function()
+                    local opt = {}
+                    for k, v in pairs(Garage.Garages) do
+                        if data.type == 'all' and not v.impound and not v.job then
+                            table.insert(opt, { label = k ..' - '..v.type , value = k })
+                        elseif not v.impound and not v.job and v.type == data.type then
+                            table.insert(opt, { label = k ..' - '..v.type, value = k })
+                        end
+                    end
+                    local input = lib.inputDialog(locale('sendvehicle'), {
+                        {
+                            type = 'select',
+                            icon = 'warehouse',
+                            label = locale('selectgarage'),
+                            description = locale('actualgarage', data.garage),
+                            required = true,
+                            options = opt
+                        },
+                    })
+
+                    if not input then return end
+
+                    data.garage = input[1]
+                    data.price = false
+
+                    TriggerServerEvent('mono_garage:ChangeGarage', data)
+                end
+            })
+        end
         if Garage.ShareCarFriend then
             if data.isOwner then
                 table.insert(select, {
@@ -406,6 +446,7 @@ function VehicleSelected(data)
                                 { type = 'input', label = locale('Compartir1'), description = locale('Compartir2') }
                             })
                         if not input then return end
+
                         TriggerServerEvent('mono_garage:CompartirAmigo', input[1], input[2], data.plate)
                     end
                 })
@@ -562,6 +603,7 @@ function VehicleSelected(data)
 end
 
 --impound
+
 function GarageImpound(info)
     local ImpoundMenu = {}
     local vehicles = lib.callback.await('mono_garage:getOwnerVehicles')
@@ -585,62 +627,132 @@ function GarageImpound(info)
                 iconColor = '#fcba03',
                 arrow = true,
                 description = locale('VehDescriImpound', price, props.plate, props.fuelLevel),
-                metadata = {
-                    { label = locale('imp_date'),   value = date },
-                    { label = locale('imp_reason'), value = reason },
-                    { label = locale('imp_price'),  value = price .. ' $' }
-                },
-                onSelect = function()
-                    local SpawPos = false
-                    local input = lib.inputDialog(locale('MetodoPagoTitulo'), {
-                        {
-                            type = 'select',
-                            icon = 'dollar',
-                            label = locale('ImpoundMetodo', money.money, money.bank),
-                            options = {
-                                { value = 'money', label = locale('MetodoPagoMoney') },
-                                { value = 'bank',  label = locale('MetodoPagoBank') },
-                            }
-                        },
-                    })
-                    if input == nil then
-                        return
-                    elseif not input[1] then
-                        return TriggerEvent('mono_garage:Notification', locale('metododepagos'))
-                    end
-                    local function Retirar(input)
-                        for j = 1, #info.spawnpos do
-                            local v = info.spawnpos[j]
-                            local pos = vec3(v.x, v.y, v.z)
-                            local hea = v.w
-                            if SpawnClearArea(pos, 3.0) then
-                                TriggerServerEvent('mono_garage:RetirarVehiculoImpound', data.plate, input,
-                                    price,
-                                    pos, hea, info.SetInToVeh, info.Society)
-                                SpawPos = true
-                                break
-                            end
-                        end
-                    end
 
-                    if input[1] == 'money' then
-                        if money.money >= price then
-                            Retirar(input[1])
-                        else
-                            SpawPos = true
-                            TriggerEvent('mono_garage:Notification', locale('SERVER_SinDinero'))
-                        end
-                    elseif input[1] == 'bank' then
-                        if money.bank >= price then
-                            Retirar(input[1])
-                        else
-                            SpawPos = true
-                            TriggerEvent('mono_garage:Notification', locale('SERVER_SinDinero'))
-                        end
-                    end
-                    if not SpawPos then
-                        TriggerEvent('mono_garage:Notification', locale('NoSpawn'))
-                    end
+                onSelect = function()
+                    lib.registerContext({
+                        id = 'mono_garage:ImpoundMenuOption',
+                        title = 'Impound - ' .. info.garage,
+                        menu = 'mono_garage:ImpoundMenu',
+                        options = {
+                            {
+                                title = locale('recu1'),
+                                icon = 'car-on',
+                                metadata = {
+                                    { label = locale('imp_date'),   value = date },
+                                    { label = locale('imp_reason'), value = reason },
+                                    { label = locale('imp_price'),  value = price .. ' $' }
+                                },
+                                onSelect = function()
+                                    local SpawPos = false
+                                    local input = lib.inputDialog(locale('MetodoPagoTitulo'), {
+                                        {
+                                            type = 'select',
+                                            icon = 'dollar',
+                                            required = true,
+                                            label = locale('ImpoundMetodo', money.money, money.bank),
+                                            options = {
+                                                { value = 'money', label = locale('MetodoPagoMoney') },
+                                                { value = 'bank',  label = locale('MetodoPagoBank') },
+                                            }
+                                        },
+                                    })
+                                    if input == nil then
+                                        return
+                                    elseif not input[1] then
+                                        return TriggerEvent('mono_garage:Notification', locale('metododepagos'))
+                                    end
+                                    local function Retirar(input)
+                                        for j = 1, #info.spawnpos do
+                                            local v = info.spawnpos[j]
+                                            local pos = vec3(v.x, v.y, v.z)
+                                            local hea = v.w
+                                            if SpawnClearArea(pos, 3.0) then
+                                                TriggerServerEvent('mono_garage:RetirarVehiculoImpound', data.plate,
+                                                    input,
+                                                    price,
+                                                    pos, hea, info.SetInToVeh, info.Society)
+                                                SpawPos = true
+                                                break
+                                            end
+                                        end
+                                    end
+
+                                    if input[1] == 'money' then
+                                        if money.money >= price then
+                                            Retirar(input[1])
+                                        else
+                                            SpawPos = true
+                                            TriggerEvent('mono_garage:Notification', locale('SERVER_SinDinero'))
+                                        end
+                                    elseif input[1] == 'bank' then
+                                        if money.bank >= price then
+                                            Retirar(input[1])
+                                        else
+                                            SpawPos = true
+                                            TriggerEvent('mono_garage:Notification', locale('SERVER_SinDinero'))
+                                        end
+                                    end
+                                    if not SpawPos then
+                                        TriggerEvent('mono_garage:Notification', locale('NoSpawn'))
+                                    end
+                                end
+                            },
+                            {
+                                title = locale('recu2'),
+                                icon = 'recycle',
+                                onSelect = function()
+                                    
+                                    local opt = {}
+                                    for k, v in pairs(Garage.Garages) do
+                                        if not v.impound and not v.job and v.type == data.type then
+                                            table.insert(opt, { label = k, value = k })
+                                        end
+                                    end
+
+
+                                    local input = lib.inputDialog(locale('MetodoPagoTitulo'), {
+                                        {
+                                            type = 'select',
+                                            icon = 'dollar',
+                                            required = true,
+                                            label = locale('ImpoundMetodo', money.money, money.bank),
+                                            options = {
+                                                { value = 'money', label = locale('MetodoPagoMoney') },
+                                                { value = 'bank',  label = locale('MetodoPagoBank') },
+                                            }
+                                        },
+                                        {
+                                            type = 'select',
+                                            icon = 'warehouse',
+                                            label = locale('selectgarage'),
+                                            description = locale('actualgarage', info.garage),
+                                            required = true,
+                                            options = opt
+                                        },
+                                    })
+
+                                    if not input then
+                                        return
+                                    end
+
+                                    input.price = price 
+                                    input.garage = input[2]
+                                    input.money = input[1]
+                                    input.society = info.Society
+                                    input.plate = data.plate
+                                    input.owner = data.owner
+                                    input.last = info.garage
+
+                                   
+                                    TriggerServerEvent('mono_garage:ChangeGarage', input)
+
+                                   
+                                end
+                            }
+
+                        }
+                    })
+                    lib.showContext('mono_garage:ImpoundMenuOption')
                 end
             })
         end

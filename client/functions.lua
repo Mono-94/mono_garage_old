@@ -83,7 +83,7 @@ RegisterNetEvent('mono_garage:GiveVehicle', function()
 end)
 
 
--- Get Total Km
+--[[ Get Total Km
 
 function GetTotalKm(plate)
     local totalkm = lib.callback.await('mono_garage:GetTotalKm', source, SP(plate))
@@ -92,7 +92,7 @@ function GetTotalKm(plate)
     return formattedEquivalente
 end
 
-exports('GetTotalKm', GetTotalKm)
+exports('GetTotalKm', GetTotalKm)]]
 
 -- Save Vehicle
 
@@ -190,8 +190,11 @@ function SP(plate)
 end
 
 --- Garage notifications
+
 --<-------------------------------------->--
+
 --Notification
+
 RegisterNetEvent('mono_garage:Notification', function(msg)
     lib.notify({
         title = locale('Garaje'),

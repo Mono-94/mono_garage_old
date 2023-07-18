@@ -37,8 +37,9 @@ lib.callback.register('mono_garage:getOwnerVehicles', function(source)
 
     local identifier = xPlayer.identifier
 
-    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE owner = ? OR amigos LIKE ?", { identifier, '%' .. identifier .. '%' })
-    
+    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE owner = ? OR amigos LIKE ?",
+        { identifier, '%' .. identifier .. '%' })
+
     for i, result in ipairs(vehicles) do
         local amigos = json.decode(result.amigos)
         local isOwner = result.owner == identifier
@@ -86,18 +87,18 @@ lib.callback.register('mono_garage:ChangePlateOwner', function(source, plate)
     return false
 end)
 
-lib.callback.register('mono_garage:GetTotalKm', function(source, plate)
+--[[lib.callback.register('mono_garage:GetTotalKm', function(source, plate)
     local totalkm = MySQL.query.await("SELECT * FROM owned_vehicles")
     for _, vehicle in ipairs(totalkm) do
         if plate == vehicle.plate then
-                
+
             return vehicle.mileage
         else
             return 0
         end
     end
 end)
-
+]]
 
 lib.callback.register('mono_garage:GetVehicleCoords', function(source, plate1)
     local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles")
@@ -231,7 +232,7 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
     for i, result in ipairs(vehicles) do
         local amigos = json.decode(result.amigos)
         local isOwner = result.owner == identifier
-        local cleanedPlate = SP(result.plate) 
+        local cleanedPlate = SP(result.plate)
 
         if cleanedPlate == plate then
             encontrado = true
@@ -251,12 +252,12 @@ RegisterServerEvent('mono_garage:GuardarVehiculo', function(plate, vehicleData, 
                     if rowsChanged > 0 then
                         local entity = NetworkGetEntityFromNetworkId(vehicle)
                         while true do
-                            Wait(0)
                             if GetPedInVehicleSeat(entity, -1) > 0 then
                                 TaskLeaveVehicle(source, entity, 1)
                             else
                                 break
                             end
+                            Wait(0)
                         end
                         TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_VehiculoGuardado'))
                         if Garage.CarKeys then
@@ -472,6 +473,60 @@ RegisterServerEvent('mono_garage:MandarVehiculoImpound', function(plate, impound
 end)
 
 
+RegisterNetEvent('mono_garage:ChangeGarage', function(data)
+    local source = source
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local bank = xPlayer.getAccount("bank")
+    if data.price == false then
+        MySQL.update('UPDATE owned_vehicles SET parking = ? WHERE owner = ? and plate = ? ', {
+            data.garage, data.owner, data.plate
+        }, function(affectedRows)
+            if affectedRows > 0 then
+                TriggerClientEvent('mono_garage:Notification', source,locale('enviado', data.garage))
+
+                print(affectedRows, 'Vehiculo transladado')
+            else
+                TriggerClientEvent('mono_garage:Notification', source,
+                    locale('SERVER_RetirarImpoundError'))
+            end
+        end)
+    else
+        local function RetirarVehiculo(dinero)
+            if dinero >= data.price then
+                MySQL.update(
+                    'UPDATE owned_vehicles SET parking = ?, stored = 1, pound = NULL   WHERE owner = ? and plate = ?  ',
+                    {
+                        data.garage, data.owner, data.plate
+                    }, function(affectedRows)
+                        print(affectedRows, 'Vehiculo transladado')
+                        if affectedRows > 0 then
+                            if not data.society then
+                                xPlayer.removeAccountMoney(data.money, data.price)
+                            else
+                                TriggerEvent('esx_addonaccount:getSharedAccount', data.society, function(cuenta)
+                                    xPlayer.removeAccountMoney(data.money, data.price)
+                                    cuenta.addMoney(data.price)
+                                end)
+                            end
+                            TriggerClientEvent('mono_garage:Notification', source,
+                                locale('SERVER_RetirarImpound', data.price))
+                        else
+                            TriggerClientEvent('mono_garage:Notification', source,
+                                locale('SERVER_RetirarImpoundError'))
+                        end
+                    end)
+            else
+                TriggerClientEvent('mono_garage:Notification', source, locale('SERVER_SinDinero'))
+            end
+        end
+
+        if data.money == 'money' then
+            RetirarVehiculo(xPlayer.getMoney())
+        elseif data.money == 'bank' then
+            RetirarVehiculo(bank.money)
+        end
+    end
+end)
 
 
 
@@ -590,7 +645,7 @@ if Garage.AutoImpound.AutoImpound then
 end
 
 
-CreateThread(function()
+--[[CreateThread(function()
     while true do
         Wait(1000)
         local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles")
@@ -621,7 +676,7 @@ CreateThread(function()
             end
         end
     end
-end)
+end)]]
 
 if Garage.Persistent then
     RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew)
