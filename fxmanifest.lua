@@ -10,7 +10,7 @@ repository 'https://github.com/Mono-94/mono_garage'
 
 version '1.2.2'
 
-author 'Discord ID & Link & tebex : symbiote_  ,  https://discord.gg/Vk7eY8xYV2 , https://mono-scripts.tebex.io/'
+author ' Symbiote_ Discord   https://discord.gg/Vk7eY8xYV2 '
 
 
 shared_scripts {
