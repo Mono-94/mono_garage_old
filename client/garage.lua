@@ -61,6 +61,7 @@ for k, v in pairs(Garage.Garages) do
                 },
             }
             local optionNames = { 'mono_garage:TargetGuardar' }
+            local garageTarget
             lib.zones.box({
                 coords = v.pos,
                 size = v.size,
@@ -68,7 +69,7 @@ for k, v in pairs(Garage.Garages) do
                 debug = Garage.Debug.Zones,
                 onEnter = function()
                     ped = CreateNPC(v.NPCHash, v.NPCPos)
-                    exports.ox_target:addBoxZone({
+                    garageTarget = exports.ox_target:addBoxZone({
                         coords = vec3(v.NPCPos.x, v.NPCPos.y, v.NPCPos.z + 1),
                         size = vec3(1, 1, 2),
                         rotation = v.NPCPos.w,
@@ -101,6 +102,7 @@ for k, v in pairs(Garage.Garages) do
                 onExit = function()
                     DeleteEntity(ped)
 
+                    exports.ox_target:removeZone(garageTarget)
                     exports.ox_target:removeGlobalVehicle(optionNames)
                 end
             })
