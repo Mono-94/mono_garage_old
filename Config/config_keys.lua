@@ -1,9 +1,4 @@
---─▄▄▀▀█▀▀▄▄       |
---▐▄▌─▀─▀─▐▄▌      |
---──█─▄▄▄─█──▄▄    |
---──▄█▄▄▄█▄─▐──▌   |
---▄█▀█████▐▌─▀─▐   |
---▀─▄██▀██▀█▀▄▄▀   | ─────────────────────────────────────|
+-- ───────────────────────────────────────────────────────|
 -- symbiote_ - Discord: https://discord.gg/Vk7eY8xYV2     |
 --────────────────────────────────────────────────────────|
 
@@ -16,6 +11,7 @@ Keys.Debug = false      -- Prints.
 --<-------------------------------------->--
 Keys.Distance = 5       -- Distance to open or close.
 Keys.DistanceCreate = 5 -- Distance to create key.
+Keys.Inventory = 'ox'   -- ox/qs
 --<-------------------------------------->--
 -- Time.
 Keys.CreateKeyTime = 1000 -- progressBar time.
@@ -23,6 +19,7 @@ Keys.CreateKeyTime = 1000 -- progressBar time.
 -- Items.
 Keys.ItemName = 'carkeys' -- Key Item.
 Keys.ItemPlate = 'plate'  -- Plate item.
+
 --<-------------------------------------->--
 -- Prices
 Keys.CopyPrice = 50        -- Price to buy copy keys.
@@ -37,6 +34,9 @@ Keys.CommandGiveKey = 'givekey' -- Give Key.
 Keys.CommandDelKey = 'delkey'   -- Delete Key.
 
 --<-------------------------------------->--
+
+Keys.Progress = false 
+Keys.ProgressTime = 500
 
 -- Car Options
 
@@ -61,6 +61,7 @@ Keys.NpcReclameKey = {
         Scale = 0.6,
         Colour = 0,
     },
+    
     ['The Chrome Dome'] = {
         price = 50,
         hash = 'a_m_y_beachvesp_02',

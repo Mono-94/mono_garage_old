@@ -2,27 +2,25 @@ fx_version 'cerulean'
 
 game 'gta5'
 
-name 'mono_garage'
+name 'M O N O   G A R A G E    V 2'
 
 lua54 'yes'
 
-repository 'https://github.com/Mono-94/mono_garage'
+version '2.0.0'
 
-version '1.2.2'
-
-author 'Discord ID & Link & tebex : symbiote_  ,  https://discord.gg/Vk7eY8xYV2 , https://mono-scripts.tebex.io/'
+author '- M O N O, Symbiote_'
 
 
 shared_scripts {
     '@es_extended/imports.lua',
     '@ox_lib/init.lua',
-  --  '@mono_lib/extras.lua',  
     'Config/*.lua',
 }
 
 
 client_scripts {
     'client/*.lua',
+    
 }
 
 server_scripts {
@@ -31,6 +29,13 @@ server_scripts {
 }
 
 files {
+    'ui/*.html',
+    'ui/css/*.css',
+    'ui/lang.json',
+    'ui/js/*.js',
     'locales/*.json',
---    'AllVehicleEntitys.json'
+}
+
+ui_page {
+    'ui/index.html',
 }

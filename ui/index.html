@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="css/style.css" rel="stylesheet" type="text/css" />
+  <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+  <script src="translations.json" type="application/json" id="translations"></script>
+  <script src="https://kit.fontawesome.com/34677818f4.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <script src="js/js.js"></script>
+  <title>mono_garage</title>
+</head>
+
+<body>
+  <div class="container" style="display:none;" >
+    <div class="menu-garage"  >
+      <div class="menu-header">
+        <div class="menu-titulo">Mono Garage</div>
+        <div class="cerrar" onclick="CloseUi()"><i class="fa-solid fa-right-from-bracket"></i></div>
+      </div>
+      <div class="vehicle-list">
+        <div class="vehicle-carta">
+          <div class="vehicle-info">
+            <div class="vehicle-parking">Dentro</div>
+            <div class="vehicle-name">Karin Sultan</div>
+            <div class="vehicle-plate">INTE0993</div>
+            <!--div class="expandir"><i class="fa-solid fa-caret-down"></i></div!-->
+          </div>
+          <div class="vehicle-options" style="display:none;">
+            <div class="botones">
+              <button class="retirar">Retirar</button>
+              <button class="compartir">Compartir</button>
+              <button class="deposito">Enviar al depósito</button>
+            </div>
+            <div class="status">
+              <div class="fuel-text"><i class="fas fa-gas-pump"></i> Gasolina 100%</div>
+              <div class="fuel"></div>
+              <div class="body-text"><i class="fas fa-car"></i> Carrocería 100%</div>
+              <div class="body"></div>
+              <div class="engine-text"><i class="fas fa-cogs"></i> Motor 100%</div>
+              <div class="engine"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  </div>
+</body>
+
+
+</html>

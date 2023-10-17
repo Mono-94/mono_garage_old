@@ -16,6 +16,5 @@ CREATE TABLE `owned_vehicles` (
   `lastparking` longtext DEFAULT NULL,
   `lastposition` longtext DEFAULT NULL,
   `carseller` int(11) DEFAULT 0,
-  `calle` tinyint(4) DEFAULT NULL,
   `infoimpound` longtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci; 
