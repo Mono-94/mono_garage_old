@@ -105,6 +105,7 @@ function PlayerOutCar(data)
 end
 
 -- Inventory give/remove KEYS
+-- Inventory give/remove KEYS
 function InventoryKeys(data, action)
     if Garage.CarKeys then
         if action == 'add' then
@@ -112,7 +113,7 @@ function InventoryKeys(data, action)
                 ox:AddItem(data.player, Keys.ItemName, 1,
                     { plate = data.plate, description = locale('key_description', data.plate) })
             elseif Garage.Inventory == 'qs' then
-                exports['qs-inventory']:AddItem(source, Keys.ItemName, 1, nil, {
+                exports['qs-inventory']:AddItem(data.player, Keys.ItemName, 1, nil, {
                     plate = data.plate,
                     description = locale('key_description', data.plate)
                 })
@@ -127,7 +128,7 @@ function InventoryKeys(data, action)
                     ox:RemoveItem(data.player, Keys.ItemName, 1,
                         { plate = data.plate, description = locale('key_description', data.plate) })
                 elseif Garage.Inventory == 'qs' then
-                    exports['qs-inventory']:RemoveItem(source, Keys.ItemName, 1, nil,
+                    exports['qs-inventory']:RemoveItem(data.player, Keys.ItemName, 1, nil,
                         { plate = data.plate, description = locale('key_description', data.plate) })
                 elseif Garage.Inventory == 'custom' then
                     Garage.FunctionKeys()
