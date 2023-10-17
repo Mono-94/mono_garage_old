@@ -507,17 +507,18 @@ end)
 
 -- aqui
 RegisterNetEvent('mono_garage:ChangeGarage', function(data)
-    print(1)
+    print(json.encode(data))
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     local bank = xPlayer.getAccount("bank")
     data.plate = string.gsub(data.plate, "^%s*(.-)%s*$", "%1")
-
+    print(data.price, data.priceSend)
     if data.priceSend == nil then
         MySQL.update('UPDATE owned_vehicles SET stored = 1, parking = ? WHERE owner = ? and plate = ? ', {
             data.garage, data.owner, data.plate
         }, function(affectedRows)
             if affectedRows > 0 then
+                xPlayer.removeAccountMoney(data.money, data.price)
                 Noti(source, locale('enviado', data.garage))
             else
                 Noti(source,
@@ -526,23 +527,28 @@ RegisterNetEvent('mono_garage:ChangeGarage', function(data)
         end)
     else
         local function RetirarVehiculo(dinero)
-            if dinero >= data.priceSend then
+            print(1)
+            if dinero >= data.price then
+                print(2)
                 MySQL.update(
                     'UPDATE owned_vehicles SET parking = ?, stored = 1, pound = NULL, infoimpound = NULL    WHERE owner = ? and plate = ? ',
                     {
                         data.garage, data.owner, data.plate
                     }, function(affectedRows)
                         if affectedRows > 0 then
+                            print(3)
                             if not data.society then
-                                xPlayer.removeAccountMoney(data.money, data.priceSend)
+                                xPlayer.removeAccountMoney(data.money, data.pric)
                             else
+                                print(4)
                                 TriggerEvent('esx_addonaccount:getSharedAccount', data.society, function(cuenta)
-                                    xPlayer.removeAccountMoney(data.money, data.priceSend)
-                                    cuenta.addMoney(data.priceSend)
+                                    print(data.pric)
+                                    xPlayer.removeAccountMoney(data.money, data.pric)
+                                    cuenta.addMoney(data.pric)
                                 end)
                             end
                             Noti(source,
-                                locale('SERVER_RetirarImpound', data.priceSend))
+                                locale('SERVER_RetirarImpound', data.pric))
                         else
                             Noti(source,
                                 locale('SERVER_RetirarImpoundError'))
