@@ -27,3 +27,14 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+
+
+-- Update last version 
+
+ALTER TABLE `owned_vehicles`
+    MODIFY `infoimpound` longtext DEFAULT NULL,
+    MODIFY `lastparking` longtext DEFAULT NULL,
+    MODIFY `lastposition` longtext DEFAULT NULL,
+    MODIFY `amigos` longtext DEFAULT NULL;
