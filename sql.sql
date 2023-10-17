@@ -34,7 +34,16 @@ COMMIT;
 -- Update last version 
 
 ALTER TABLE `owned_vehicles`
-    MODIFY `infoimpound` longtext DEFAULT NULL,
-    MODIFY `lastparking` longtext DEFAULT NULL,
-    MODIFY `lastposition` longtext DEFAULT NULL,
-    MODIFY `amigos` longtext DEFAULT NULL;
+    DROP COLUMN `calle`,
+    DROP COLUMN `infoimpound`,
+    DROP COLUMN `lastparking`,
+    DROP COLUMN `lastposition`,
+    DROP COLUMN `amigos`;
+
+ALTER TABLE `owned_vehicles`
+    ADD COLUMN `calle` varchar(46) DEFAULT NULL,
+    ADD COLUMN `infoimpound` longtext DEFAULT NULL,
+    ADD COLUMN `lastparking` longtext DEFAULT NULL,
+    ADD COLUMN `lastposition` longtext DEFAULT NULL,
+    ADD COLUMN `amigos` longtext DEFAULT NULL;
+
