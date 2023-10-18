@@ -140,10 +140,7 @@ function ServerInventoryKeys(data, action)
         end
     end
 end
-AddEventHandler('ServerInventoryKeys', function (data, action)
-    print(data,action)
 
-end)
 
 RegisterNetEvent('ServerInventoryKeys', ServerInventoryKeys)
 

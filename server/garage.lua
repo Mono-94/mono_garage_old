@@ -676,7 +676,7 @@ if Garage.Persistent then
         end
     end)
 
-    RegisterCommand('in', function(source)
+    --[[RegisterCommand('in', function(source)
         local xPlayer = ESX.GetPlayerFromId(source)
         local results = MySQL.query.await("SELECT * FROM owned_vehicles")
         if results[1] ~= nil then
@@ -738,7 +738,7 @@ if Garage.Persistent then
                 end
             end
         end
-    end)
+    end)]]
 end
 
 
@@ -793,6 +793,32 @@ lib.addCommand(Garage.Commands.givecar, {
         end
     end
 end)
+-- Command /spawncar
+lib.addCommand(Garage.Commands.spawncar, {
+    help = locale('setearcar2'),
+    restricted = Garage.Commands.Group,
+    params = {
+        {
+            name = 'target',
+            type = 'playerId',
+            help = 'Target player\'s server id',
+        },
+        {
+            name = 'model',
+            type = 'string',
+            help = 'Vehicle Model. (sultan,t20,burrito)',
+        },
+        {
+            name = 'time',
+            type = 'number',
+            help = 'Time to delete vehicle, 1 = 1 min',
+            optional = true,
+        },
+    },
+}, function(source, args)
+    local plate = GeneratePlate()
+    local Ped = GetPlayerPed(args.target)
+    local inCar = GetVehiclePedIsIn(Ped, false)
 
 -- Command /spawncar
 lib.addCommand(Garage.Commands.spawncar, {

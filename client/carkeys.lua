@@ -149,7 +149,7 @@ if Garage.Mono_Carkeys then
         local veh = GetVehiclePedIsTryingToEnter(ped)
         local lock = GetVehicleDoorLockStatus(veh)
         if DoesEntityExist(veh) then
-            if lock == 2 then
+            if lock == 2  then
                 ClearPedTasks(ped)
             end
 
