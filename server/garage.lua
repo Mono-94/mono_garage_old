@@ -819,7 +819,7 @@ lib.addCommand(Garage.Commands.spawncar, {
     local plate = GeneratePlate()
     local Ped = GetPlayerPed(args.target)
     local inCar = GetVehiclePedIsIn(Ped, false)
-
+end)
 -- Command /spawncar
 lib.addCommand(Garage.Commands.spawncar, {
     help = locale('setearcar2'),
