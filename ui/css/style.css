@@ -1,0 +1,205 @@
+body {
+  width: 100vw;
+  height: 100vh;
+  user-select: none;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+}
+
+
+
+.menu-garage {
+  position: absolute;
+  right: 10%;
+  top: 30%;
+  width: 400px;
+  height: auto;
+  max-width: 600px;
+  background-color: rgba(31, 31, 31, 0.950);
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.vehicle-list {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.vehicle-list::-webkit-scrollbar {
+  width: 0px;
+}
+
+button {
+  border-radius: 3px;
+  color: rgb(156, 203, 241);
+  height: 25px;
+  border: none;
+  font-size: 13.5px;
+  background-color: #2c415a;
+  transition: transform 0.2s; 
+}
+
+button:hover {
+  transform: scale(1.05); 
+}
+
+.retirar,
+.compartir{
+  width: 80px;
+}
+.deposito{
+  width: 80px;
+  height: auto;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.menu-titulo {
+  color: white;
+  font-size: 20px;
+  padding: 3px;
+  letter-spacing: 3px;
+  text-shadow: 0px 0px 2px rgb(136, 136, 136);
+}
+
+.vehicle-parking {
+  font-weight: bold;
+  background-color: #2aa52a54;
+  border-radius: 3px;
+  color: #afe9af;
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+.cerrar {
+  font-size: 12px;
+  position: absolute;
+  color: rgb(231, 105, 105);
+  right: 10px;
+}
+
+
+.vehicle-carta {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(65, 65, 65);
+  color: rgb(253, 253, 253);
+  border-radius: 3px;
+  margin-bottom: 3px;
+  padding: 7px 7px;
+}
+
+
+.vehicle-carta.expanded .vehicle-options {
+  display: flex;
+  opacity: 1;
+}
+
+
+.vehicle-info {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  text-align: center;
+
+}
+
+.vehicle-name {
+  font-size: 15px;
+  font-style: unset;
+  letter-spacing: 0.5px;
+  text-shadow: 0px 0px 2px rgb(136, 136, 136);
+
+}
+
+.vehicle-plate {
+  font-weight: bold;
+  width:  70px;
+  padding: 2px;
+  color: rgb(0, 0, 0);
+  background-color: rgb(226, 224, 224);
+
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.expandir {
+  color: rgb(255, 255, 255);
+  font-size: 15px;
+  background-color: #03030300;
+}
+
+
+
+.vehicle-options {
+  display: none;
+  align-items: center;
+  background-color: rgb(31, 31, 31);
+  margin-top: 5px;
+  padding: 0 10px;
+  border-radius: 3px;
+  opacity: 0; /* Inicialmente, establece la opacidad en 0 */
+  transition: opacity 0.3s ease; /* Agrega una transición suave de opacidad */
+}
+
+.botones {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.status {
+  flex-grow: 1; /* Hace que la barra de status ocupe el espacio restante */
+  display: flex; 
+  flex-direction: column;
+  margin-bottom: 5px;
+  margin-left: 10px;
+}
+
+.fuel {
+  height: 5px;
+  background-color: rgba(87, 155, 149, 0.897);
+  border-radius: 2px;
+  width: 100%; /* Establece el ancho de la barra según la variable */
+  max-width: 100%;
+}
+
+.body {
+  height: 5px;
+  background-color: rgb(224, 172, 112, 0.897);
+  border-radius: 2px;
+  width: 100%; /* Establece el ancho de la barra según la variable */
+  max-width: 100%;
+}
+
+.engine {
+  height: 5px;
+  background-color: rgba(157, 224, 112, 0.897);
+  border-radius: 2px;
+  width: 100%; /* Establece el ancho de la barra según la variable */
+  max-width: 100%;
+  margin-bottom: 5px;
+}
+
+.fuel-text,
+.body-text,
+.engine-text {
+  font-size: 12px;
+  color: rgb(136, 136, 136);
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.fa-caret-down {
+  transition: transform 0.5s ease;
+}
+
+.expanded .fa-caret-down {
+  transform: rotate(180deg);  
+}
+
+

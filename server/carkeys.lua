@@ -4,23 +4,14 @@ if Garage.Mono_Carkeys then
 
     local ox_inventory = exports.ox_inventory
 
-    RegisterServerEvent('mono_carkeys:DeleteKey', function(count, plate)
-        ox_inventory:RemoveItem(source, Keys.ItemName, count, { plate = plate, description = locale('key_description', plate) })
-    end)
 
-    RegisterServerEvent('mono_carkeys:CreateKey', function(plate)
-        ox_inventory:AddItem(source, Keys.ItemName, 1, { plate = plate, description = locale('key_description', plate) })
-    end)
-
-    
     RegisterServerEvent('mono_carkeys:BuyKeys', function(plate, precio)
         local source = source
         local xPlayer = ESX.GetPlayerFromId(source)
         if ox_inventory:CanCarryItem(source, Keys.ItemName, 1) then
             if xPlayer.getMoney() >= precio then
                 exports.ox_inventory:RemoveItem(source, 'money', precio)
-                ox_inventory:AddItem(source, Keys.ItemName, 1,
-                    { plate = plate, description = locale('key_description', plate) })
+                ServerInventoryKeys({player = source, plate = plate}, 'add')
                 TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('llavecomprada', precio),
                     'key', '#fffff  ')
             else
@@ -30,7 +21,7 @@ if Garage.Mono_Carkeys then
         end
     end)
 
-    lib.callback.register('mono_carkeys:getVehicles', function(source)
+    lib.callback.register('mono_carkeys:getVehicles', function(source, data)
         local xPlayer = ESX.GetPlayerFromId(source)
         local identifier = xPlayer.getIdentifier()
         local vehicles = {}
@@ -83,16 +74,8 @@ if Garage.Mono_Carkeys then
                                         ['@newVehicle'] = newVehicle
                                     }, function(rowsChanged)
                                         if rowsChanged > 0 then
-                                            local count = exports.ox_inventory:GetItem(source, Keys.ItemName,
-                                                { plate = oldPlate, description = locale('key_description', oldPlate) },
-                                                true)
-
-                                            exports.ox_inventory:RemoveItem(source, Keys.ItemName, count,
-                                                { plate = oldPlate, description = locale('key_description', oldPlate) })
-
-                                            ox_inventory:AddItem(source, Keys.ItemName, count,
-                                                { plate = newPlate, description = locale('key_description', newPlate) })
-
+                                            InventoryKeys({ player = source, plate = oldPlate }, 'remove')
+                                            InventoryKeys({ player = source, plate = newPlate }, 'add')
                                             ox_inventory:RemoveItem(source, Keys.ItemPlate, 1)
                                             TriggerClientEvent('mono_carkeys:SetVehiclePlate', source, entity, newPlate,
                                                 color)
@@ -112,50 +95,29 @@ if Garage.Mono_Carkeys then
     end)
 
 
-
-
-
     --Commands
 
     lib.addCommand(Keys.CommandGiveKey, {
         help = locale('givekey'),
         params = {
             {
-                name = 'ID',
+                name = 'target',
                 help = locale('helpgivekey'),
+                type = 'number',
                 optional = true,
             },
         },
         restricted = 'group.admin'
     }, function(source, args)
-        local id = args.ID or source
-        if args.ID ~= nil then
-            TriggerClientEvent('mono_carkeys:AddKeysCars', id)
+        local id = args.target or source
+        local Ped = GetPlayerPed(id)
+        local inCar = GetVehiclePedIsIn(Ped, false)
+        local plate = GetVehicleNumberPlateText(inCar)
+        if plate == nil then
+            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), 'El jugador no esta en un vehículo', 'error')
         else
-            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), 'debes poner una ID', 'error')
+            InventoryKeys({ player = id, plate = plate }, 'add')
         end
-    end)
-
-
-    lib.addCommand(Keys.CommandDelKey, {
-        help = locale('givekey'),
-        params = {
-            {
-                name = 'id',
-                help = locale('helpgivekey'),
-                optional = true,
-            },
-            {
-                name = 'count',
-                help = locale('helpgivekeycount'),
-                optional = true,
-            },
-
-        },
-        restricted = 'group.admin'
-    }, function(source, args)
-        local id = args.ID or source
-        TriggerClientEvent('mono_carkeys:DeleteClientKey', id, args.count)
     end)
 
 
@@ -167,18 +129,20 @@ if Garage.Mono_Carkeys then
         local status = GetVehicleDoorLockStatus(vehicle)
         if status == 2 then
             SetVehicleDoorsLocked(vehicle, 0)
-            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('unlock_veh'), 'lock-open',
-                '#32a852')
+            if not Keys.Progress then
+                TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('unlock_veh'),
+                    'lock-open',
+                    '#32a852')
+            end
         elseif status == 0 or 1 then
             SetVehicleDoorsLocked(vehicle, 2)
-            TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('lock_veh'), 'lock',
-                '#a83254')
+            if not Keys.Progress then
+                TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), locale('lock_veh'), 'lock',
+                    '#a83254')
+            end
         end
-        TriggerClientEvent('mono_carkeys:LucesLocas', source, id, status ~= 2)
+
+        TriggerClientEvent('mono_carkeys:SetSoundsAndLights', -1, id, status)
     end)
+
 end
-
-
-
-
-

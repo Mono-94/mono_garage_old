@@ -1,0 +1,26 @@
+{
+  "SelectLang": "en",
+  "languages": {
+    "es": {
+      "fuel": "Gasolina",
+      "body": "Carrocería",
+      "engine": "Motor",
+      "fuera": "Fuera",
+      "dentro": "Dentro",
+      "deposito": "Enviar al depósito",
+      "retirar": "Retirar",
+      "compartir": "Compartir"
+    },
+    
+    "en": {
+      "fuel": "Fuel",
+      "body": "Body",
+      "engine": "Engine",
+      "fuera": "Outside",
+      "dentro": "Inside",
+      "deposito": "Send to deposit",
+      "retirar": "Retrieve",
+      "compartir": "Share"
+    }
+  }
+}

@@ -1,13 +1,13 @@
--- GetType
+-- Get Vehicle type
 function GetVehicleCategory(vehicle)
     local ListaCategoria = {}
-
     VehicleCategories = {
         ['car'] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 17, 19, 13, 20, 18 },
         ['boat'] = { 14 },
         ['air'] = { 15, 16 },
 
     }
+
     local function GetClase()
         local clase = GetVehicleClass(vehicle)
         return clase
@@ -22,8 +22,59 @@ function GetVehicleCategory(vehicle)
     return ListaCategoria[GetClase()]
 end
 
--- Blips
+-- Export InventoryKeys
+exports('ClientInventoryKeys', function (plate, action)
+    TriggerServerEvent('InventoryKeys', {player = cache.serverId, plate = plate}, action)
+end)
 
+
+
+-- Get Vehicle Icon ox_lib menu
+function GetVehicleIcon(name)
+    local class = GetVehicleClassFromName(name)
+    local icons = {
+        [8]  = 'motorcycle',
+        [2]  = 'truck-pickup',
+        [15] = 'helicopter',
+        [16] = 'plane',
+        [14] = 'ship',
+    }
+    return icons[class] or 'car'
+end
+
+-- Text UI
+function TextUI(msg)
+    if Garage.textui == 'custom' then
+        exports['mono_textui']:TextUI(msg)
+    elseif Garage.textui == 'ox_textui' then
+        lib.showTextUI(msg, { icon = 'car' })
+    elseif Garage.textui == 'esx_textui' then
+        ESX.TextUI(msg)
+    end
+end
+
+function CloseTextUI()
+    if Garage.textui == 'custom' then
+        exports['mono_textui']:TextUIOff()
+    elseif Garage.textui == 'ox_textui' then
+        lib.hideTextUI()
+    elseif Garage.textui == 'esx_textui' then
+        ESX.HideUI()
+    end
+end
+
+--Notification
+RegisterNetEvent('mono_garage:Notification', function(msg)
+    lib.notify({
+        title = locale('Garaje'),
+        description = msg,
+        position = 'top',
+        icon = 'car',
+        iconColor = 'rgb(36,116,255)'
+    })
+end)
+
+-- Create Blips
 function CrearBlip(pos, sprite, scale, colorblip, blipName)
     local blip = AddBlipForCoord(pos)
     SetBlipSprite(blip, sprite)
@@ -37,8 +88,7 @@ function CrearBlip(pos, sprite, scale, colorblip, blipName)
     return blip
 end
 
--- NPC
-
+-- Create NPC
 function CreateNPC(NPCHash, NPCPos)
     RequestModel(NPCHash)
     while not HasModelLoaded(NPCHash) do
@@ -55,130 +105,133 @@ function CreateNPC(NPCHash, NPCPos)
     return NPC
 end
 
--- Give Vehicle
-
-RegisterNetEvent('mono_garage:GiveVehicle', function()
-    local playerVehicle = cache.vehicle
-
-    local props = lib.getVehicleProperties(playerVehicle)
-    local plate = SP(props.plate)
-    if playerVehicle then
-        local opt = {}
-        for k, v in pairs(Garage.Garages) do
-            if not v.impound and not v.job then
-                table.insert(opt, { label = k, value = k })
-            end
-        end
-        local input = lib.inputDialog('GiveCar', {
-            { type = 'select', label = 'Select garage', required = true, options = opt },
-        })
-        if not input then return end
-
-
-
-        TriggerServerEvent('mono_garage:SetCarDB', props, plate, input[1])
-    else
-        TriggerEvent('mono_garage:Notification', locale('dentrocar'))
-    end
-end)
-
-
---[[ Get Total Km
-
-function GetTotalKm(plate)
-    local totalkm = lib.callback.await('mono_garage:GetTotalKm', source, SP(plate))
-    local equivalenteEnKilometros = tonumber(totalkm) / 520.000
-    local formattedEquivalente = string.format("%.1f", equivalenteEnKilometros)
-    return formattedEquivalente
-end
-
-exports('GetTotalKm', GetTotalKm)]]
-
--- Save Vehicle
-
+-- Save Vehicles
 function SaveVehicle(data)
-    if data.distance == nil or data.distance > 5 then
-        data.distance = 2.5
+    if data.distance == nil or data.distance > 5 then data.distance = 2.5 end
+    if data.entity == nil then
+        data.entity = lib.getClosestVehicle(cache.coords, data.distance, true)
     end
-    local vehicle = lib.getClosestVehicle(cache.coords, data.distance, true)
-    if vehicle then
-        local vehicleProps = lib.getVehicleProperties(vehicle)
-        local plate = SP(vehicleProps.plate)
-        if data.type == 'all' then
-            TriggerServerEvent('mono_garage:GuardarVehiculo', plate, vehicleProps, data.garage,
-                VehToNet(vehicle))
-        elseif GetVehicleCategory(vehicle) == data.type then
-            TriggerServerEvent('mono_garage:GuardarVehiculo', plate, vehicleProps, data.garage,
-                VehToNet(vehicle))
+    if DoesEntityExist(data.entity) then
+        if data.entity then
+            data.vehicleProps = lib.getVehicleProperties(data.entity)
+            data.vehicleType = GetVehicleCategory(data.entity)
+            data.plate = SP(data.vehicleProps.plate)
+            data.VehType = GetVehicleCategory(data.entity)
+            data.model = string.lower(GetDisplayNameFromVehicleModel(GetEntityModel(data.entity)))
+            data.entity = VehToNet(data.entity)
+            if data.type == 'custom' then
+                TriggerServerEvent('mono_garage:SaveVechile', data)
+            elseif data.type == 'all' then
+                TriggerServerEvent('mono_garage:SaveVechile', data)
+            elseif data.VehType == data.type then
+                TriggerServerEvent('mono_garage:SaveVechile', data)
+            else
+                TriggerEvent('mono_garage:Notification', locale('NoAqui'))
+            end
         else
-            TriggerEvent('mono_garage:Notification', locale('NoAqui'))
+            if not data.entity then return end
+            TriggerEvent('mono_garage:Notification', locale('mascerca'))
         end
     else
-        TriggerEvent('mono_garage:Notification', locale('mascerca'))
+        return
     end
 end
 
 exports('SaveVehicle', SaveVehicle)
 
 
+--  Plate Equal
+function PlateEqual(valor1, valor2)
+    valor1 = tostring(valor1)
+    valor2 = tostring(valor2)
+
+    valor1 = valor1:gsub("%s", ""):lower()
+    valor2 = valor2:gsub("%s", ""):lower()
+
+    return valor1 == valor2
+end
+
+--Is clear area vehicles
 function SpawnClearArea(pos, maxdistance)
-    local vehicle = {}
+    local playerpos = GetEntityCoords(PlayerPedId())
+    local distancia, cerca, heading, coords = math.huge, nil, nil, nil
 
-    for k, v in pairs(GetGamePool('CVehicle')) do
-        local distance = #(vector3(pos.x, pos.y, pos.z) - GetEntityCoords(v))
+    for _, v in ipairs(pos) do
+        local spawnPos = vector3(v.x, v.y, v.z)
+        local distance = #(playerpos - spawnPos)
 
-        if distance <= maxdistance then
-            vehicle[#vehicle + 1] = k or v
+        if distance < distancia then
+            local isClear = true
+            for k, vehicle in pairs(GetGamePool('CVehicle')) do
+                local vehicleDistance = #(vector3(spawnPos.x, spawnPos.y, spawnPos.z) - GetEntityCoords(vehicle))
+                if vehicleDistance <= maxdistance then
+                    isClear = false
+                    break
+                end
+            end
+
+            if isClear then
+                distancia, coords, heading = distance, spawnPos, v.w
+            end
         end
     end
 
-    return #vehicle == 0
+    return coords, heading, distancia
 end
 
--- Fade In
-
+-- Fade In entity
 function FadeInEntity(entity)
-    local fadeCount = 5
-    local fadeDuration = 200
-
-    NetworkFadeInEntity(entity, false)
-
-    for i = 1, fadeCount do
-        Wait(fadeDuration)
+    if DoesEntityExist(entity) then
+        local fadeCount = 5
+        local fadeDuration = 200
+        NetworkFadeInEntity(entity, false)
+        for i = 1, fadeCount do
+            Wait(fadeDuration)
+            NetworkFadeInEntity(entity, true)
+        end
         NetworkFadeInEntity(entity, true)
     end
-
-    NetworkFadeInEntity(entity, true)
 end
 
--- Fade Out
-
+-- Fade Out entity
 RegisterNetEvent('mono_garage:FadeOut', function(vehicle)
-    NetworkFadeOutEntity(NetToVeh(vehicle), false, true)
+    local entity = NetToVeh(vehicle)
+    if DoesEntityExist(entity) then
+        NetworkFadeOutEntity(entity, false, true)
+    end
 end)
 
 -- StateBag Props
-
 AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _unused, replicated)
     if not value then return end
-
     local entity = bagName:gsub('entity:', '')
-
     while not NetworkDoesEntityExistWithNetworkId(tonumber(entity)) do
         Wait(0)
     end
-
     local vehicle = NetToVeh(tonumber(entity))
-
-    FadeInEntity(vehicle)
-
     while NetworkGetEntityOwner(vehicle) ~= PlayerId() do
         Wait(0)
     end
-
-    SetVehicleEngineOn(vehicle, false, false, true)
-
-    lib.setVehicleProperties(vehicle, value)
+    FadeInEntity(vehicle)
+    if value.custom then
+        if Garage.Fuel == 'LegacyFuel' then
+            exports["LegacyFuel"]:SetFuel(vehicle, 100)
+        elseif Garage.Fuel == 'esx-sna-fuel' then
+            exports['esx-sna-fuel']:ApplyFuel(vehicle, 100)
+        end
+        SetVehicleEngineOn(vehicle, false, false, true)
+        if value.props then
+            lib.setVehicleProperties(vehicle, value.props)
+        end
+    else
+        if Garage.Fuel == 'LegacyFuel' then
+            exports["LegacyFuel"]:SetFuel(vehicle, value.fuelLevel)
+        elseif Garage.Fuel == 'esx-sna-fuel' then
+            exports['esx-sna-fuel']:ApplyFuel(vehicle)
+        end
+        SetVehicleEngineOn(vehicle, false, false, true)
+        lib.setVehicleProperties(vehicle, value)
+    end
 
     Entity(vehicle).state:set('CrearVehiculo', nil, true)
 end)
@@ -189,22 +242,24 @@ function SP(plate)
     return string.gsub(plate, "^%s*(.-)%s*$", "%1")
 end
 
---- Garage notifications
+-- Test String VehiclePropertis / Copy
+function StringVehicleProps()
+    local props = lib.getVehicleProperties(cache.vehicle)
+    local input = json.encode(props)
+    local step1 = input:gsub('"', '')
+    local step2 = step1:gsub(':', '=')
+    local step3 = step2:gsub('%[', '{')
+    local step4 = step3:gsub('%]', '}')
+    local function replaceExtras(match)
+        return match:gsub('{(.-)}', function(inner)
+            return inner:gsub('(%d+):(%d+)', '[%1] = %2')
+        end)
+    end
 
---<-------------------------------------->--
+    local step5 = step4:gsub('extras:(%b{})', replaceExtras)
 
---Notification
-
-RegisterNetEvent('mono_garage:Notification', function(msg)
-    lib.notify({
-        title = locale('Garaje'),
-        description = msg,
-        position = 'top',
-        icon = 'car',
-        iconColor = 'rgb(36,116,255)'
-    })
-end)
-
+    return lib.setClipboard(step5)
+end
 
 ---Copi coords
 
@@ -233,21 +288,20 @@ if Garage.RadialCopyCoords then
                 end
             },
             {
-                label = 'vector3(0,0,0)',
+                label = 'vec3(0,0,0)',
                 onSelect = function()
                     local ped = cache.ped
                     local coords = GetEntityCoords(ped)
-                    lib.setClipboard('vec3(' .. coords.x .. ',' .. coords.y .. ',' .. coords.z .. ')')
+                    lib.setClipboard('vec3(' .. coords.x .. ',' .. coords.y .. ',' .. coords.z .. '),')
                 end
             },
             {
-                label = 'vector4(0,0,0)',
+                label = 'vecc4(0,0,0)',
                 onSelect = function()
                     local ped = cache.ped
                     local coords = GetEntityCoords(ped)
                     local heading = GetEntityHeading(ped)
-                    lib.setClipboard('vec4(' .. coords.x .. ', ' .. coords.y .. ',' ..
-                        coords.z .. ',' .. heading .. '),')
+                    lib.setClipboard('vec4(' .. coords.x .. ', ' .. coords.y .. ',' .. coords.z .. ',' .. heading .. '),')
                 end
             },
             {
@@ -257,6 +311,71 @@ if Garage.RadialCopyCoords then
                     lib.setClipboard(GetEntityHeading(ped))
                 end
             },
+            {
+                label = 'StringVehicleProps',
+                onSelect = function()
+                    StringVehicleProps()
+                end
+            }
         }
+    })
+end
+
+
+for k, v in pairs(Garage.Garages) do
+    exports.ox_target:addGlobalVehicle({
+        icon = 'fa-solid fa-share',
+        label = locale('Extras1'),
+        groups = v.job,
+        distance = 2,
+        canInteract = function(entity, distance, coords, name, bone)
+            if v.jobcar ~= nil then
+                for modelo, nombre in pairs(v.jobcar) do
+                    if string.lower(GetDisplayNameFromVehicleModel(GetEntityModel(entity))) == nombre.model then
+                        return entity, distance, coords, name, bone
+                    end
+                end
+            end
+        end,
+        onSelect = function(data)
+            local extras = {}
+            for i = 1, 25 do
+                if not DoesExtraExist(data.entity, i) then
+                    goto aqui
+                end
+
+                local extraTurnedOn = IsVehicleExtraTurnedOn(data.entity, i)
+
+                extras[#extras + 1] = {
+                    label = ('Extra %d'):format(i),
+                    close = true,
+                    values = { locale('Extras2'), locale('Extras1'), },
+
+                    defaultIndex = extraTurnedOn and 1 or 2,
+                }
+
+                ::aqui::
+            end
+
+            if #extras > 0 then
+                lib.registerMenu({
+                    id = 'menu:extras',
+                    title = locale('Extras4'),
+                    position = 'top-right',
+                    options = extras,
+                    onSideScroll = function(selected, index)
+                        SetVehicleExtra(data.entity, selected, index - 1)
+                    end
+                }, function(selected, scr, args)
+                    if Garage.Debug.Prints then
+                        print(selected, scr, args)
+                    end
+                end)
+
+                lib.showMenu('menu:extras')
+            else
+                TriggerEvent('mono_garage:Notification', locale('Extras4'))
+            end
+        end
     })
 end

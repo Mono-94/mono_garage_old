@@ -14,7 +14,6 @@ if VehEntity.FindKeys.FindKey then
                     return TriggerEvent('mono_carkeys:Notification', locale('title'), 'Este vehiculo te pertenese')
                 end
             end
-
             if not searchedVehicles[plate] then
                 if lib.progressBar({
                         duration = VehEntity.FindKeys.ProgressTime,
