@@ -24,7 +24,7 @@ end
 
 -- Export InventoryKeys
 exports('ClientInventoryKeys', function (plate, action)
-    TriggerServerEvent('InventoryKeys', {player = cache.serverId, plate = plate}, action)
+    TriggerServerEvent('ServerInventoryKeys', {player = cache.serverId, plate = plate}, action)
 end)
 
 
