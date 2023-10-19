@@ -366,10 +366,10 @@ function OpenGarage(info)
                         arrow = true,
                         metadata = {
                             { label = locale('VehDescri'), value = data.parking },
-                            {
+                           {
                                 label = locale('VehDescrigas'),
-                                value = (props.fuelLevel and math.floor(props.fuelLevel / 10) .. '%' or '100%'),
-                                progress = (props.fuelLevel and math.floor(props.fuelLevel / 10) or 100),
+                                value = (props.fuelLevel and props.fuelLevel ..'%' or '100%'),
+                                progress = (props.fuelLevel and props.fuelLevel  or 100),
                             },
                             {
                                 label = 'Engine ',
