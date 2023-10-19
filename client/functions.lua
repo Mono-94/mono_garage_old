@@ -23,8 +23,8 @@ function GetVehicleCategory(vehicle)
 end
 
 -- Export InventoryKeys
-exports('ClientInventoryKeys', function (plate, action)
-    TriggerServerEvent('InventoryKeys', {player = cache.serverId, plate = plate}, action)
+exports('ClientInventoryKeys', function(plate, action)
+    TriggerServerEvent('InventoryKeys', { player = cache.serverId, plate = plate }, action)
 end)
 
 
@@ -209,10 +209,13 @@ AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _un
         Wait(0)
     end
     local vehicle = NetToVeh(tonumber(entity))
+
+    FadeInEntity(vehicle)
+    
     while NetworkGetEntityOwner(vehicle) ~= PlayerId() do
         Wait(0)
     end
-    FadeInEntity(vehicle)
+    
     if value.custom then
         if Garage.Fuel == 'LegacyFuel' then
             exports["LegacyFuel"]:SetFuel(vehicle, 100)
@@ -220,9 +223,7 @@ AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _un
             exports['esx-sna-fuel']:ApplyFuel(vehicle, 100)
         end
         SetVehicleEngineOn(vehicle, false, false, true)
-        if value.props then
-            lib.setVehicleProperties(vehicle, value.props)
-        end
+        lib.setVehicleProperties(vehicle, value.props) 
     else
         if Garage.Fuel == 'LegacyFuel' then
             exports["LegacyFuel"]:SetFuel(vehicle, value.fuelLevel)
@@ -230,9 +231,9 @@ AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _un
             exports['esx-sna-fuel']:ApplyFuel(vehicle)
         end
         SetVehicleEngineOn(vehicle, false, false, true)
-        lib.setVehicleProperties(vehicle, value)
-    end
+        lib.setVehicleProperties(vehicle, value) 
 
+    end
     Entity(vehicle).state:set('CrearVehiculo', nil, true)
 end)
 
