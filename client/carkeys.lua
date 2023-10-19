@@ -228,7 +228,15 @@ if Garage.Mono_Carkeys then
         if not IsPedInAnyVehicle(ped, false) then
             return
         end
-
+        
+        -- Comprobar si el jugador está en el asiento del conductor (asiento 0)
+        local driverPed = GetPedInVehicleSeat(vehicle, -1)
+        if driverPed ~= ped then
+            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('not_in_driver_seat'), 'car',
+                '#3232a8')
+            return
+        end
+        
         if not GetPlayerKey() then
             TriggerEvent('mono_carkeys:Notification', locale('title'), locale('key_not_owned_car'), 'car',
                 '#3232a8')
