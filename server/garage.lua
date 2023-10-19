@@ -8,7 +8,6 @@ local function CrearVehiculo(data, cb)
     Citizen.CreateThread(function()
         data.entity = CreateVehicleServerSetter(data.model, "automobile", data.coords.x, data.coords.y, data.coords.z,
             data.heading)
-
         while not DoesEntityExist(data.entity) do
             Citizen.Wait(1)
         end
@@ -29,7 +28,6 @@ local function CrearVehiculo(data, cb)
                 Entity(data.entity).state.fuel = data.props.fuelLevel
             end
         end
-
         Bug('Function CrearVehiculo', 'Vehicle Spawned, Entity %s', data.entity)
 
         cb(data.entity)
@@ -291,6 +289,10 @@ RegisterServerEvent('mono_garage:SaveVechile', function(data)
                     { json.encode(data.vehicleProps), data.garage, data.type, result.plate },
                     function(rowsChanged)
                         if rowsChanged > 0 then
+                            if vehiclesSpawned[result.plate] and vehiculoCreado[vehiclesSpawned[result.plate].entity] then
+                                vehiculoCreado[vehiclesSpawned[result.plate].entity] = nil
+                                vehiclesSpawned[result.plate] = nil
+                            end
                             PlayerOutCar({ entity = entity, plate = result.plate, count = 1, player = source })
                         else
                             Noti(source, locale('SERVER_ErrorGuardad'))
@@ -667,7 +669,10 @@ if Garage.Persistent then
                     MySQL.update('UPDATE owned_vehicles SET lastposition = ?, stored = 2 WHERE plate = ?',
                         { json.encode(posTable), plate }, function()
                             DeleteEntity(vehiclesSpawned[plate].entity)
-                            vehiclesSpawned[plate] = nil
+                            if vehiclesSpawned[plate] and vehiculoCreado[vehiclesSpawned[plate].entity] then
+                                vehiculoCreado[vehiclesSpawned[plate].entity] = nil
+                                vehiclesSpawned[plate] = nil
+                            end
                             Bug('Vehicle Save persistent', 'Plate = %s, Position = %s, Doors =%s', plate,
                                 Pos, Doors)
                         end)
@@ -768,7 +773,8 @@ lib.addCommand(Garage.Commands.givecar, {
     },
 }, function(source, args)
     local plate = GeneratePlate()
-    local parking = tostring((args.garage and args.garage:gsub("_", " ")) or (Garage and Garage.Commands and Garage.Commands.defaultGarage))
+    local parking = tostring((args.garage and args.garage:gsub("_", " ")) or
+        (Garage and Garage.Commands and Garage.Commands.defaultGarage))
     local xPlayer = ESX.GetPlayerFromId(args.target)
     local Ped = GetPlayerPed(args.target)
     local inCar = GetVehiclePedIsIn(Ped, false)
@@ -780,12 +786,13 @@ lib.addCommand(Garage.Commands.givecar, {
         Noti(source, locale('setcardb_enpropiedad', plate))
     else
         if inCar <= 0 then
-            CrearVehiculo({ model = args.model, coords = coords, heading = heading, props = false, plate = plate },
+            local props = json.encode(Properties)
+            CrearVehiculo({ model = args.model, coords = coords, heading = heading, props = props, plate = plate },
                 function(vehicle)
                     PlayerToCar({ player = args.target, plate = plate, entity = vehicle, intocar = true, impound = true })
-                    local jsonVehicleData = json.encode(Properties)
+
                     MySQL.update.await("INSERT INTO owned_vehicles (owner, plate, vehicle,parking) VALUES (?, ?, ?, ?)",
-                        { xPlayer.identifier, plate, jsonVehicleData,parking})
+                        { xPlayer.identifier, plate, props, parking })
                     Noti(args.target, locale('setcardb_agregado', plate))
                 end)
         else

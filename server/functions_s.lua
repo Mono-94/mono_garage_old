@@ -43,7 +43,7 @@ function PlateCount(platecounted, table)
     end
     local cantidad = 0
     for entity, plate in pairs(table) do
-        if PlateEqual(plate,platecounted) then
+        if PlateEqual(plate, platecounted) then
             cantidad = cantidad + 1
             if cantidad > 1 then
                 return true
@@ -121,7 +121,7 @@ function ServerInventoryKeys(data, action)
             elseif Garage.Inventory == 'custom' then
                 Garage.FunctionKeys()
             elseif Garage.Inventory == 'qb' then
-            --  Player.Functions.AddItem(item, amount, nil, info)
+                --  Player.Functions.AddItem(item, amount, nil, info)
             end
         elseif action == 'remove' then
             if Garage.CarKeys then
@@ -140,7 +140,6 @@ function ServerInventoryKeys(data, action)
         end
     end
 end
-
 
 RegisterNetEvent('ServerInventoryKeys', ServerInventoryKeys)
 
@@ -241,7 +240,10 @@ if Garage.Version then
                 local version = string.sub(result, string.find(result, "%d.%d.%d"))
 
                 if tonumber((version:gsub("%D+", ""))) > tonumber((actual:gsub("%D+", ""))) then
-                    print('^6MONO GARAGE^7  - The version ^2' .. version ..'^0 is available, you are still using version ^1' .. actual .. ', ^0Download the new version at: https://github.com/Mono-94/mono_garage')
+                    print('^6MONO GARAGE^7  - The version ^2' ..
+                        version ..
+                        '^0 is available, you are still using version ^1' ..
+                        actual .. ', ^0Download the new version at: https://github.com/Mono-94/mono_garage')
                 else
                     print('^6MONO GARAGE^7 - You are using the latest version of the script.')
                 end
