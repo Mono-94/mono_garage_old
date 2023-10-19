@@ -36,11 +36,9 @@ local function CrearVehiculo(data, cb)
     end)
 end
 
--- Delete duplicate vehicle Plate
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(1000 * 10)
-        local duplicates = {}
+---Added cron to check every 10 minutes
+lib.cron.new("10 * * * *", function() 
+     local duplicates = {}
         for entity, plate in pairs(vehiculoCreado) do
             if PlateCount(plate, vehiculoCreado) then
                 table.insert(duplicates, entity)
@@ -53,8 +51,27 @@ Citizen.CreateThread(function()
                 vehiculoCreado[entityToRemove] = nil
             end
         end
-    end
 end)
+
+-- -- Delete duplicate vehicle Plate
+-- Citizen.CreateThread(function()
+--     while true do
+--         Citizen.Wait(1000 * 10)
+--         local duplicates = {}
+--         for entity, plate in pairs(vehiculoCreado) do
+--             if PlateCount(plate, vehiculoCreado) then
+--                 table.insert(duplicates, entity)
+--             end
+--         end
+--         if #duplicates > 0 then
+--             local entityToRemove = duplicates[1]
+--             if DoesEntityExist(entityToRemove) then
+--                 DeleteEntity(entityToRemove)
+--                 vehiculoCreado[entityToRemove] = nil
+--             end
+--         end
+--     end
+-- end)
 
 
 
