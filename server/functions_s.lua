@@ -3,8 +3,7 @@ local Thread = Citizen.CreateThread
 local wait = Citizen.Wait
 
 -- WEBHOOK LOGS TRANSFER VEHICLES!
-local webhook =
-'https://discord.com/api/webhooks/1162236750832345169/gbuH4OGEQrK-oI78MIb3cgtSAbcDiwCYGwuS5p9GYpJ0qGKcR4L4dUc99GNDI2vi1dht'
+local webhook = ''
 
 
 function Noti(player, text)
