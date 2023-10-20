@@ -115,7 +115,7 @@ if Garage.Mono_Carkeys then
         if plate == nil then
             TriggerClientEvent('mono_carkeys:Notification', source, locale('title'), 'El jugador no esta en un vehículo', 'error')
         else
-            InventoryKeys({ player = id, plate = plate }, 'add')
+            ServerInventoryKeys({ player = id, plate = plate }, 'add')
         end
     end)
 
