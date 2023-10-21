@@ -111,7 +111,7 @@ if Garage.Mono_Carkeys then
                 end
             end
         else
-            TriggerEvent('mono_carkeys:Notification', locale('title'), locale('no_veh_nearby'), 'car', '#3232a8')
+         --   TriggerEvent('mono_carkeys:Notification', locale('title'), locale('no_veh_nearby'), 'car', '#3232a8')
         end
     end
 

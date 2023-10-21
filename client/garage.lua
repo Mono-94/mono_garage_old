@@ -619,6 +619,7 @@ function VehicleSelected(data)
                     if not input then return end
                     data.garage = input[1]
                     data.money = input[2]
+                    
                     TriggerServerEvent('mono_garage:ChangeGarage', data)
                 end
             })

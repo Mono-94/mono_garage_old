@@ -1,5 +1,5 @@
 Garage.TestExport = {
-    TestExports = false,  -- true test commands | false none
+    TestExports = true,  -- true test commands | false none
     CustomExport = false, -- true = Garage DB / false custom cars    | /openGarage = test export OpenGarage() | /saveGarage export SaveVehicle()
     jobcar = {           -- Custom Exports Cars
         { model = 'sultan',  plate = 'MONOFIVE', text = 'M O N O !' },
