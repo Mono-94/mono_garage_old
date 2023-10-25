@@ -41,7 +41,6 @@ end
     while true do
         Citizen.Wait(1000 * 10)]]
 lib.cron.new('*/01 * * * *', function()
-    print('test!')
     local duplicates = {}
     for entity, plate in pairs(vehiculoCreado) do
         if PlateCount(plate, vehiculoCreado) then
@@ -136,7 +135,9 @@ lib.callback.register('mono_garage:GetVehicleCoords', function(source, plate1)
         local data = vehicles[i]
         if PlateEqual(data.plate, plate1) then
             local pos = json.decode(data.lastposition)
-            if pos == nil then
+            if pos then
+                return vec3(pos.x, pos.y, pos.z)
+            else
                 local allVeh = GetAllVehicles()
                 for i = 1, #allVeh do
                     local plate = GetVehicleNumberPlateText(allVeh[i])
@@ -145,7 +146,6 @@ lib.callback.register('mono_garage:GetVehicleCoords', function(source, plate1)
                     end
                 end
             end
-            return vec3(pos.x, pos.y, pos.z)
         end
     end
 end)
@@ -249,7 +249,7 @@ RegisterServerEvent('mono_garage:SaveVechile', function(data)
                 if v.jobcar ~= nil then
                     for modelo, nombre in pairs(v.jobcar) do
                         if data.model == nombre.model and PlateEqual(nombre.plate, plate) then
-                            PlayerOutCar({ entity = entity, plate = plate, count = 1, player = source })
+                            PlayerOutCar({ entity = entity, plate = nombre.plate, count = 1, player = source })
                             no = true
                             break
                         end
@@ -261,7 +261,7 @@ RegisterServerEvent('mono_garage:SaveVechile', function(data)
             local no = false
             for modelo, nombre in pairs(data.jobcar) do
                 if data.model == nombre.model and PlateEqual(nombre.plate, plate) then
-                    PlayerOutCar({ entity = entity, plate = plate, count = 1, player = source })
+                    PlayerOutCar({ entity = entity, plate = nombre.plate, count = 1, player = source })
                     no = true
                     break
                 end
@@ -524,15 +524,16 @@ RegisterNetEvent('mono_garage:ChangeGarage', function(data)
             if affectedRows > 0 then
                 Noti(source, locale('enviado', data.garage))
             else
-                Noti(source,locale('SERVER_RetirarImpoundError'))
+                Noti(source, locale('SERVER_RetirarImpoundError'))
             end
         end)
     else
         local function RetirarVehiculo(dinero)
-            print(dinero ,data.money)
+            print(dinero, data.money)
             if dinero >= data.priceSend then
                 print(2)
-                MySQL.update('UPDATE owned_vehicles SET parking = ?, stored = 1, pound = NULL, infoimpound = NULL    WHERE owner = ? and plate = ? ',
+                MySQL.update(
+                    'UPDATE owned_vehicles SET parking = ?, stored = 1, pound = NULL, infoimpound = NULL    WHERE owner = ? and plate = ? ',
                     {
                         data.garage, data.owner, data.plate
                     }, function(affectedRows)

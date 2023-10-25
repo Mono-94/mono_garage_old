@@ -16,7 +16,7 @@ Garage.Commands          = {     -- The vehicle you are in will be saved in the 
     Group = 'admin',
 }
 Garage.Persistent        = true        -- When a player disconnects and the vehicle is out of the garage it will be eliminated and saves the position so that when it reconnects it will appear in the same place.
-Garage.SELECT            ='TEXTUI'     -- TARGET = ox_target, RADIAL = ox_lib RadialMenu, TEXTUI = ox_lib, textUI or custuom in functions.lua
+Garage.SELECT            ='TARGET'     -- TARGET = ox_target, RADIAL = ox_lib RadialMenu, TEXTUI = ox_lib, textUI or custuom in functions.lua
 Garage.Inventory         = 'ox'        -- ox / qs
 Garage.textui            = 'custom' -- ox_textui / esx_textui / custom - client/functions.lua
 Garage.Fuel              = 'ox_fuel'   -- Ox_fuel / LegacyFuel / esx-sna-fuelLevel
@@ -749,11 +749,11 @@ Garage.Garages           = {
         SpawnCars      = true,
         jobcar         = {
             --  MODEL NAME        NUMBER/LABEL      MAX 8 CHARACTERS.
-            { model = 'pbus',    grade = 1,      plate = 'RAWPAPEL' },
-            { model = 'police',  grade = 2,      plate = 'RAWPAPEL' },
-            { model = 'police2', grade = 3,      plate = 'RAWPAPEL' },
-            { model = 'police3', grade = 4,      plate = 'RAWPAPEL' },
-            { model = 'police4', grade = 'boss', plate = 'RAWPAPEL' },
+            { model = 'pbus',    grade = 1,      plate = 'esx 420' },
+            { model = 'police',  grade = 2,      plate = 'esx 420' },
+            { model = 'police2', grade = 3,      plate = 'esx 420' },
+            { model = 'police3', grade = 4,      plate = 'esx 420' },
+            { model = 'police4', grade = 'boss', plate = 'esx 420' },
         },
         spawnpos       = {
             vec4(449.47247314453, -1025.0061035156, 28.157459259033, 7.5106601715088),
