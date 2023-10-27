@@ -223,7 +223,7 @@ AddStateBagChangeHandler('CrearVehiculo', nil, function(bagName, key, value, _un
             exports['esx-sna-fuel']:ApplyFuel(vehicle, 100)
         end
         SetVehicleEngineOn(vehicle, false, false, true)
-        lib.setVehicleProperties(vehicle, value.props) 
+       -- lib.setVehicleProperties(vehicle, value.props) 
     else
         if Garage.Fuel == 'LegacyFuel' then
             exports["LegacyFuel"]:SetFuel(vehicle, value.fuelLevel)
