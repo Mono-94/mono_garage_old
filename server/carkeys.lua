@@ -73,8 +73,8 @@ if Garage.Mono_Carkeys then
                                         ['@newVehicle'] = newVehicle
                                     }, function(rowsChanged)
                                         if rowsChanged > 0 then
-                                            InventoryKeys({ player = source, plate = oldPlate }, 'remove')
-                                            InventoryKeys({ player = source, plate = newPlate }, 'add')
+                                            ServerInventoryKeys({ player = source, plate = oldPlate }, 'remove')
+                                            ServerInventoryKeys({ player = source, plate = newPlate }, 'add')
                                             ox_inventory:RemoveItem(source, Keys.ItemPlate, 1)
                                             TriggerClientEvent('mono_carkeys:SetVehiclePlate', source, entity, newPlate,
                                                 color)

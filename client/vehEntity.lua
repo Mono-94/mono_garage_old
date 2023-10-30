@@ -70,146 +70,143 @@ end
 
 
 function LockPick()
-    for k, v in pairs(VehEntity.LockPick) do
-        local ped = cache.ped
-        local closet = lib.getClosestVehicle(cache.coords, 3, true)
-        local EstadoPuertas = GetVehicleDoorLockStatus(closet)
-        lib.requestAnimDict(v.animDict)
-        if closet then
-            if v.SkillCheck then
-                if EstadoPuertas == 1 then
-                    TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
-                        '#3232a8'
-                    )
-                    return
+    local config = VehEntity.LockPick
+    local ped = cache.ped
+    local vehicle, vehicleCoords = lib.getClosestVehicle(cache.coords, 3, true)
+    local DoorsStatus = GetVehicleDoorLockStatus(vehicle)
+    lib.requestAnimDict(config.animDict)
+    if vehicle then
+        if config.SkillCheck then
+            if DoorsStatus == 1 then
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
+                    '#3232a8'
+                )
+                return
+            end
+            TaskPlayAnim(ped, config.animDict, config.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
+            local success = lib.skillCheck(table.unpack(config.Skills))
+            if success then
+                ClearPedTasks(ped)
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), 'LockPick success', 'car',
+                    '#3232a8'
+                )
+                TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(vehicle), GetVehicleDoorLockStatus(vehicle))
+                if math.random() < config.alarmProbability then
+                    SetVehicleAlarmTimeLeft(vehicle, config.alarmTime)
                 end
-                TaskPlayAnim(ped, v.animDict, v.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
-                local success = lib.skillCheck(table.unpack(v.Skills))
-                if success then
-                    ClearPedTasks(ped)
-                    TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), 'LockPick success', 'car',
-                        '#3232a8'
-                    )
-                    TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
-                    if math.random() < v.alarmProbability then
-                        SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                    end
-                    if v.Disptach then
-                        v.DispatchFunction()
-                    end
-                else
-                    ClearPedTasks(ped)
-                    TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
-                        '#3232a8')
+                if config.Disptach then
+                    config.DispatchFunction(ped, vehicle, vehicleCoords)
                 end
             else
-                if EstadoPuertas == 1 then
-                    TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
-                        '#3232a8'
-                    )
-                    return
-                end
-                if lib.progressBar({
-                        duration = v.TimeProgress,
-                        label = locale('LocPickProgress'),
-                        useWhileDead = false,
-                        canCancel = false,
-                        disable = {
-                            car = true,
-                        },
-                        anim = {
-                            dict = v.animDict,
-                            clip = v.anim
-                        },
-                    }) then
-                    TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(closet), GetVehicleDoorLockStatus(closet))
-                    if math.random() < v.alarmProbability then
-                        SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                    end
-                    if v.Disptach then
-                        v.DispatchFunction()
-                        TriggerEvent('mono_carkeys:Dispatch')
-                    end
-                else
-                    if math.random() < v.alarmProbability then
-                        SetVehicleAlarmTimeLeft(closet, v.alarmTime)
-                    end
-                    TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
-                        '#3232a8')
-                end
+                ClearPedTasks(ped)
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
+                    '#3232a8')
             end
         else
-            TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('nocarcerca'), 'car', '#3232a8')
+            if DoorsStatus == 1 then
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('NoLocPick'), 'car',
+                    '#3232a8'
+                )
+                return
+            end
+            if lib.progressBar({
+                    duration = config.TimeProgress,
+                    label = locale('LocPickProgress'),
+                    useWhileDead = false,
+                    canCancel = false,
+                    disable = {
+                        car = true,
+                    },
+                    anim = {
+                        dict = config.animDict,
+                        clip = config.anim
+                    },
+                }) then
+                TriggerServerEvent('mono_carkeys:ServerDoors', VehToNet(vehicle), GetVehicleDoorLockStatus(vehicle))
+                if math.random() < config.alarmProbability then
+                    SetVehicleAlarmTimeLeft(vehicle, config.alarmTime)
+                end
+                if config.Disptach then
+                    config.DispatchFunction(ped, vehicle, vehicleCoords)
+                end
+            else
+                if math.random() < config.alarmProbability then
+                    SetVehicleAlarmTimeLeft(vehicle, config.alarmTime)
+                end
+                TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('LockPickFail'), 'car',
+                    '#3232a8')
+            end
         end
+    else
+        TriggerEvent('mono_carkeys:Notification', locale('LockPickTitle'), locale('nocarcerca'), 'car', '#3232a8')
     end
 end
 
 function HotWire()
-    for k, v in pairs(VehEntity.HotWire) do
-        local ped = cache.ped
-        local vehicle = cache.vehicle
-        lib.requestAnimDict(v.animDict)
-        if vehicle then
-            if v.SkillCheck then
-                TaskPlayAnim(ped, v.animDict, v.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
-                local success = lib.skillCheck(table.unpack(v.Skills))
-                if success then
-                    local engineRunning = GetIsVehicleEngineRunning(vehicle)
-                    if engineRunning then
-                        SetVehicleEngineOn(vehicle, false, true, true)
-                        if Keys.Debug then
-                            print('Motor off')
-                        end
-                        DisableControlAction(2, 71, false)
-                    else
-                        SetVehicleEngineOn(vehicle, true, true, true)
-                        if Keys.Debug then
-                            print('Motor on')
-                        end
+    local config = VehEntity.HotWire
+    local ped = cache.ped
+    local vehicle = cache.vehicle
+    lib.requestAnimDict(config.animDict)
+    if vehicle then
+        if config.SkillCheck then
+            TaskPlayAnim(ped, config.animDict, config.anim, 8.0, 8.0, -1, 48, 1, false, false, false)
+            local success = lib.skillCheck(table.unpack(config.Skills))
+            if success then
+                local engineRunning = GetIsVehicleEngineRunning(vehicle)
+                if engineRunning then
+                    SetVehicleEngineOn(vehicle, false, true, true)
+                    if Keys.Debug then
+                        print('Motor off')
                     end
-                    ClearPedTasks(ped)
+                    DisableControlAction(2, 71, false)
                 else
-                    TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
-                        '#3232a8')
+                    SetVehicleEngineOn(vehicle, true, true, true)
+                    if Keys.Debug then
+                        print('Motor on')
+                    end
                 end
+                ClearPedTasks(ped)
             else
-                if lib.progressBar({
-                        duration = v.TimeProgress,
-                        label = locale('LocPickProgress'),
-                        useWhileDead = false,
-                        canCancel = false,
-                        disable = {
-                            car = true,
-                        },
-                        anim = {
-                            dict = v.animDict,
-                            clip = v.anim
-                        },
-                    }) then
-                    local engineRunning = GetIsVehicleEngineRunning(vehicle)
-                    if engineRunning then
-                        SetVehicleEngineOn(vehicle, false, true, true)
-                        if Keys.Debug then
-                            print('Motor off')
-                        end
-                    else
-                        SetVehicleEngineOn(vehicle, true, true, true)
-                        if Keys.Debug then
-                            print('Motor on')
-                        end
-                    end
-                else
-                    if math.random() < v.alarmProbability then
-                        SetVehicleAlarmTimeLeft(vehicle, v.alarmTime)
-                    end
-                    TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
-                        '#3232a8')
-                end
+                TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
+                    '#3232a8')
             end
         else
-            TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireInCar'), 'car',
-                '#3232a8')
+            if lib.progressBar({
+                    duration = config.TimeProgress,
+                    label = locale('LocPickProgress'),
+                    useWhileDead = false,
+                    canCancel = false,
+                    disable = {
+                        car = true,
+                    },
+                    anim = {
+                        dict = config.animDict,
+                        clip = config.anim
+                    },
+                }) then
+                local engineRunning = GetIsVehicleEngineRunning(vehicle)
+                if engineRunning then
+                    SetVehicleEngineOn(vehicle, false, true, true)
+                    if Keys.Debug then
+                        print('Motor off')
+                    end
+                else
+                    SetVehicleEngineOn(vehicle, true, true, true)
+                    if Keys.Debug then
+                        print('Motor on')
+                    end
+                end
+            else
+                if math.random() < config.alarmProbability then
+                    SetVehicleAlarmTimeLeft(vehicle, config.alarmTime)
+                end
+                TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireFail'), 'car',
+                    '#3232a8')
+            end
         end
+    else
+        TriggerEvent('mono_carkeys:Notification', locale('HotWireTitle'), locale('HotWireInCar'), 'car',
+            '#3232a8')
     end
 end
 

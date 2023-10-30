@@ -385,23 +385,15 @@ function OpenGarage(info)
                         colorScheme = '#4ac76b',
                         description = data.isOwner and locale('dueño', props.plate) or locale('deunamigo', props.plate),
                         onSelect = function()
-                            VehicleSelected({
-                                garage = info.garage,
-                                spawn = info.spawnpos,
-                                plate = props.plate,
-                                owner = data.owner,
-                                name = name,
-                                type = info.type,
-                                marca = marca,
-                                model = props.model,
-                                stored = data.stored,
-                                impo = info.impoundIn,
-                                intocar = info.SetInToVehicle,
-                                isOwner = data.isOwner,
-                                amigos = data.amigos,
-                                props = info.props,
-                                priceSend = info.priceSend
-                            })
+                            info.plate = props.plate
+                            info.owner = data.owner
+                            info.name = name
+                            info.marca = marca
+                            info.model = props.model
+                            info.stored = data.stored
+                            info.isOwner = data.isOwner
+                            info.amigos = data.amigos
+                            VehicleSelected(info)
                         end,
                     })
                 end
@@ -552,11 +544,10 @@ function VehicleSelected(data)
             icon = 'car-side',
             arrow = true,
             onSelect = function()
-                local coords, heading, distancia = SpawnClearArea(data.spawn, 2.0)
-
+                local coords, heading, distancia = SpawnClearArea(data.spawnpos, 2.0)
                 if coords then
                     TriggerServerEvent('mono_garage:RetirarVehiculo', data.plate, data.garage, coords, heading,
-                        data.model, data.intocar)
+                        data.model, data.SetInToVehicle)
                 else
                     TriggerEvent('mono_garage:Notification', locale('NoSpawn'))
                 end
@@ -757,7 +748,7 @@ function VehicleSelected(data)
                 arrow = true,
                 description = locale('DescriDepoti'),
                 onSelect = function()
-                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', SP(data.plate), data.impo)
+                    TriggerServerEvent('mono_garage:MandarVehiculoImpound', SP(data.plate), data.impoundIn)
                 end
             })
             if Garage.ShareCarFriend then
@@ -869,7 +860,6 @@ function GarageImpound(info)
                                     { label = locale('imp_price'),  value = price .. ' $' }
                                 },
                                 onSelect = function()
-                                    local SpawPos = false
                                     local input = lib.inputDialog(locale('MetodoPagoTitulo'), {
                                         {
                                             type = 'select',
@@ -899,19 +889,6 @@ function GarageImpound(info)
                                         else
                                             TriggerEvent('mono_garage:Notification', locale('NoSpawn'))
                                         end
-                                        --[[for j = 1, #info.spawnpos do
-                                            local v = info.spawnpos[j]
-                                            local pos = vec3(v.x, v.y, v.z)
-                                            local hea = v.w
-                                            if SpawnClearArea(pos, 3.0) then
-                                                TriggerServerEvent('mono_garage:RetirarVehiculoImpound', data.plate,
-                                                    input,
-                                                    price,
-                                                    pos, hea, info.SetInToVehicle, info.Society)
-                                                SpawPos = true
-                                                break
-                                            end
-                                        end]]
                                     end
 
                                     if input[1] == 'money' then
