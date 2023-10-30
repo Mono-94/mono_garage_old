@@ -28,8 +28,9 @@
 
 * **/impound** - */impound - With this command, you can impound a vehicle. An NPC will appear and take the nearest vehicle to you. It only works for jobs, and you can add as many jobs as you want in Garage.NpcImpound.*
 
-* **/givecar** - *The vehicle you are in will be saved in the database and become your property. (ADMIN)*
+* **/givecar** [ID] [MODEL] [GARAGE (Optional)] now spawns the vehicle and adds it to the player's database.
 
+* **/spawncar** [ID] [MODEL] [TIME (1 = 1 min)] generates a vehicle with a time of use. ( /spawncar 1 sultan 10  )
 
 #
 
