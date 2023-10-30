@@ -812,7 +812,7 @@ lib.addCommand(Garage.Commands.spawncar, {
         {
             name = 'model',
             type = 'string',
-            help = 'Vehicle Model. (sultan,t20,burrito)',
+            help = 'Vehicle Model. (sultan, t20, burrito, manchez)',
         },
         {
             name = 'time',
