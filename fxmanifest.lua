@@ -6,7 +6,7 @@ name 'M O N O   G A R A G E    V 2'
 
 lua54 'yes'
 
-version '1.9.1'
+version '1.9.2'
 
 author '- M O N O, Symbiote_'
 
