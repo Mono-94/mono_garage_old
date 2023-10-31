@@ -22,7 +22,7 @@ function GetVehicleCategory(vehicle)
     return ListaCategoria[GetClase()]
 end
 
--- Export InventoryKeys
+-- Export InventoryKeys (/)
 exports('ClientInventoryKeys', function(plate, action)
     TriggerServerEvent('InventoryKeys', { player = cache.serverId, plate = plate }, action)
 end)
