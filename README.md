@@ -18,7 +18,6 @@
 * Garage.RadialCopyCoords: Radial menu to copy coordinates and easily create garages. (Only use this on your development server!)
 * Command to add a vehicle to the database as the owner. 
 * Allows vehicles that are outside the garage and the entity is not present in the world to be sent directly to the impound.
-
 *  **(New)** Compatible with the Quasar inventory...
 *  **(New)** Garages for jobs with configurable vehicles by ranks.
 *  **(New)** Now you can use PolyZone only for garages, not impounds. 
@@ -32,6 +31,7 @@
 *  **(New)** Delay between closing/opening vehicles to avoid massive spawns of notifications or progress bar.
 *  **(New)** Now you can add a price for transferring vehicles between garages, each garage has its price, if no price is assigned in the configuration of a garage, the transfer between garages will be free. (All current garages of type = 'car' have a price of $20).
 *  **(New)** EXTRAS Menu with custom job vehicles, (Target)
+
 #  <center>**Commands**</center>
 
 * **/impound** For Jobs.
