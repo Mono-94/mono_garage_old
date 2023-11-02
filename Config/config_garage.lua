@@ -3,7 +3,7 @@
 --────────────────────────────────────────────────────────|
 Garage                   = {}
 Garage.Version           = true  -- Check GitHub version.
-Garage.RadialCopyCoords  = false -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
+Garage.RadialCopyCoords  = true -- Radial menu to copy coordinates and easily create garages, use this only on your development server!
 Garage.CustomMenu        = false -- true = Custom Menu (Made By RawPaper.) | false = Default Menu (Ox_lib)
 Garage.Debug             = {
     Prints = false,              -- Prints data events, functions etc...
@@ -16,9 +16,9 @@ Garage.Commands          = {     -- The vehicle you are in will be saved in the 
     Group = 'admin',
 }
 Garage.Persistent        = true        -- When a player disconnects and the vehicle is out of the garage it will be eliminated and saves the position so that when it reconnects it will appear in the same place.
-Garage.SELECT            ='TARGET'     -- TARGET = ox_target, RADIAL = ox_lib RadialMenu, TEXTUI = ox_lib, textUI or custuom in functions.lua
+Garage.SELECT            = 'TARGET'    -- TARGET = ox_target, RADIAL = ox_lib RadialMenu, TEXTUI = ox_lib, textUI or custuom in functions.lua
 Garage.Inventory         = 'ox'        -- ox / qs
-Garage.textui            = 'custom' -- ox_textui / esx_textui / custom - client/functions.lua
+Garage.textui            = 'custom'    -- ox_textui / esx_textui / custom - client/functions.lua
 Garage.Fuel              = 'ox_fuel'   -- Ox_fuel / LegacyFuel / esx-sna-fuelLevel
 Garage.TargetNPCDistance = 10          -- Distance to open Menu in NPC
 Garage.TargetCarDistance = 10          -- Distance to deposit the vehicle with ox_target

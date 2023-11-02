@@ -22,12 +22,10 @@ function GetVehicleCategory(vehicle)
     return ListaCategoria[GetClase()]
 end
 
--- Export InventoryKeys (/)
+-- Export InventoryKeys
 exports('ClientInventoryKeys', function(plate, action)
-    TriggerServerEvent('InventoryKeys', { player = cache.serverId, plate = plate }, action)
+    TriggerServerEvent('ServerInventoryKeys', { player = cache.serverId, plate = plate }, action)
 end)
-
-
 
 -- Get Vehicle Icon ox_lib menu
 function GetVehicleIcon(name)
