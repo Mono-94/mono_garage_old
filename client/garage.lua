@@ -195,7 +195,7 @@ for k, v in pairs(Garage.Garages) do
         local openImpound = {
             {
                 name = 'mono_garage:TargetNpc',
-                groups = v.job,
+              --  groups = v.job,
                 distance = Garage.TargetNPCDistance,
                 icon = 'fas fa-car',
                 label = k,
