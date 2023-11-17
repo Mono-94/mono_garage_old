@@ -468,19 +468,19 @@ RegisterServerEvent('mono_garage:ImpoundJoB', function(plate, impound, price, re
         impound, price, reason, date)
     local entity = NetworkGetEntityFromNetworkId(vehicle)
     local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local identifier = xPlayer.identifier
     local info = { date = date, price = price, reason = reason }
-    MySQL.update(
-        "UPDATE owned_vehicles SET parking = ?, infoimpound = ?, pound = 1, calle = 0, stored = 0  WHERE owner = ? AND plate = ?",
-        { impound, json.encode(info), identifier, plate }, function(rowsChanged)
+    MySQL.update("UPDATE owned_vehicles SET parking = ?, infoimpound = ?, pound = 1, calle = 0, stored = 0  WHERE  plate = ?",
+        { impound, json.encode(info), plate }, function(rowsChanged)
             if rowsChanged > 0 then
                 TriggerClientEvent('mono_garage:FadeOut', -1, vehicle)
                 Wait(1500)
-
                 DeleteEntity(entity)
                 vehiculoCreado[entity] = nil
                 Noti(source, locale('impfunc_noti', plate, impound))
+            else
+                TriggerClientEvent('mono_garage:FadeOut', -1, vehicle)
+                Wait(1500)
+                DeleteEntity(entity)
             end
         end)
 end)
